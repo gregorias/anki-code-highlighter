@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -o verbose
+mypy codehighlighter/ test && \
+python -m unittest discover -s test/ -t .

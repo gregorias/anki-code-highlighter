@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+anki = "==2.1.*"
+aqt = "==2.1.*"
+pyqt5 = "==5.*"
+pyqtwebengine = "==5.*"
+
+[dev-packages]
+bpython = "*"
+
+[requires]
+python_version = "3.10"
