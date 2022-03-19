@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+cd codehighlighter || exit 1
+zip -r ../codehighlighter.ankiaddon ./*.py manifest.json
