@@ -16,7 +16,7 @@ async function loadScript(url) {
 
 async function main() {
   await loadScript("_ch-highlight.js");
-  langs = ["c", "cpp", "haskell", "java", "javascript", "python", "sql"];
+  langs = ["c", "cpp", "go", "haskell", "java", "javascript", "python", "sql", "xml"];
   await Promise.allSettled(
     langs.map((lang) => loadScript("_ch-hljs-lang-" + lang + ".min.js")))
   hljs.highlightAll();
