@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """The implementation of the word hyphenator plugin."""
 import os.path
+import pathlib
 import random
 import re
-from typing import List, Optional
+from typing import Generator, List, Optional
 
 from anki import hooks  # type: ignore
 import aqt  # type: ignore
+from aqt import mw  # type: ignore
 from aqt import gui_hooks  # type: ignore
 from aqt.utils import showWarning  # type: ignore
 import bs4  # type: ignore
@@ -133,4 +135,43 @@ def on_editor_buttons_init(buttons: List[str],
     buttons.append(css)
 
 
+def anki_media_directory() -> pathlib.Path:
+    return pathlib.Path(mw.col.media.dir())
+
+
+def codehighlighter_assets_directory() -> pathlib.Path:
+    return pathlib.Path(addon_path) / 'assets'
+
+
+def list_my_assets(dir: pathlib.Path) -> List[str]:
+    return [f for f in os.listdir(dir) if f.startswith("_ch-")]
+
+
+def delete_media_assets():
+    print("Deleting media assets")
+    my_assets = list_my_assets(anki_media_directory())
+    mw.col.media.trash_files(my_assets)
+
+
+def install_media_assets():
+    print("Install media assets")
+    codehighlighter_assets_dir = codehighlighter_assets_directory()
+    my_assets = list_my_assets(codehighlighter_assets_dir)
+    for asset in my_assets:
+        mw.col.media.add_file(codehighlighter_assets_dir / asset)
+
+
+def setup_menu():
+    mw.form.menuTools.addSection("Code Highlighter")
+    mw.form.menuTools.addAction(
+        aqt.qt.QAction("Install Media Assets",
+                       mw,
+                       triggered=install_media_assets))
+    mw.form.menuTools.addAction(
+        aqt.qt.QAction("Delete Media Assets",
+                       mw,
+                       triggered=delete_media_assets))
+
+
+setup_menu()
 gui_hooks.editor_did_init_buttons.append(on_editor_buttons_init)
