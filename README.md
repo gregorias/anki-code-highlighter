@@ -6,14 +6,15 @@ An Anki plugin that add syntax highlighting to code snippets.
 
 ## Installation
 
-1. Copy files in `assets` to your `collection.media` directory.
-2. Append the following snippet to your cards:
+1. Append the following snippet to your cards:
   ```
   <link rel="stylesheet" href="_ch-my-solarized.css">
   <link rel="stylesheet" href="_ch-hljs-solarized.css">
   <script src='_ch-my-highlight.js'></script>
   ```
-3. Package and install the addon.
+2. Package and install the addon.
+3. Delete old media files and install the new ones using the menu.
+4. Copy the assets to AnkiDroid's collection.media (the sync doesn't seem to work).
 
 ## Design
 
