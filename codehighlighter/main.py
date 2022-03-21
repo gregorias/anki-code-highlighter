@@ -121,7 +121,7 @@ def on_editor_buttons_init(buttons: List[str],
                            cmd="highlight-block",
                            func=highlight_block_action,
                            tip="Highlight code ({})".format(shortcut),
-                           label="Highligh Block",
+                           label="HB",
                            keys=shortcut)
     buttons.append(css)
 
@@ -130,7 +130,7 @@ def on_editor_buttons_init(buttons: List[str],
                            cmd="highlight-inline",
                            func=highlight_inline_action,
                            tip="Highlight code ({})".format(shortcut),
-                           label="Highligh Inline",
+                           label="HI",
                            keys=shortcut)
     buttons.append(css)
 
@@ -148,17 +148,23 @@ def list_my_assets(dir: pathlib.Path) -> List[str]:
 
 
 def delete_media_assets():
-    print("Deleting media assets")
     my_assets = list_my_assets(anki_media_directory())
     mw.col.media.trash_files(my_assets)
 
 
 def install_media_assets():
-    print("Install media assets")
     codehighlighter_assets_dir = codehighlighter_assets_directory()
     my_assets = list_my_assets(codehighlighter_assets_dir)
     for asset in my_assets:
         mw.col.media.add_file(codehighlighter_assets_dir / asset)
+
+
+def configure_cards():
+    pass
+
+
+def clear_cards():
+    pass
 
 
 def setup_menu():
@@ -171,6 +177,10 @@ def setup_menu():
         aqt.qt.QAction("Delete Media Assets",
                        mw,
                        triggered=delete_media_assets))
+    mw.form.menuTools.addAction(
+        aqt.qt.QAction("Set Up Cards", mw, triggered=configure_cards))
+    mw.form.menuTools.addAction(
+        aqt.qt.QAction("Clear Cards", mw, triggered=clear_cards))
 
 
 setup_menu()
