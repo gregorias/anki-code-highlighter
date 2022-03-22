@@ -15,8 +15,7 @@ An Anki plugin that adds syntax highlighting to code snippets.
 ## Installation
 
 1. Install the plugin using Anki's addon manager.
-2. Run `Extras > Install Media Assets`.
-3. Run `Extras > Set Up Cards`.
+2. Run `Extras > Install Media Assets` and `Extras > Set Up Cards`. This is the process until Anki adds [addon lifecycle hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
 
 ## Usage
 
