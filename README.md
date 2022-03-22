@@ -3,7 +3,7 @@
 An Anki plugin that add syntax highlighting to code snippets.
 
 <p align="center">
-  <img src="screenshots/animation.gif"/>
+  <img src="screenshots/animation-small.gif"/>
 </p>
 
 ## Installation
