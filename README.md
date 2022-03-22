@@ -17,6 +17,9 @@ An Anki plugin that adds syntax highlighting to code snippets.
 1. Write a code snippet in a card editor.
 2. Select your code snippet and press `CTRL+'`.
 
+For the list of supported languages and their corresponding codes, see
+`assets/_ch-hljs-lang-*.min.js` files.
+
 ## Design
 
 * The only way to share files seems to be through `collection.media`.
