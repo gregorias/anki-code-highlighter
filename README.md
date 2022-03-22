@@ -1,6 +1,6 @@
 # Anki Code Highlighter
 
-An Anki plugin that add syntax highlighting to code snippets.
+An Anki plugin that adds syntax highlighting to code snippets.
 
 <p align="center">
   <img src="screenshots/animation-small.gif"/>
