@@ -36,3 +36,10 @@ Use pipenv to set up the dev and prod environment.
 ### Testing
 
 Run `testall` to run Mypy and unit tests.
+
+### Distribution
+
+See [Anki's documentation on sharing
+add-ons](https://addon-docs.ankiweb.net/#/sharing).
+
+Use the `package` tool to create the zip.
