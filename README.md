@@ -2,6 +2,10 @@
 
 An Anki plugin that add syntax highlighting to code snippets.
 
+<p align="center">
+  <img src="screenshots/animation.gif"/>
+</p>
+
 ## Installation
 
 1. Install the plugin using Anki's addon manager.
