@@ -6,6 +6,12 @@ An Anki plugin that adds syntax highlighting to code snippets.
   <img src="screenshots/animation-small.gif"/>
 </p>
 
+## Features
+
+* Uses a colorscheme that works on both in day and night modes.
+* Works on Anki for desktop and AnkiDroid.
+
+
 ## Installation
 
 1. Install the plugin using Anki's addon manager.
