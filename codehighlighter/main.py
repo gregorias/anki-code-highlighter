@@ -109,10 +109,6 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
     editor.loadNoteKeepingFocus()
 
 
-def highlight_inline_action(editor: aqt.editor.Editor) -> None:
-    editor.web.eval(f"""wrap('<code class="language-todo">', '</code>');""")
-
-
 def on_editor_buttons_init(buttons: List[str],
                            editor: aqt.editor.Editor) -> None:
     shortcut = "ctrl+'"
@@ -122,15 +118,6 @@ def on_editor_buttons_init(buttons: List[str],
                            func=highlight_block_action,
                            tip="Highlight code ({})".format(shortcut),
                            label="HB",
-                           keys=shortcut)
-    buttons.append(css)
-
-    shortcut = "ctrl+shift+\""
-    css = editor.addButton(icon=None,
-                           cmd="highlight-inline",
-                           func=highlight_inline_action,
-                           tip="Highlight code ({})".format(shortcut),
-                           label="HI",
                            keys=shortcut)
     buttons.append(css)
 
@@ -159,12 +146,39 @@ def install_media_assets():
         mw.col.media.add_file(codehighlighter_assets_dir / asset)
 
 
+IMPORT_STATEMENTS = (
+    '<link rel="stylesheet" href="_ch-my-solarized.css" class="anki-code-highlighter">\n'
+    +
+    '<link rel="stylesheet" href="_ch-hljs-solarized.css" class="anki-code-highlighter">\n'
+    '<script src="_ch-my-highlight.js" class="anki-code-highlighter"></script>\n'
+)
+
+
 def configure_cards():
-    pass
+
+    def append_import_statements(tmpl):
+        return tmpl + '\n' + IMPORT_STATEMENTS
+
+    for model in mw.col.models.all():
+        for tmpl in model['tmpls']:
+            tmpl['afmt'] = append_import_statements(tmpl['afmt'])
+            tmpl['qfmt'] = append_import_statements(tmpl['qfmt'])
+        mw.col.models.save(model)
 
 
 def clear_cards():
-    pass
+
+    def delete_import_statements(tmpl):
+        return re.sub('^<[^>]*class="anki-code-highlighter"[^>]*>[^\n]*\n',
+                      "",
+                      tmpl,
+                      flags=re.MULTILINE)
+
+    for model in mw.col.models.all():
+        for tmpl in model['tmpls']:
+            tmpl['afmt'] = delete_import_statements(tmpl['afmt']).strip()
+            tmpl['qfmt'] = delete_import_statements(tmpl['qfmt']).strip()
+        mw.col.models.save(model)
 
 
 def setup_menu():
