@@ -3,6 +3,7 @@
 TARGET_PATH=codehighlighter.ankiaddon
 zip ${TARGET_PATH} -j \
   codehighlighter/*.py \
+  codehighlighter/config.json \
   codehighlighter/manifest.json && \
 zip -r ${TARGET_PATH} \
   assets

@@ -11,11 +11,26 @@ An Anki plugin that adds syntax highlighting to code snippets.
 * Uses a colorscheme that works on both in day and night modes.
 * Works on Anki for desktop and AnkiDroid.
 
-
 ## Installation
 
-1. Install the plugin using Anki's addon manager.
-2. Run `Extras > Install Media Assets` and `Extras > Set Up Cards`. This is the process until Anki adds [addon lifecycle hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
+### Fetching from AnkiWeb
+
+You can install directly from
+[AnkiWeb](https://ankiweb.net/shared/info/112228974) using Anki's addon
+management.
+
+### Fetching from source
+
+Alternatively you can install this plugin from source.
+
+1. Run `package`.
+2. Import `codehighlighter.ankiaddon` in Anki.
+
+### Set up
+
+After fetching, run `Extras > Configure Code Highlighter`. This is necessary
+until Anki adds [addon lifecycle
+hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
 
 ## Usage
 

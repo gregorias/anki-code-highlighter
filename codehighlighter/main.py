@@ -4,7 +4,7 @@ import os.path
 import pathlib
 import random
 import re
-from typing import Generator, List, Optional
+from typing import Generator, List, Optional, Tuple
 
 from anki import hooks  # type: ignore
 import aqt  # type: ignore
@@ -21,7 +21,10 @@ config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
 
 
 def get_config(key: str, default):
-    return (config and config.get(key, default)) or default
+    if config:
+        return config.get(key, default)
+    else:
+        return default
 
 
 def ask_for_language(parent=None) -> Optional[str]:
@@ -109,17 +112,13 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
     editor.loadNoteKeepingFocus()
 
 
-def on_editor_buttons_init(buttons: List[str],
-                           editor: aqt.editor.Editor) -> None:
-    shortcut = "ctrl+'"
-    icon_path = os.path.join(addon_path, "icons", "silent hyphen.png")
-    css = editor.addButton(icon=None,
-                           cmd="highlight-block",
-                           func=highlight_block_action,
-                           tip="Highlight code ({})".format(shortcut),
-                           label="HB",
-                           keys=shortcut)
-    buttons.append(css)
+def on_editor_shortcuts_init(shortcuts: List[Tuple],
+                             editor: aqt.editor.Editor) -> None:
+    shortcut = get_config("shortcut", "ctrl+'")
+    aqt.qt.QShortcut(  # type: ignore
+        aqt.qt.QKeySequence(shortcut),  # type: ignore
+        editor.widget,
+        activated=lambda: highlight_block_action(editor))
 
 
 def anki_media_directory() -> pathlib.Path:
@@ -183,19 +182,20 @@ def clear_cards():
 
 def setup_menu():
     mw.form.menuTools.addSection("Code Highlighter")
+
+    def configure():
+        install_media_assets()
+        configure_cards()
+
+    def delete():
+        clear_cards()
+        delete_media_assets()
+
     mw.form.menuTools.addAction(
-        aqt.qt.QAction("Install Media Assets",
-                       mw,
-                       triggered=install_media_assets))
+        aqt.qt.QAction("Configure Code Highlighter", mw, triggered=configure))
     mw.form.menuTools.addAction(
-        aqt.qt.QAction("Delete Media Assets",
-                       mw,
-                       triggered=delete_media_assets))
-    mw.form.menuTools.addAction(
-        aqt.qt.QAction("Set Up Cards", mw, triggered=configure_cards))
-    mw.form.menuTools.addAction(
-        aqt.qt.QAction("Clear Cards", mw, triggered=clear_cards))
+        aqt.qt.QAction("Delete Code Highlighter Assets", mw, triggered=delete))
 
 
 setup_menu()
-gui_hooks.editor_did_init_buttons.append(on_editor_buttons_init)
+gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)
