@@ -31,7 +31,9 @@ async function main() {
     "javascript",
     "kotlin",
     "php",
+    "protobuf",
     "python",
+    "python-repl",
     "r",
     "ruby",
     "rust",
@@ -41,6 +43,7 @@ async function main() {
     "vbnet",
     "vim",
     "wasm",
+    "yaml",
     "xml"];
   await Promise.allSettled(
     langs.map((lang) => loadScript("_ch-hljs-lang-" + lang + ".min.js")))
