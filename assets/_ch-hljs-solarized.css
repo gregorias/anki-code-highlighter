@@ -28,9 +28,6 @@ base0F  #d33682  Deprecated, Opening/Closing Embedded Language Tags, e.g. <?php 
 pre code.hljs {
   overflow-x: auto;
 }
-code.hljs {
-  padding: 3px 5px;
-}
 
 .hljs {
   color: #586e75;

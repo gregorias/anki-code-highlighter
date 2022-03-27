@@ -2,7 +2,7 @@ pre code {
   border: solid;
   border-width: thick;
   border-color: #cdbc84;
-  padding: 0.5em;
+  padding: 3px 5px;
 }
 .nightMode pre code {
   border-color: #052831;
@@ -13,7 +13,7 @@ pre code {
   border: solid;
   border-width: thick;
   border-color: #cdbc84;
-  padding: 0.5em;
+  padding: 3px 5px;
   line-height: 125%;
 }
 .highlight td.linenos pre { color: #93a1a1; background-color: #eee8d5; padding-left: 5px; padding-right: 5px; }
