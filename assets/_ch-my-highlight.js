@@ -24,6 +24,7 @@ async function main() {
     "coq",
     "cpp",
     "csharp",
+    "css",
     "go",
     "groovy",
     "haskell",
