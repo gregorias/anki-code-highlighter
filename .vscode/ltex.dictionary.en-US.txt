@@ -1,0 +1,5 @@
+Anki
+pipenv
+mypy
+AnkiDroid
+AnkiWeb

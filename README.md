@@ -2,13 +2,12 @@
 
 An Anki plugin that adds syntax highlighting to code snippets.
 
-<p align="center">
-  <img src="screenshots/animation-small.gif"/>
-</p>
+<!-- markdownlint-disable-next-line -->
+<p align="center"><img src="screenshots/animation-small.gif"/></p>
 
 ## Features
 
-* Uses a colorscheme that works in day and night modes.
+* Uses a color scheme that works in day and night modes.
 * Works on Anki for desktop and AnkiDroid.
 
 ## Installation
@@ -16,7 +15,7 @@ An Anki plugin that adds syntax highlighting to code snippets.
 ### Fetching from AnkiWeb
 
 You can install directly from
-[AnkiWeb](https://ankiweb.net/shared/info/112228974) using Anki's addon
+[AnkiWeb](https://ankiweb.net/shared/info/112228974) using Anki's add-on
 management.
 
 ### Fetching from source
@@ -29,7 +28,7 @@ Alternatively you can install this plugin from source.
 ### Set up
 
 After fetching, run `Extras > Configure Code Highlighter`. This is necessary
-until Anki adds [addon lifecycle
+until Anki adds [add-on lifecycle
 hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
 
 ## Usage
@@ -58,7 +57,7 @@ Use pipenv to set up the dev and prod environment.
 
 ### Testing
 
-Run `testall` to run Mypy and unit tests.
+Run `testall` to run mypy and unit tests.
 
 ### Distribution
 
