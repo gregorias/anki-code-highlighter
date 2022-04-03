@@ -3,3 +3,6 @@ pipenv
 mypy
 AnkiDroid
 AnkiWeb
+Pipenv
+npm
+Lefthook

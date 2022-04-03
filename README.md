@@ -53,7 +53,19 @@ experience depend on Internet.
 
 ## For Developers
 
-Use pipenv to set up the dev and prod environment.
+### Dev Environment Setup
+
+Set up Pipenv:
+
+    pipenv install --dev
+
+Set up npm:
+
+    npm install
+
+Install Lefthook:
+
+    lefthook install
 
 ### Testing
 
