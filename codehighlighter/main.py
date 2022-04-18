@@ -192,7 +192,7 @@ def setup_menu():
         delete_media_assets()
 
     mw.form.menuTools.addAction(
-        aqt.qt.QAction("Configure Code Highlighter", mw, triggered=configure))
+        aqt.qt.QAction("Install Code Highlighter", mw, triggered=configure))
     mw.form.menuTools.addAction(
         aqt.qt.QAction("Delete Code Highlighter Assets", mw, triggered=delete))
 

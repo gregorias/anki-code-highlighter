@@ -27,8 +27,8 @@ Alternatively you can install this plugin from source.
 
 ### Set up
 
-After fetching, run `Extras > Configure Code Highlighter`. This is necessary
-until Anki adds [add-on lifecycle
+After fetching, run `Extras/Tools > Install Code Highlighter`. This is
+necessary until Anki adds [add-on lifecycle
 hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
 
 ## Usage
