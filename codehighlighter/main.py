@@ -197,5 +197,5 @@ def setup_menu():
         aqt.qt.QAction("Delete Code Highlighter Assets", mw, triggered=delete))
 
 
-setup_menu()
+gui_hooks.main_window_did_init.append(setup_menu)
 gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)
