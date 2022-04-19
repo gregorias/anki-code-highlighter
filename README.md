@@ -25,11 +25,17 @@ Alternatively you can install this plugin from source.
 1. Run `package`.
 2. Import `codehighlighter.ankiaddon` in Anki.
 
-### Set up
+## Removal
 
-After fetching, run `Extras/Tools > Install Code Highlighter`. This is
-necessary until Anki adds [add-on lifecycle
+To remove the plugin, run `Extras/Tools > Delete Code Highlighter Assets`
+before deleting the plugin using Anki's internal add-on system.
+
+You need to do this, because this plugin installs JS and CSS files as well as
+modifies your card templates. This manual step is necessary until Anki adds
+[add-on lifecycle
 hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
+
+### Set up
 
 ## Usage
 
@@ -41,12 +47,18 @@ For the list of supported languages and their corresponding codes, see
 
 ## Design
 
+This section discuss some design decisions made for this plugin.
+
+### Using `assets/_ch*` files for CSS and JS
+
+This plugin saves its assets directly in the global `assets` directory.
+
 * The only way to share files seems to be through `collection.media`.
 * Anki does not support file directories in `collection.media`.
 
-### Alternatives considered
+#### Alternatives considered
 
-#### Fetching CSS and JS assets from Internet
+##### Fetching CSS and JS assets from Internet
 
 Loading files from Internet has the disadvantage of making my Anki solving
 experience depend on Internet.

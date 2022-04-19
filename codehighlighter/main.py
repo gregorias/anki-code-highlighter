@@ -4,17 +4,17 @@ import os.path
 import pathlib
 import random
 import re
-from typing import Generator, List, Optional, Tuple
+from typing import Callable, Generator, Optional, Tuple
 
-from anki import hooks  # type: ignore
 import aqt  # type: ignore
 from aqt import mw  # type: ignore
 from aqt import gui_hooks  # type: ignore
 from aqt.utils import showWarning  # type: ignore
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString  # type: ignore
-
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
+
+from .assets import AnkiAssetManager, sync_assets
 
 addon_path = os.path.dirname(__file__)
 config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
@@ -58,7 +58,7 @@ def walk(soup: bs4.BeautifulSoup, func):
             else:
                 raise StopIteration()
 
-        def send(self, new_nodes: List[bs4.PageElement]):
+        def send(self, new_nodes: list[bs4.PageElement]):
             self.nodes.extend(list(new_nodes))
 
     dfs_stack = DfsStack(soup.children)
@@ -112,7 +112,7 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
     editor.loadNoteKeepingFocus()
 
 
-def on_editor_shortcuts_init(shortcuts: List[Tuple],
+def on_editor_shortcuts_init(shortcuts: list[Tuple],
                              editor: aqt.editor.Editor) -> None:
     shortcut = get_config("shortcut", "ctrl+'")
     aqt.qt.QShortcut(  # type: ignore
@@ -121,81 +121,28 @@ def on_editor_shortcuts_init(shortcuts: List[Tuple],
         activated=lambda: highlight_block_action(editor))
 
 
-def anki_media_directory() -> pathlib.Path:
-    return pathlib.Path(mw.col.media.dir())
-
-
-def codehighlighter_assets_directory() -> pathlib.Path:
-    return pathlib.Path(addon_path) / 'assets'
-
-
-def list_my_assets(dir: pathlib.Path) -> List[str]:
-    return [f for f in os.listdir(dir) if f.startswith("_ch-")]
-
-
-def delete_media_assets():
-    my_assets = list_my_assets(anki_media_directory())
-    mw.col.media.trash_files(my_assets)
-
-
-def install_media_assets():
-    codehighlighter_assets_dir = codehighlighter_assets_directory()
-    my_assets = list_my_assets(codehighlighter_assets_dir)
-    for asset in my_assets:
-        mw.col.media.add_file(codehighlighter_assets_dir / asset)
-
-
-IMPORT_STATEMENTS = (
-    '<link rel="stylesheet" href="_ch-my-solarized.css" class="anki-code-highlighter">\n'
-    +
-    '<link rel="stylesheet" href="_ch-hljs-solarized.css" class="anki-code-highlighter">\n'
-    '<script src="_ch-my-highlight.js" class="anki-code-highlighter"></script>\n'
-)
-
-
-def configure_cards():
-
-    def append_import_statements(tmpl):
-        return tmpl + '\n' + IMPORT_STATEMENTS
-
+def modify_templates(modify: Callable[[str], str]) -> None:
+    """Modifies all card templates with modify."""
     for model in mw.col.models.all():
         for tmpl in model['tmpls']:
-            tmpl['afmt'] = append_import_statements(tmpl['afmt'])
-            tmpl['qfmt'] = append_import_statements(tmpl['qfmt'])
+            tmpl['afmt'] = modify(tmpl['afmt'])
+            tmpl['qfmt'] = modify(tmpl['qfmt'])
         mw.col.models.save(model)
 
 
-def clear_cards():
-
-    def delete_import_statements(tmpl):
-        return re.sub('^<[^>]*class="anki-code-highlighter"[^>]*>[^\n]*\n',
-                      "",
-                      tmpl,
-                      flags=re.MULTILINE)
-
-    for model in mw.col.models.all():
-        for tmpl in model['tmpls']:
-            tmpl['afmt'] = delete_import_statements(tmpl['afmt']).strip()
-            tmpl['qfmt'] = delete_import_statements(tmpl['qfmt']).strip()
-        mw.col.models.save(model)
-
-
-def setup_menu():
+def setup_menu() -> None:
+    global anki_asset_manager
     mw.form.menuTools.addSection("Code Highlighter")
 
-    def configure():
-        install_media_assets()
-        configure_cards()
+    def delete() -> None:
+        anki_asset_manager.delete_assets()
 
-    def delete():
-        clear_cards()
-        delete_media_assets()
-
-    mw.form.menuTools.addAction(
-        aqt.qt.QAction("Install Code Highlighter", mw, triggered=configure))
     mw.form.menuTools.addAction(
         aqt.qt.QAction("Delete Code Highlighter Assets", mw, triggered=delete))
 
 
+anki_asset_manager = AnkiAssetManager(modify_templates)
+
+gui_hooks.main_window_did_init.append(lambda: sync_assets(anki_asset_manager))
 gui_hooks.main_window_did_init.append(setup_menu)
 gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)
