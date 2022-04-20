@@ -19,6 +19,7 @@ async function main() {
   langs = [
     "armasm",
     "avrasm",
+    "bash",
     "c",
     "clojure",
     "coq",
@@ -40,6 +41,7 @@ async function main() {
     "ruby",
     "rust",
     "scss",
+    "shell",
     "sql",
     "swift",
     "typescript",
