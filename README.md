@@ -25,17 +25,19 @@ Alternatively you can install this plugin from source.
 1. Run `package`.
 2. Import `codehighlighter.ankiaddon` in Anki.
 
-## Removal
+## Refresh & Removal
+
+This plugin installs its own JS and CSS files as well as modifies card
+templates. You need to run some manual steps if you add a new card template or
+want to delete the plugin.
+
+If you add a new card template, run `Extras/Tools > Refresh Code Highlighter
+Assets`.
 
 To remove the plugin, run `Extras/Tools > Delete Code Highlighter Assets`
-before deleting the plugin using Anki's internal add-on system.
-
-You need to do this, because this plugin installs JS and CSS files as well as
-modifies your card templates. This manual step is necessary until Anki adds
-[add-on lifecycle
+before deleting the plugin using Anki's internal add-on system. This manual
+step is necessary until Anki adds [add-on lifecycle
 hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
-
-### Set up
 
 ## Usage
 

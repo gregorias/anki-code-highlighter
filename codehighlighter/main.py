@@ -134,9 +134,17 @@ def setup_menu() -> None:
     global anki_asset_manager
     mw.form.menuTools.addSection("Code Highlighter")
 
+    def refresh() -> None:
+        anki_asset_manager.delete_assets()
+        anki_asset_manager.install_assets()
+
     def delete() -> None:
         anki_asset_manager.delete_assets()
 
+    mw.form.menuTools.addAction(
+        aqt.qt.QAction("Refresh Code Highlighter Assets",
+                       mw,
+                       triggered=refresh))
     mw.form.menuTools.addAction(
         aqt.qt.QAction("Delete Code Highlighter Assets", mw, triggered=delete))
 
