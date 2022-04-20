@@ -81,7 +81,9 @@ Install Lefthook:
 
 ### Testing
 
-Run `testall` to run mypy and unit tests.
+1. Run unit tests and mypy with `testall`.
+2. Test supported Anki versions by packaging the plugin and importing the
+   plugin into the lowest and the newest support Anki.
 
 ### Distribution
 

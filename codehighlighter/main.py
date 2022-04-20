@@ -4,7 +4,7 @@ import os.path
 import pathlib
 import random
 import re
-from typing import Callable, Generator, Optional, Tuple
+from typing import Callable, Generator, List, Optional, Tuple
 
 import aqt  # type: ignore
 from aqt import mw  # type: ignore
@@ -58,7 +58,7 @@ def walk(soup: bs4.BeautifulSoup, func):
             else:
                 raise StopIteration()
 
-        def send(self, new_nodes: list[bs4.PageElement]):
+        def send(self, new_nodes: List[bs4.PageElement]):
             self.nodes.extend(list(new_nodes))
 
     dfs_stack = DfsStack(soup.children)
@@ -112,7 +112,7 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
     editor.loadNoteKeepingFocus()
 
 
-def on_editor_shortcuts_init(shortcuts: list[Tuple],
+def on_editor_shortcuts_init(shortcuts: List[Tuple],
                              editor: aqt.editor.Editor) -> None:
     shortcut = get_config("shortcut", "ctrl+'")
     aqt.qt.QShortcut(  # type: ignore

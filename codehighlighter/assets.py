@@ -3,7 +3,7 @@
 import os.path
 import pathlib
 import re
-from typing import Callable, Optional, Protocol, Union
+from typing import Callable, List, Optional, Protocol, Union
 
 from aqt import mw  # type: ignore
 
@@ -67,7 +67,7 @@ def anki_media_directory() -> pathlib.Path:
     return pathlib.Path(mw.col.media.dir())
 
 
-def list_my_assets(dir: pathlib.Path) -> list[str]:
+def list_my_assets(dir: pathlib.Path) -> List[str]:
     return [f for f in os.listdir(dir) if f.startswith("_ch-")]
 
 
