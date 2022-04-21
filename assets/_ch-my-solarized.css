@@ -3,6 +3,7 @@ pre code {
   border-width: thick;
   border-color: #cdbc84;
   padding: 3px 5px;
+  overflow-x: auto;
 }
 .nightMode pre code {
   border-color: #052831;
