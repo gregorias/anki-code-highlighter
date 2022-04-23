@@ -33,6 +33,7 @@ async function main() {
     "javascript",
     "kotlin",
     "latex",
+    "lisp",
     "php",
     "protobuf",
     "python",
