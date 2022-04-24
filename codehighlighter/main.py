@@ -100,15 +100,20 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
     else:
         language = 'nohighlight'
 
-    field = editor.note.fields[currentFieldNo]
-    editor.note.fields[currentFieldNo] = format_code(random_id, language,
-                                                     field)
+    note = editor.note
+    if not note:
+        showWarning(
+            "The note has disappered before the code highlighter could act.\n"
+            + "Please try again.")
+        return None
+    field = note.fields[currentFieldNo]
+    note.fields[currentFieldNo] = format_code(random_id, language, field)
     # That's how aqt.editor.onHtmlEdit saves cards.
     # It's better than `editor.mw.reset()`, because the latter loses focus.
     # Calls like editor.mw.reset() or editor.loadNote() are necessary to save
     # HTML changes.
     if not editor.addMode:
-        editor.note.flush()
+        note.flush()
     editor.loadNoteKeepingFocus()
 
 
@@ -123,6 +128,13 @@ def on_editor_shortcuts_init(shortcuts: List[Tuple],
 
 def modify_templates(modify: Callable[[str], str]) -> None:
     """Modifies all card templates with modify."""
+    if not mw:
+        showWarning(
+            "Code Highlighter plugin tried to modify card templates " +
+            "but Anki's main window has not loaded up yet.\n" +
+            "Please report this to the author at " +
+            "https://github.com/gregorias/anki-code-highlighter/issues/new.")
+        return None
     for model in mw.col.models.all():
         for tmpl in model['tmpls']:
             tmpl['afmt'] = modify(tmpl['afmt'])
@@ -131,26 +143,55 @@ def modify_templates(modify: Callable[[str], str]) -> None:
 
 
 def setup_menu() -> None:
-    global anki_asset_manager
-    mw.form.menuTools.addSection("Code Highlighter")
+    main_window = mw
+    if not main_window:
+        # For some reason the main window is not initialized yet. Let's print
+        # an error message.
+        showWarning(
+            "Code Highlighter plugin tried to initialize, " +
+            "but couldn't find the main window.\n" +
+            "Please report it to the author at " +
+            "https://github.com/gregorias/anki-code-highlighter/issues/new.")
+        return None
+    main_window.form.menuTools.addSection("Code Highlighter")
 
     def refresh() -> None:
+        anki_asset_manager = AnkiAssetManager(modify_templates,
+                                              main_window.col)  # type: ignore
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
+        anki_asset_manager = AnkiAssetManager(modify_templates,
+                                              main_window.col)  # type: ignore
         anki_asset_manager.delete_assets()
 
-    mw.form.menuTools.addAction(
+    # I'm getting type errors below but the code works, so let's ignore.
+    main_window.form.menuTools.addAction(
         aqt.qt.QAction("Refresh Code Highlighter Assets",
-                       mw,
-                       triggered=refresh))
-    mw.form.menuTools.addAction(
-        aqt.qt.QAction("Delete Code Highlighter Assets", mw, triggered=delete))
+                       main_window,
+                       triggered=refresh))  # type: ignore
+    main_window.form.menuTools.addAction(
+        aqt.qt.QAction("Delete Code Highlighter Assets",
+                       main_window,
+                       triggered=delete))  # type: ignore
 
 
-anki_asset_manager = AnkiAssetManager(modify_templates)
+def load_mw_and_sync():
+    main_window = mw
+    if not main_window:
+        # For some reason the main window is not initialized yet. Let's print
+        # an error message.
+        showWarning(
+            "Code Highlighter plugin tried to initialize, " +
+            "but couldn't find the main window.\n" +
+            "Please report it to the author at " +
+            "https://github.com/gregorias/anki-code-highlighter/issues/new.")
+        return None
+    anki_asset_manager = AnkiAssetManager(modify_templates, main_window.col)
+    sync_assets(anki_asset_manager)
 
-gui_hooks.main_window_did_init.append(lambda: sync_assets(anki_asset_manager))
+
+gui_hooks.profile_did_open.append(load_mw_and_sync)
 gui_hooks.main_window_did_init.append(setup_menu)
 gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)

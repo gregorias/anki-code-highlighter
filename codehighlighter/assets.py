@@ -5,6 +5,7 @@ import pathlib
 import re
 from typing import Callable, List, Optional, Protocol, Union
 
+from anki.collection import Collection
 from aqt import mw  # type: ignore
 
 
@@ -23,14 +24,15 @@ class AssetManager(Protocol):
 class AnkiAssetManager:
 
     def __init__(self, modify_templates: Callable[[Callable[[str], str]],
-                                                  None]):
+                                                  None], col: Collection):
         self.modify_templates = modify_templates
+        self.col = col
 
     def has_newer_version(self) -> bool:
         new_version = read_asset_version(codehighlighter_assets_directory() /
                                          '_ch-asset-version.txt')
-        old_version = read_asset_version(anki_media_directory() /
-                                         '_ch-asset-version.txt')
+        old_version = read_asset_version(
+            anki_media_directory(self.col) / '_ch-asset-version.txt')
         if new_version is None:
             return False
         elif old_version is None or new_version > old_version:
@@ -39,12 +41,12 @@ class AnkiAssetManager:
             return False
 
     def install_assets(self) -> None:
-        install_media_assets()
+        install_media_assets(self.col)
         configure_cards(self.modify_templates)
 
     def delete_assets(self) -> None:
         clear_cards(self.modify_templates)
-        delete_media_assets()
+        delete_media_assets(self.col)
 
 
 addon_path = os.path.dirname(__file__)
@@ -63,24 +65,24 @@ def codehighlighter_assets_directory() -> pathlib.Path:
     return pathlib.Path(addon_path) / 'assets'
 
 
-def anki_media_directory() -> pathlib.Path:
-    return pathlib.Path(mw.col.media.dir())
+def anki_media_directory(col: Collection) -> pathlib.Path:
+    return pathlib.Path(col.media.dir())
 
 
 def list_my_assets(dir: pathlib.Path) -> List[str]:
     return [f for f in os.listdir(dir) if f.startswith("_ch-")]
 
 
-def install_media_assets() -> None:
+def install_media_assets(col: Collection) -> None:
     codehighlighter_assets_dir = codehighlighter_assets_directory()
     my_assets = list_my_assets(codehighlighter_assets_dir)
     for asset in my_assets:
-        mw.col.media.add_file(codehighlighter_assets_dir / asset)
+        col.media.add_file(str(codehighlighter_assets_dir / asset))
 
 
-def delete_media_assets() -> None:
-    my_assets = list_my_assets(anki_media_directory())
-    mw.col.media.trash_files(my_assets)
+def delete_media_assets(col: Collection) -> None:
+    my_assets = list_my_assets(anki_media_directory(col))
+    col.media.trash_files(my_assets)
 
 
 IMPORT_STATEMENTS = (
