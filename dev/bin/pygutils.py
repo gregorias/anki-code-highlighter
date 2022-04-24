@@ -63,6 +63,8 @@ def filter_lines(pred, input: str) -> str:
 
 def replace_inlined_color_with_variable(color: str, variable: str,
                                         sheet: str) -> str:
+    # Not using CSSOM, because cssutils doesn't support custom properties
+    # (https://github.com/jaraco/cssutils/issues/14).
     m = re.match('#(\d)(\d)(\d)', color)
     if m:
         color6 = f'#{m.group(1)}{m.group(1)}{m.group(2)}{m.group(2)}{m.group(3)}{m.group(3)}'
