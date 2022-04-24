@@ -84,7 +84,7 @@ def delete_media_assets() -> None:
 
 
 IMPORT_STATEMENTS = (
-    '<link rel="stylesheet" href="_ch-my-solarized.css" class="anki-code-highlighter">\n'
+    '<link rel="stylesheet" href="_ch-pygments-solarized.css" class="anki-code-highlighter">\n'
     +
     '<link rel="stylesheet" href="_ch-hljs-solarized.css" class="anki-code-highlighter">\n'
     '<script src="_ch-my-highlight.js" class="anki-code-highlighter"></script>\n'
