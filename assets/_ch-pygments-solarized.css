@@ -1,8 +1,8 @@
 :root {
   --pygments-solarized-light-color00: #cb4b16;
-  --pygments-solarized-light-color01: #2aa198;
+  --pygments-solarized-light-color01: var(--hljs-solarized-light-base09); /*#2aa198;*/
   --pygments-solarized-light-color02: #eee8d5;
-  --pygments-solarized-light-color03: #859900;
+  --pygments-solarized-light-color03: var(--hljs-solarized-light-base0E); /*#859900;*/
   --pygments-solarized-light-color04: #000;
   --pygments-solarized-light-color05: #268bd2;
   --pygments-solarized-light-color06: #dc322f;
