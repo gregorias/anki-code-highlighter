@@ -71,12 +71,19 @@ base0F  #d33682  Deprecated, Opening/Closing Embedded Language Tags, e.g. <?php 
 }
 
 pre code.hljs {
+  border: solid;
+  border-width: thick;
+  border-color: #cdbc84;
+  padding: 3px 5px;
   text-align: left;
-}
-
-.hljs {
+  overflow-x: auto;
   color: var(--hljs-solarized-light-base05);
   background: var(--hljs-solarized-light-base00);
+}
+
+.night_mode pre code.hljs {
+  color: var(--hljs-solarized-dark-base05);
+  background: var(--hljs-solarized-dark-base00);
 }
 
 .hljs::selection,
@@ -84,7 +91,11 @@ pre code.hljs {
   background-color: var(--hljs-solarized-light-base02);
   color: var(--hljs-solarized-light-base05);
 }
-
+.night_mode .hljs::selection,
+.night_mode .hljs ::selection {
+  background-color: var(--hljs-solarized-dark-base02);
+  color: var(--hljs-solarized-dark-base05);
+}
 
 /* purposely do not highlight these things */
 .hljs-formula,
@@ -204,25 +215,6 @@ pre code.hljs {
 /* for v10 compatible themes */
 .hljs-meta-keyword {
   font-weight: bold;
-}
-
-.night_mode pre code.hljs {
-  overflow-x: auto;
-}
-
-.night_mode code.hljs {
-  padding: 3px 5px;
-}
-
-.night_mode .hljs {
-  color: var(--hljs-solarized-dark-base05);
-  background: var(--hljs-solarized-dark-base00);
-}
-
-.night_mode .hljs::selection,
-.night_mode .hljs ::selection {
-  background-color: var(--hljs-solarized-dark-base02);
-  color: var(--hljs-solarized-dark-base05);
 }
 
 
