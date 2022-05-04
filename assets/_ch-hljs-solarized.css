@@ -84,6 +84,7 @@ pre code.hljs {
 .night_mode pre code.hljs {
   color: var(--hljs-solarized-dark-base05);
   background: var(--hljs-solarized-dark-base00);
+  border-color: #052831;
 }
 
 .hljs::selection,
