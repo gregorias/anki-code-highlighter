@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""The implementation of the word hyphenator plugin."""
+"""The implementation of the code highlighter plugin."""
 import os.path
 import pathlib
 import random
