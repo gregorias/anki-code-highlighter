@@ -102,3 +102,7 @@ See [Anki's documentation on sharing
 add-ons](https://addon-docs.ankiweb.net/#/sharing).
 
 Use the `package` tool to create the zip.
+
+### Design Decisions
+
+The asset files start with an underscore, because then Anki ignores them ([source](https://anki.tenderapp.com/discussions/ankidesktop/39510-anki-is-completely-ignoring-media-files-starting-with-underscores-when-cleaning-up)).
