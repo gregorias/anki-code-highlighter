@@ -34,6 +34,7 @@ async function main() {
     "latex",
     "lisp",
     "php",
+    "plaintext",
     "protobuf",
     "python",
     "python-repl",
