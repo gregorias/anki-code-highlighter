@@ -104,7 +104,7 @@ with pygments plus a few lines for general styles. I generated the style there w
 
 ### Release
 
-This section will contain instructions on release a new user-facing version.
+This repo uses release-please to release new versions.
 
 ### Distribution
 
