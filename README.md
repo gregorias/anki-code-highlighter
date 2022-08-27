@@ -81,6 +81,12 @@ Install Lefthook:
 
     lefthook install
 
+### Updating highlight.js
+
+`_assets/_cs-highlight.js` contains the single-file implementation of
+[highlight.js][hljs]. It comes from the ZIP package available on [their main
+site][hljs].
+
 ### Generating Pygment stylesheets
 
 In `assets/_ch-pygment-solarized.css` I keep the stylesheet for code formatted
@@ -107,3 +113,5 @@ Use the `package` tool to create the zip.
 
 The asset files start with an underscore, because then Anki ignores them
 ([source](https://anki.tenderapp.com/discussions/ankidesktop/39510-anki-is-completely-ignoring-media-files-starting-with-underscores-when-cleaning-up)).
+
+[hljs]: https://highlightjs.org/
