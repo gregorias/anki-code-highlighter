@@ -102,6 +102,10 @@ with pygments plus a few lines for general styles. I generated the style there w
 2. Test supported Anki versions by packaging the plugin and importing the
    plugin into the lowest and the newest support Anki.
 
+### Release
+
+This section will contain instructions on release a new user-facing version.
+
 ### Distribution
 
 See [Anki's documentation on sharing
