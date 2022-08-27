@@ -1,3 +1,10 @@
 {
-  ".": "1.0.0"
+  ".": "1.4.3",
+  "extra-files": [
+    {
+      "type": "json",
+      "path": "codehighlighter/manifest.json",
+      "jsonpath": "$.version"
+    }
+  ]
 }
