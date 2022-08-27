@@ -1,7 +1,6 @@
 async function loadScript(url) {
   return new Promise((resolve, reject) => {
     // Adding the script tag to the head as suggested before
-    let head = document.head;
     let script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = url;
