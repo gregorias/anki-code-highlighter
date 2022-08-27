@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/gregorias/anki-code-highlighter/compare/v1.4.3...v1.4.4) (2022-08-27)
+
+
+### Bug Fixes
+
+* update README ([02eb013](https://github.com/gregorias/anki-code-highlighter/commit/02eb013c6a40edfb14624081af495bae11e217ce))
+
 ## 1.0.0 (2022-08-27)
 
 
