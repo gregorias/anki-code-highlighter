@@ -38,6 +38,18 @@ class AnkiAssetManager:
                                                   None], col: Collection,
                  asset_prefix: str, css_assets: list[str],
                  js_assets: list[str], version_asset: str, class_name: str):
+        """
+        :param modify_templates Callable[[Callable[[str], str]],
+                                                          None]:
+            A function that can modify card templates.
+        :param col Collection: The active Anki collection.
+        :param asset_prefix str: The prefix used for this plugin's assets.
+        :param css_assets list[str]: All CSS files used by this plugin.
+        :param js_assets list[str]: All JS files to be imported by this plugin.
+        :param version_asset str: The version asset filename.
+        :param class_name str: The unique HTML class name that this manager can
+            use to identify its HTML elements.
+        """
         self.modify_templates = modify_templates
         self.col = col
         self.asset_prefix = asset_prefix
