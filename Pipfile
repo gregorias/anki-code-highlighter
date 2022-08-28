@@ -16,6 +16,7 @@ yapf = "*"
 pygments = "*"
 types-pygments = "*"
 cssutils = "*"
+types-beautifulsoup4 = "*"
 
 [requires]
 python_version = "3"

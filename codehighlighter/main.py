@@ -10,8 +10,8 @@ import aqt
 from aqt import mw
 from aqt import gui_hooks
 from aqt.utils import showWarning
-import bs4  # type: ignore
-from bs4 import BeautifulSoup, NavigableString  # type: ignore
+import bs4
+from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 from .assets import AnkiAssetManager, sync_assets
