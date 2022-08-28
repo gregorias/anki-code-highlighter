@@ -18,6 +18,15 @@ from .assets import AnkiAssetManager, sync_assets
 
 addon_path = os.path.dirname(__file__)
 config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
+ASSET_PREFIX = '_ch-'
+CSS_ASSETS = [
+    "_ch-pygments-solarized.old.css",
+    "_ch-pygments-solarized.css",
+    "_ch-hljs-solarized.css",
+]
+JS_ASSETS = ["_ch-my-highlight.js"]
+VERSION_ASSET = '_ch-asset-version.txt'
+CLASS_NAME = 'anki-code-highlighter'
 
 
 def get_config(key: str, default):
@@ -143,8 +152,7 @@ def modify_templates(modify: Callable[[str], str]) -> None:
 
 
 def setup_menu() -> None:
-    main_window = mw
-    if not main_window:
+    if not mw:
         # For some reason the main window is not initialized yet. Let's print
         # an error message.
         showWarning(
@@ -153,17 +161,22 @@ def setup_menu() -> None:
             "Please report it to the author at " +
             "https://github.com/gregorias/anki-code-highlighter/issues/new.")
         return None
+    main_window = mw
     main_window.form.menuTools.addSection("Code Highlighter")
 
     def refresh() -> None:
         anki_asset_manager = AnkiAssetManager(modify_templates,
-                                              main_window.col)  # type: ignore
+                                              main_window.col, ASSET_PREFIX,
+                                              CSS_ASSETS, JS_ASSETS,
+                                              VERSION_ASSET, CLASS_NAME)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
         anki_asset_manager = AnkiAssetManager(modify_templates,
-                                              main_window.col)  # type: ignore
+                                              main_window.col, ASSET_PREFIX,
+                                              CSS_ASSETS, JS_ASSETS,
+                                              VERSION_ASSET, CLASS_NAME)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
@@ -188,7 +201,9 @@ def load_mw_and_sync():
             "Please report it to the author at " +
             "https://github.com/gregorias/anki-code-highlighter/issues/new.")
         return None
-    anki_asset_manager = AnkiAssetManager(modify_templates, main_window.col)
+    anki_asset_manager = AnkiAssetManager(modify_templates, main_window.col,
+                                          ASSET_PREFIX, CSS_ASSETS, JS_ASSETS,
+                                          VERSION_ASSET, CLASS_NAME)
     sync_assets(anki_asset_manager)
 
 

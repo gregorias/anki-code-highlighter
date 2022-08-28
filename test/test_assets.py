@@ -57,6 +57,7 @@ class AssetsTestCase(unittest.TestCase):
             nonlocal tmpl
             tmpl = modify(tmpl)
 
-        assets.configure_cards(modify_tmpl)
-        assets.clear_cards(modify_tmpl)
+        CLASS_NAME = 'anki-ch'
+        assets.configure_cards(modify_tmpl, ['css0'], [], CLASS_NAME)
+        assets.clear_cards(modify_tmpl, CLASS_NAME)
         self.assertEqual(tmpl, old_tmpl)
