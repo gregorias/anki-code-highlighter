@@ -9,6 +9,6 @@ jobs:
     steps:
       - uses: google-github-actions/release-please-action@v3
         with:
-          command: manifest-pr
+          command: release-pr
           release-type: simple
           package-name: codehighlighter
