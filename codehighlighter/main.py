@@ -6,10 +6,10 @@ import random
 import re
 from typing import Callable, Generator, List, Optional, Tuple
 
-import aqt  # type: ignore
-from aqt import mw  # type: ignore
-from aqt import gui_hooks  # type: ignore
-from aqt.utils import showWarning  # type: ignore
+import aqt
+from aqt import mw
+from aqt import gui_hooks
+from aqt.utils import showWarning
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString  # type: ignore
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
