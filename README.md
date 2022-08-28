@@ -102,12 +102,11 @@ with pygments plus a few lines for general styles. I generated the style there w
 2. Test supported Anki versions by packaging the plugin and importing the
    plugin into the lowest and the newest support Anki.
 
-### Distribution
+### Release & distribution
 
-See [Anki's documentation on sharing
-add-ons](https://addon-docs.ankiweb.net/#/sharing).
-
-Use the `package` tool to create the zip.
+1. Bump up the package version in `codehighlighter/manifest.json`.
+2. Use the `dev/bin/package` tool to create `codehighlighter.ankiaddon`.
+3. [Share the package on Anki.](https://addon-docs.ankiweb.net/#/sharing)
 
 ### Design Decisions
 
