@@ -1,0 +1,3 @@
+[submodule "pydeps/pygments"]
+	path = pydeps/pygments
+	url = https://github.com/pygments/pygments
