@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
 TARGET_PATH=codehighlighter.ankiaddon
+
 rm -f "${TARGET_PATH}" && \
 zip "${TARGET_PATH}" -j \
   codehighlighter/*.py \
   codehighlighter/config.json \
   codehighlighter/manifest.json && \
-zip -r "${TARGET_PATH}" assets
+zip -r "${TARGET_PATH}" \
+  assets
+TARGET_PATH=$(readlink -f ${TARGET_PATH})
+pushd pydeps/pygments
+zip -r "${TARGET_PATH}" \
+  pygments
+popd
