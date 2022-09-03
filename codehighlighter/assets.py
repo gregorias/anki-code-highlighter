@@ -9,7 +9,7 @@ import pathlib
 import re
 from typing import Callable, List, Optional, Protocol, Union
 
-from anki.collection import Collection
+from anki.media import MediaManager
 from aqt import mw  # type: ignore
 
 # This list contains the intended public API of this module.
@@ -35,14 +35,14 @@ class AssetManager(Protocol):
 class AnkiAssetManager:
 
     def __init__(self, modify_templates: Callable[[Callable[[str], str]],
-                                                  None], col: Collection,
+                                                  None], media: MediaManager,
                  asset_prefix: str, css_assets: list[str],
                  js_assets: list[str], version_asset: str, class_name: str):
         """
         :param modify_templates Callable[[Callable[[str], str]],
                                                           None]:
             A function that can modify card templates.
-        :param col Collection: The active Anki collection.
+        :param media anki.media.MediaManager: The active Anki media manager.
         :param asset_prefix str: The prefix used for this plugin's assets.
         :param css_assets list[str]: All CSS files used by this plugin.
         :param js_assets list[str]: All JS files to be imported by this plugin.
@@ -51,7 +51,7 @@ class AnkiAssetManager:
             use to identify its HTML elements.
         """
         self.modify_templates = modify_templates
-        self.col = col
+        self.media = media
         self.asset_prefix = asset_prefix
         self.css_assets = css_assets
         self.js_assets = js_assets
@@ -62,7 +62,7 @@ class AnkiAssetManager:
         new_version = read_asset_version(assets_directory() /
                                          self.version_asset)
         old_version = read_asset_version(
-            anki_media_directory(self.col) / self.version_asset)
+            anki_media_directory(self.media) / self.version_asset)
         if new_version is None:
             return False
         elif old_version is None or new_version > old_version:
@@ -71,7 +71,7 @@ class AnkiAssetManager:
             return False
 
     def install_assets(self) -> None:
-        install_media_assets(self.asset_prefix, self.col)
+        install_media_assets(self.asset_prefix, self.media)
         configure_cards(self.modify_templates,
                         css_assets=self.css_assets,
                         js_assets=self.js_assets,
@@ -79,7 +79,7 @@ class AnkiAssetManager:
 
     def delete_assets(self) -> None:
         clear_cards(self.modify_templates, class_name=self.class_name)
-        delete_media_assets(self.asset_prefix, self.col)
+        delete_media_assets(self.asset_prefix, self.media)
 
 
 addon_path = os.path.dirname(__file__)
@@ -98,24 +98,24 @@ def assets_directory() -> pathlib.Path:
     return pathlib.Path(addon_path) / 'assets'
 
 
-def anki_media_directory(col: Collection) -> pathlib.Path:
-    return pathlib.Path(col.media.dir())
+def anki_media_directory(media: MediaManager) -> pathlib.Path:
+    return pathlib.Path(media.dir())
 
 
 def list_my_assets(dir: pathlib.Path, asset_prefix: str) -> List[str]:
     return [f for f in os.listdir(dir) if f.startswith(asset_prefix)]
 
 
-def install_media_assets(asset_prefix: str, col: Collection) -> None:
+def install_media_assets(asset_prefix: str, media: MediaManager) -> None:
     assets_dir = assets_directory()
     my_assets = list_my_assets(assets_dir, asset_prefix)
     for asset in my_assets:
-        col.media.add_file(str(assets_dir / asset))
+        media.add_file(str(assets_dir / asset))
 
 
-def delete_media_assets(asset_prefix: str, col: Collection) -> None:
-    my_assets = list_my_assets(anki_media_directory(col), asset_prefix)
-    col.media.trash_files(my_assets)
+def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
+    my_assets = list_my_assets(anki_media_directory(media), asset_prefix)
+    media.trash_files(my_assets)
 
 
 def configure_cards(modify_templates: Callable[[Callable[[str], str]],

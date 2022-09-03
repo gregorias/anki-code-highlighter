@@ -38,6 +38,12 @@ def get_config(key: str, default):
         return default
 
 
+def create_anki_asset_manager(col: anki.collection.Collection):
+    return AnkiAssetManager(partial(transform_templates,
+                                    col.models), col.media, ASSET_PREFIX,
+                            CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
+
+
 def ask_for_language(parent=None) -> Optional[str]:
     parent = parent or (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
     lang, ok = QInputDialog.getText(
@@ -161,18 +167,12 @@ def setup_menu() -> None:
     main_window.form.menuTools.addSection("Code Highlighter")
 
     def refresh() -> None:
-        anki_asset_manager = AnkiAssetManager(
-            partial(transform_templates,
-                    main_window.col.models), main_window.col, ASSET_PREFIX,
-            CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
+        anki_asset_manager = create_anki_asset_manager(main_window.col)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
-        anki_asset_manager = AnkiAssetManager(
-            partial(transform_templates,
-                    main_window.col.models), main_window.col, ASSET_PREFIX,
-            CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
+        anki_asset_manager = create_anki_asset_manager(main_window.col)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
@@ -197,9 +197,7 @@ def load_mw_and_sync():
             "Please report it to the author at " +
             "https://github.com/gregorias/anki-code-highlighter/issues/new.")
         return None
-    anki_asset_manager = AnkiAssetManager(
-        partial(transform_templates, main_window.col.models), main_window.col,
-        ASSET_PREFIX, CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
+    anki_asset_manager = create_anki_asset_manager(main_window.col)
     sync_assets(anki_asset_manager)
 
 
