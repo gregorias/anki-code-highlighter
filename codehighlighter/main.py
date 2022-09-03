@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """The implementation of the code highlighter plugin."""
+from functools import partial
 import os.path
 import pathlib
 import random
@@ -15,6 +16,7 @@ from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 from .assets import AnkiAssetManager, sync_assets
+import anki
 
 addon_path = os.path.dirname(__file__)
 config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
@@ -135,20 +137,14 @@ def on_editor_shortcuts_init(shortcuts: List[Tuple],
         activated=lambda: highlight_block_action(editor))
 
 
-def modify_templates(modify: Callable[[str], str]) -> None:
-    """Modifies all card templates with modify."""
-    if not mw:
-        showWarning(
-            "Code Highlighter plugin tried to modify card templates " +
-            "but Anki's main window has not loaded up yet.\n" +
-            "Please report this to the author at " +
-            "https://github.com/gregorias/anki-code-highlighter/issues/new.")
-        return None
-    for model in mw.col.models.all():
+def transform_templates(models: anki.models.ModelManager,
+                        modify: Callable[[str], str]):
+    """Transforms all card templates with modify."""
+    for model in models.all():
         for tmpl in model['tmpls']:
             tmpl['afmt'] = modify(tmpl['afmt'])
             tmpl['qfmt'] = modify(tmpl['qfmt'])
-        mw.col.models.save(model)
+        models.save(model)
 
 
 def setup_menu() -> None:
@@ -165,18 +161,18 @@ def setup_menu() -> None:
     main_window.form.menuTools.addSection("Code Highlighter")
 
     def refresh() -> None:
-        anki_asset_manager = AnkiAssetManager(modify_templates,
-                                              main_window.col, ASSET_PREFIX,
-                                              CSS_ASSETS, JS_ASSETS,
-                                              VERSION_ASSET, CLASS_NAME)
+        anki_asset_manager = AnkiAssetManager(
+            partial(transform_templates,
+                    main_window.col.models), main_window.col, ASSET_PREFIX,
+            CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
-        anki_asset_manager = AnkiAssetManager(modify_templates,
-                                              main_window.col, ASSET_PREFIX,
-                                              CSS_ASSETS, JS_ASSETS,
-                                              VERSION_ASSET, CLASS_NAME)
+        anki_asset_manager = AnkiAssetManager(
+            partial(transform_templates,
+                    main_window.col.models), main_window.col, ASSET_PREFIX,
+            CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
@@ -201,9 +197,9 @@ def load_mw_and_sync():
             "Please report it to the author at " +
             "https://github.com/gregorias/anki-code-highlighter/issues/new.")
         return None
-    anki_asset_manager = AnkiAssetManager(modify_templates, main_window.col,
-                                          ASSET_PREFIX, CSS_ASSETS, JS_ASSETS,
-                                          VERSION_ASSET, CLASS_NAME)
+    anki_asset_manager = AnkiAssetManager(
+        partial(transform_templates, main_window.col.models), main_window.col,
+        ASSET_PREFIX, CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
     sync_assets(anki_asset_manager)
 
 
