@@ -165,14 +165,13 @@ def setup_menu() -> None:
         return None
     main_window = mw
     main_window.form.menuTools.addSection("Code Highlighter")
+    anki_asset_manager = create_anki_asset_manager(main_window.col)
 
     def refresh() -> None:
-        anki_asset_manager = create_anki_asset_manager(main_window.col)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
-        anki_asset_manager = create_anki_asset_manager(main_window.col)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
