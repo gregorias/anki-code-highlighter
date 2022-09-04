@@ -4,7 +4,6 @@ from functools import partial
 import os.path
 import pathlib
 import random
-import re
 from typing import Callable, Generator, List, Optional, Tuple
 
 import aqt
@@ -16,6 +15,8 @@ from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 from .assets import AnkiAssetManager, sync_assets
+from .highlighter import format_code
+
 import anki
 
 addon_path = os.path.dirname(__file__)
@@ -50,53 +51,6 @@ def ask_for_language(parent=None) -> Optional[str]:
         parent, 'Enter language',
         'Provide language for the snippet (e.g. cpp)')
     return ok and lang
-
-
-def replace_br(element: bs4.PageElement) -> None:
-    if isinstance(element, bs4.Tag) and element.name == 'br':
-        element.replace_with('\n')
-
-
-def walk(soup: bs4.BeautifulSoup, func):
-
-    class DfsStack:
-
-        def __init__(self, initial_nodes):
-            self.nodes = list(initial_nodes)
-
-        def __iter__(self):
-            return self
-
-        def __next__(self):
-            if self.nodes:
-                top = self.nodes[-1]
-                self.nodes.pop()
-                return top
-            else:
-                raise StopIteration()
-
-        def send(self, new_nodes: List[bs4.PageElement]):
-            self.nodes.extend(list(new_nodes))
-
-    dfs_stack = DfsStack(soup.children)
-    for node in dfs_stack:
-        maybe_more_nodes = func(node)
-        if maybe_more_nodes:
-            dfs_stack.send(maybe_more_nodes)
-
-
-def format_code(random_id: str, language: str, html: str) -> str:
-    """Formats the just create code element.
-
-    Returns:
-        An HTML5-encoded string.
-    """
-    soup = BeautifulSoup(html, features='html.parser')
-    for code_node in soup.find_all(id=random_id):
-        del code_node['id']
-        code_node['class'] = [language]
-        walk(code_node, replace_br)
-    return str(soup.encode(formatter='html5'), 'utf8')
 
 
 def highlight_block_action(editor: aqt.editor.Editor) -> None:
