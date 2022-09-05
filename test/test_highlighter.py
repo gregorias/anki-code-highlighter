@@ -13,3 +13,11 @@ class FormatCodeTestCase(unittest.TestCase):
                          "def foo():\n" + "  return 0</code></pre>")
         output_html = format_code("foobar123", 'language-python', input_html)
         self.assertEqual(output_html, expected_html)
+
+    def test_formats_nested_code(self):
+        input_html = ("<code id=\"foobar123\"><div>" + "def foo():<br>" +
+                      "  return 0</div></code>")
+        expected_html = ("<code class=\"language-python\"><div>" +
+                         "def foo():\n" + "  return 0</div></code>")
+        output_html = format_code("foobar123", 'language-python', input_html)
+        self.assertEqual(output_html, expected_html)

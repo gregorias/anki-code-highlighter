@@ -10,9 +10,17 @@ from bs4 import BeautifulSoup, NavigableString
 __all__ = ['format_code']
 
 
-def replace_br(element: bs4.PageElement) -> None:
+def replace_br(element) -> None:
     if isinstance(element, bs4.Tag) and element.name == 'br':
         element.replace_with('\n')
+
+
+def walk_func(element) -> list:
+    replace_br(element)
+    if hasattr(element, 'children'):
+        return element.children
+    else:
+        return []
 
 
 def walk(soup: bs4.BeautifulSoup, func):
@@ -53,5 +61,5 @@ def format_code(random_id: str, language: str, html: str) -> str:
     for code_node in soup.find_all(id=random_id):
         del code_node['id']
         code_node['class'] = [language]
-        walk(code_node, replace_br)
+        walk(code_node, walk_func)
     return str(soup.encode(formatter='html5'), 'utf8')
