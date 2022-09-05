@@ -44,7 +44,7 @@ def walk(soup: bs4.BeautifulSoup, func):
 
 
 def format_code(random_id: str, language: str, html: str) -> str:
-    """Formats the just create code element.
+    """Formats the just created code element.
 
     Returns:
         An HTML5-encoded string.
