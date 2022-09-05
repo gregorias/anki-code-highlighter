@@ -2,7 +2,7 @@
 """The main function that highlights the code snippet."""
 from typing import List
 
-import bs4
+import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
 # Keep this module Anki agnostic. Only straighforward code operating on HTML.
 

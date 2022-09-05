@@ -9,7 +9,7 @@ import pathlib
 import re
 from typing import Callable, List, Optional, Protocol, Union
 
-from anki.media import MediaManager
+from anki.media import MediaManager  # type: ignore
 from aqt import mw  # type: ignore
 
 # This list contains the intended public API of this module.

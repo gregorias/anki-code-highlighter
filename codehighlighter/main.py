@@ -6,18 +6,18 @@ import pathlib
 import random
 from typing import Callable, Generator, List, Optional, Tuple
 
-import aqt
+import aqt  # type: ignore
 from aqt import mw
 from aqt import gui_hooks
-from aqt.utils import showWarning
-import bs4
+from aqt.utils import showWarning  # type: ignore
+import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 from .assets import AnkiAssetManager, sync_assets
 from .highlighter import format_code
 
-import anki
+import anki  # type: ignore
 
 addon_path = os.path.dirname(__file__)
 config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
