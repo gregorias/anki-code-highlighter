@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 from .assets import AnkiAssetManager, sync_assets
+from .bs4extra import encode_soup
 from .highlighter import format_code
 
 import anki  # type: ignore
@@ -53,6 +54,14 @@ def ask_for_language(parent=None) -> Optional[str]:
     return ok and lang
 
 
+def find_tags_and_replace(html: str, replace: Callable[[str], bs4.Tag],
+                          id: str):
+    soup = BeautifulSoup(html, features='html.parser')
+    for div_node in soup.find_all(id=id):
+        div_node.replace_with(replace(div_node.decode_contents()))
+    return encode_soup(soup)
+
+
 def highlight_block_action(editor: aqt.editor.Editor) -> None:
     currentFieldNo = editor.currentField
     if currentFieldNo is None:
@@ -62,9 +71,7 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
         return None
 
     random_id = 'anki-code-highlighter-todo-' + str(random.randint(0, 10000))
-    editor.web.eval(
-        f"""wrap('<pre style="display:flex; justify-content:center;"><code id="{random_id}">', '</code></pre>');"""
-    )
+    editor.web.eval(f"""wrap('<div id="{random_id}">', '</div>');""")
     language = ask_for_language(parent=None)
     if language:
         language = 'language-' + language
@@ -78,7 +85,12 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
             + "Please try again.")
         return None
     field = note.fields[currentFieldNo]
-    note.fields[currentFieldNo] = format_code(random_id, language, field)
+    note.fields[currentFieldNo] = find_tags_and_replace(field,
+                                                        partial(
+                                                            format_code,
+                                                            language),
+                                                        id=random_id)
+
     # That's how aqt.editor.onHtmlEdit saves cards.
     # It's better than `editor.mw.reset()`, because the latter loses focus.
     # Calls like editor.mw.reset() or editor.loadNote() are necessary to save

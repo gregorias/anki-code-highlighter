@@ -23,7 +23,7 @@ def walk_func(element) -> list:
         return []
 
 
-def walk(soup: bs4.BeautifulSoup, func):
+def walk(soup, func):
 
     class DfsStack:
 
@@ -51,15 +51,18 @@ def walk(soup: bs4.BeautifulSoup, func):
             dfs_stack.send(maybe_more_nodes)
 
 
-def format_code(random_id: str, language: str, html: str) -> str:
-    """Formats the just created code element.
+def format_code(language: str, code: str) -> bs4.Tag:
+    """Formats the code snippet.
 
     Returns:
-        An HTML5-encoded string.
+        A BeautifulSoup tag.
     """
-    soup = BeautifulSoup(html, features='html.parser')
-    for code_node in soup.find_all(id=random_id):
-        del code_node['id']
-        code_node['class'] = [language]
-        walk(code_node, walk_func)
-    return str(soup.encode(formatter='html5'), 'utf8')
+    soup = BeautifulSoup(code, features='html.parser')
+    code_tag = soup.new_tag('code')
+    code_tag['class'] = [language]
+    pre_tag = soup.new_tag('pre')
+    pre_tag['style'] = "display:flex; justify-content:center;"
+    code_tag.append(soup)
+    pre_tag.append(code_tag)
+    walk(pre_tag, walk_func)
+    return pre_tag
