@@ -4,7 +4,7 @@ from functools import partial
 import os.path
 import pathlib
 import random
-from typing import Callable, Generator, List, Optional, Tuple
+from typing import Callable, Generator, List, Optional, Tuple, Union
 
 import aqt  # type: ignore
 from aqt import mw
@@ -77,6 +77,44 @@ def highlight_block_action(editor: aqt.editor.Editor) -> None:
                         format_code)
 
 
+def highlight_action(editor: aqt.editor.Editor) -> None:
+    note = editor.note
+    currentFieldNo = editor.currentField
+    if note is None:
+        showWarning(
+            "You've run the code highlighter without selecting a note.\n" +
+            "Select a note before running the code highlighter.")
+        return None
+    if currentFieldNo is None:
+        showWarning(
+            "You've run the code highlighter without selecting a field.\n" +
+            "Select a note field before running the code highlighter.")
+        return None
+
+    def show_dialogs() -> Optional[Tuple[str, Optional[str], str]]:
+        parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
+        method, ok = QInputDialog.getItem(parent, 'Highlighting method',
+                                          'Select a highlighting method',
+                                          ['highlight.js', 'pygments'])
+        if not ok or not method:
+            return None
+        if method == 'pygments':
+            display_style, ok = QInputDialog.getItem(parent, 'Display style',
+                                                     'Select a display style',
+                                                     ['block', 'inline'])
+            if not ok:
+                return None
+        else:
+            display_style = None
+
+        language = ask_for_language(parent=None)
+        if not language:
+            return None
+        return method, display_style, language
+
+    # TODO(pygments): add code formatting functionality
+
+
 def on_editor_shortcuts_init(shortcuts: List[Tuple],
                              editor: aqt.editor.Editor) -> None:
     shortcut = get_config("shortcut", "ctrl+'")
@@ -84,6 +122,11 @@ def on_editor_shortcuts_init(shortcuts: List[Tuple],
         aqt.qt.QKeySequence(shortcut),  # type: ignore
         editor.widget,
         activated=lambda: highlight_block_action(editor))
+    for shortcut in ['ctrl+"', 'ctrl+shift+\'', 'ctrl+;']:
+        aqt.qt.QShortcut(  # type: ignore
+            aqt.qt.QKeySequence(shortcut),  # type: ignore
+            editor.widget,
+            activated=lambda: highlight_action(editor))
 
 
 def transform_templates(models: anki.models.ModelManager,
