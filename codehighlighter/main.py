@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QInputDialog  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, has_newer_version, sync_assets
 from .bs4extra import encode_soup
-from .highlighter import format_code
+from .highlighter import format_code, DISPLAY_STYLE, format_code_pygments
 
 import anki  # type: ignore
 
@@ -91,7 +91,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             "Select a note field before running the code highlighter.")
         return None
 
-    def show_dialogs() -> Optional[Tuple[str, Optional[str], str]]:
+    def show_dialogs() -> Optional[Tuple[str, DISPLAY_STYLE, str]]:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
         method, ok = QInputDialog.getItem(parent, 'Highlighting method',
                                           'Select a highlighting method',
@@ -104,15 +104,29 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                                                      ['block', 'inline'])
             if not ok:
                 return None
+            display_style = (DISPLAY_STYLE.BLOCK if display_style == 'block'
+                             else DISPLAY_STYLE.INLINE)
         else:
-            display_style = None
+            display_style = DISPLAY_STYLE.BLOCK
 
         language = ask_for_language(parent=None)
         if not language:
             return None
         return method, display_style, language
 
-    # TODO(pygments): add code formatting functionality
+    def format(args: Optional[Tuple[str, DISPLAY_STYLE, str]],
+               code) -> Union[bs4.Tag, bs4.BeautifulSoup]:
+        if not args:
+            return bs4.BeautifulSoup(code, features='html.parser')
+        method, display_style, language = args
+        if method == 'highlight.js':
+            return format_code(language, code)
+        elif method == 'pygments':
+            return format_code_pygments(language, display_style, code)
+        else:
+            return bs4.BeautifulSoup(code, features='html.parser')
+
+    transform_selection(editor, note, currentFieldNo, show_dialogs, format)
 
 
 def on_editor_shortcuts_init(shortcuts: List[Tuple],

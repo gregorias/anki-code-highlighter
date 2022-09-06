@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 """The main function that highlights the code snippet."""
+import enum
+from enum import Enum
+import re
 from typing import List
 
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
+
+import os, sys
+
+sys.path.append(os.path.dirname(__file__))
+import pygments  # type: ignore
+import pygments.formatters  # type: ignore
+import pygments.lexers  # type: ignore
 # Keep this module Anki agnostic. Only straighforward code operating on HTML.
 
 # This list contains the intended public API of this module.
-__all__ = ['format_code']
+__all__ = ['format_code', 'DISPLAY_STYLE'
+           'format_code_pygments']
 
 
 def replace_br(element) -> None:
@@ -66,3 +77,53 @@ def format_code(language: str, code: str) -> bs4.Tag:
     pre_tag.append(code_tag)
     walk(pre_tag, walk_func)
     return pre_tag
+
+
+def apply_eye_candy(content: str, language):
+    content = re.sub('&lt;-', '←', content)
+    content = re.sub('&gt;=', '≥', content)
+    content = re.sub('!=', '≠', content)
+    content = re.sub('/=', '≠', content)
+    content = re.sub(' &gt;&gt; ', ' » ', content)
+    content = re.sub('&lt;&lt;', '«', content)
+    if language == 'haskell':
+        content = re.sub('Bool', '𝔹', content)
+        content = re.sub('Integer', 'ℤ', content)
+        content = re.sub('Rational', 'ℚ', content)
+    return content
+
+
+def remove_spurious_inline_newline(html: str) -> str:
+    return re.sub('</span>\n</code>$', '</span></code>', html)
+
+
+@enum.unique
+class DISPLAY_STYLE(Enum):
+    BLOCK = 1
+    INLINE = 2
+
+
+def format_code_pygments(language: str, display_style: DISPLAY_STYLE,
+                         code: str) -> bs4.BeautifulSoup:
+    lexer = pygments.lexers.get_lexer_by_name(language)
+    if display_style is DISPLAY_STYLE.INLINE:
+        htmlf = pygments.formatters.get_formatter_by_name('html', nowrap=True)
+        highlighted = pygments.highlight(code, lexer, htmlf)
+        highlighted = '<code class="highlight">' + highlighted + '</code>'
+    elif display_style is DISPLAY_STYLE.BLOCK:
+        htmlf = pygments.formatters.get_formatter_by_name('html')
+        highlighted = pygments.highlight(code, lexer, htmlf)
+        highlighted = highlighted.strip()
+        highlighted = highlighted.removeprefix('<div class="highlight">')
+        highlighted = highlighted.removesuffix('</div>')
+        highlighted = highlighted.removeprefix('<pre>')
+        highlighted = highlighted.removesuffix('</pre>')
+        highlighted = highlighted.removeprefix('<span></span>')
+        highlighted = (
+            f'<div class="pygments" style="display:flex; justify-content:center;">\n  <pre><code class="nohighlight">{highlighted}'
+            + '</code></pre>\n</div>\n')
+    highlighted = apply_eye_candy(highlighted, language=language)
+    if display_style is DISPLAY_STYLE.INLINE:
+        highlighted = remove_spurious_inline_newline(highlighted)
+
+    return BeautifulSoup(highlighted, features='html.parser')

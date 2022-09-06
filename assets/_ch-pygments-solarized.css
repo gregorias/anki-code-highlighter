@@ -32,7 +32,7 @@
   display:flex;
   justify-content:center;
 }
-.pygments-block>pre {
+.pygments>pre {
   background: var(--pygments-solarized-light-color08);
   color: var(--pygments-solarized-light-color10);
   border: solid;
@@ -41,7 +41,7 @@
   padding: 3px 5px;
   line-height: 125%;
 }
-.night_mode .pygments-block>pre {
+.night_mode .pygments>pre {
   background: var(--pygments-solarized-dark-color10);
   color: var(--pygments-solarized-dark-color09);
   border-color: #052831;
