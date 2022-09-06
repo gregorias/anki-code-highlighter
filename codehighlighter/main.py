@@ -140,8 +140,9 @@ def load_mw_and_sync():
             "https://github.com/gregorias/anki-code-highlighter/issues/new.")
         return None
     anki_asset_manager = create_anki_asset_manager(main_window.col)
-    sync_assets(has_newer_version(main_window.col.media, VERSION_ASSET),
-                anki_asset_manager)
+    sync_assets(
+        partial(has_newer_version, main_window.col.media, VERSION_ASSET),
+        anki_asset_manager)
 
 
 gui_hooks.profile_did_open.append(load_mw_and_sync)

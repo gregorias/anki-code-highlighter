@@ -13,8 +13,6 @@ PyQt6-WebEngine = "==6.3.*"
 bpython = "*"
 mypy = "*"
 yapf = "*"
-pygments = "*"
-types-pygments = "*"
 cssutils = "*"
 types-beautifulsoup4 = "*"
 
