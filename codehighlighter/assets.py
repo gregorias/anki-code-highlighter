@@ -36,16 +36,16 @@ class AnkiAssetManager:
 
     def __init__(self, modify_templates: Callable[[Callable[[str], str]],
                                                   None], media: MediaManager,
-                 asset_prefix: str, css_assets: list[str],
-                 js_assets: list[str], version_asset: str, class_name: str):
+                 asset_prefix: str, css_assets: List[str],
+                 js_assets: List[str], version_asset: str, class_name: str):
         """
         :param modify_templates Callable[[Callable[[str], str]],
                                                           None]:
             A function that can modify card templates.
         :param media anki.media.MediaManager: The active Anki media manager.
         :param asset_prefix str: The prefix used for this plugin's assets.
-        :param css_assets list[str]: All CSS files used by this plugin.
-        :param js_assets list[str]: All JS files to be imported by this plugin.
+        :param css_assets List[str]: All CSS files used by this plugin.
+        :param js_assets List[str]: All JS files to be imported by this plugin.
         :param version_asset str: The version asset filename.
         :param class_name str: The unique HTML class name that this manager can
             use to identify its HTML elements.
@@ -119,8 +119,8 @@ def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
 
 
 def configure_cards(modify_templates: Callable[[Callable[[str], str]],
-                                               None], css_assets: list[str],
-                    js_assets: list[str], class_name: str) -> None:
+                                               None], css_assets: List[str],
+                    js_assets: List[str], class_name: str) -> None:
 
     IMPORT_STATEMENTS = (''.join([
         f'<link rel="stylesheet" href="{css_asset}" class="{class_name}">\n'
