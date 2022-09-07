@@ -31,6 +31,7 @@ T = typing.TypeVar('T')
 # editor.web.eval to be committed to the database, updating editor.note.
 # I couldn't make this function to work with editor.web.evalWithCallback, the
 # note didn't get updated in the continuation.
+# https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(
         editor: aqt.editor.Editor, note: anki.notes.Note, currentField: int,
         show_dialogs: Callable[[], T],
