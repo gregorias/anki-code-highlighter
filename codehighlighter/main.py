@@ -14,6 +14,7 @@ import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
+from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, sync_assets
 from .bs4extra import encode_soup
 from .highlighter import format_code
@@ -54,50 +55,26 @@ def ask_for_language(parent=None) -> Optional[str]:
     return ok and lang
 
 
-def find_tags_and_replace(html: str, replace: Callable[[str], bs4.Tag],
-                          id: str):
-    soup = BeautifulSoup(html, features='html.parser')
-    for div_node in soup.find_all(id=id):
-        div_node.replace_with(replace(div_node.decode_contents()))
-    return encode_soup(soup)
-
-
 def highlight_block_action(editor: aqt.editor.Editor) -> None:
+    note = editor.note
     currentFieldNo = editor.currentField
+    if note is None:
+        showWarning(
+            "You've run the code highlighter without selecting a note.\n" +
+            "Select a note before running the code highlighter.")
+        return None
     if currentFieldNo is None:
         showWarning(
             "You've run the code highlighter without selecting a field.\n" +
-            "Please select a note field before running the code highlighter.")
+            "Select a note field before running the code highlighter.")
         return None
 
-    random_id = 'anki-code-highlighter-todo-' + str(random.randint(0, 10000))
-    editor.web.eval(f"""wrap('<div id="{random_id}">', '</div>');""")
-    language = ask_for_language(parent=None)
-    if language:
-        language = 'language-' + language
-    else:
-        language = 'nohighlight'
+    def show_dialogs() -> str:
+        language = ask_for_language(parent=None)
+        return 'language-' + language if language else 'nohighlight'
 
-    note = editor.note
-    if not note:
-        showWarning(
-            "The note has disappered before the code highlighter could act.\n"
-            + "Please try again.")
-        return None
-    field = note.fields[currentFieldNo]
-    note.fields[currentFieldNo] = find_tags_and_replace(field,
-                                                        partial(
-                                                            format_code,
-                                                            language),
-                                                        id=random_id)
-
-    # That's how aqt.editor.onHtmlEdit saves cards.
-    # It's better than `editor.mw.reset()`, because the latter loses focus.
-    # Calls like editor.mw.reset() or editor.loadNote() are necessary to save
-    # HTML changes.
-    if not editor.addMode:
-        note.flush()
-    editor.loadNoteKeepingFocus()
+    transform_selection(editor, note, currentFieldNo, show_dialogs,
+                        format_code)
 
 
 def on_editor_shortcuts_init(shortcuts: List[Tuple],
