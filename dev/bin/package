@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 TARGET_PATH=codehighlighter.ankiaddon
-zip ${TARGET_PATH} -j \
+rm -f "${TARGET_PATH}" && \
+zip "${TARGET_PATH}" -j \
   codehighlighter/*.py \
   codehighlighter/config.json \
   codehighlighter/manifest.json && \
-zip -r ${TARGET_PATH} \
-  assets
+zip -r "${TARGET_PATH}" assets
