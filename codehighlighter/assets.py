@@ -4,6 +4,7 @@
 The module is plugin agnostic: it contains generic mechanisms for updating
 relevant assets.
 """
+# Media refers to static JS and CSS files.
 import os.path
 import pathlib
 import re
@@ -102,19 +103,21 @@ def anki_media_directory(media: MediaManager) -> pathlib.Path:
     return pathlib.Path(media.dir())
 
 
-def list_my_assets(dir: pathlib.Path, asset_prefix: str) -> List[str]:
+def list_files_with_prefix(dir: pathlib.Path, asset_prefix: str) -> List[str]:
     return [f for f in os.listdir(dir) if f.startswith(asset_prefix)]
 
 
 def install_media_assets(asset_prefix: str, media: MediaManager) -> None:
     assets_dir = assets_directory()
-    my_assets = list_my_assets(assets_dir, asset_prefix)
+    my_assets = list_files_with_prefix(assets_dir, asset_prefix)
     for asset in my_assets:
         media.add_file(str(assets_dir / asset))
 
 
 def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
-    my_assets = list_my_assets(anki_media_directory(media), asset_prefix)
+    """Deletes all media assets whose filenames starts with `asset_prefix`"""
+    my_assets = list_files_with_prefix(anki_media_directory(media),
+                                       asset_prefix)
     media.trash_files(my_assets)
 
 
