@@ -11,9 +11,6 @@ class FakeAssetManager:
         self.local_version = local_version
         self.plugin_version = plugin_version
 
-    def has_newer_version(self) -> bool:
-        return self.plugin_version > self.local_version
-
     def install_assets(self) -> None:
         self.local_version = self.plugin_version
 
@@ -25,12 +22,12 @@ class AssetsTestCase(unittest.TestCase):
 
     def test_sync_assets_syncs_on_version_mismatch(self):
         manager = FakeAssetManager(local_version=1, plugin_version=2)
-        assets.sync_assets(manager)
+        assets.sync_assets(lambda: True, manager)
         self.assertEqual(manager.local_version, 2)
 
     def test_sync_assets_passes_if_newer_version_present(self):
         manager = FakeAssetManager(local_version=2, plugin_version=1)
-        assets.sync_assets(manager)
+        assets.sync_assets(lambda: False, manager)
         self.assertEqual(manager.local_version, 2)
 
     def test_read_asset_version_returns_none_on_nonexistant_file(self):

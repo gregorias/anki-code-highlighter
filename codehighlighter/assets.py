@@ -17,14 +17,13 @@ from aqt import mw  # type: ignore
 __all__ = [
     'AssetManager',
     'AnkiAssetManager',
+    'has_newer_version',
     'sync_assets',
 ]
 
 
 class AssetManager(Protocol):
-
-    def has_newer_version(self) -> bool:
-        return False
+    """An object that can install/delete plugin assets."""
 
     def install_assets(self) -> None:
         return None
@@ -33,12 +32,40 @@ class AssetManager(Protocol):
         return None
 
 
+def has_newer_version(media: MediaManager, version_asset: str) -> bool:
+    """
+    Returns whether the plugin has newer asset version.
+
+    :param media MediaManager Anki's media manager
+    :param version_asset str: The version asset filename.
+    :rtype bool Whether the plugin has newer asset version.
+    """
+    new_version = read_asset_version(assets_directory() / version_asset)
+    old_version = read_asset_version(
+        anki_media_directory(media) / version_asset)
+    if new_version is None:
+        return False
+    elif old_version is None or new_version > old_version:
+        return True
+    else:
+        return False
+
+
+def read_asset_version(asset_version_path: pathlib.Path) -> Optional[int]:
+    """Reads the integer representing the asset version from the file."""
+    try:
+        with open(asset_version_path, 'r') as f:
+            return int(f.read())
+    except:
+        return None
+
+
 class AnkiAssetManager:
 
     def __init__(self, modify_templates: Callable[[Callable[[str], str]],
                                                   None], media: MediaManager,
                  asset_prefix: str, css_assets: List[str],
-                 js_assets: List[str], version_asset: str, class_name: str):
+                 js_assets: List[str], class_name: str):
         """
         :param modify_templates Callable[[Callable[[str], str]],
                                                           None]:
@@ -47,7 +74,6 @@ class AnkiAssetManager:
         :param asset_prefix str: The prefix used for this plugin's assets.
         :param css_assets List[str]: All CSS files used by this plugin.
         :param js_assets List[str]: All JS files to be imported by this plugin.
-        :param version_asset str: The version asset filename.
         :param class_name str: The unique HTML class name that this manager can
             use to identify its HTML elements.
         """
@@ -56,20 +82,7 @@ class AnkiAssetManager:
         self.asset_prefix = asset_prefix
         self.css_assets = css_assets
         self.js_assets = js_assets
-        self.version_asset = version_asset
         self.class_name = class_name
-
-    def has_newer_version(self) -> bool:
-        new_version = read_asset_version(assets_directory() /
-                                         self.version_asset)
-        old_version = read_asset_version(
-            anki_media_directory(self.media) / self.version_asset)
-        if new_version is None:
-            return False
-        elif old_version is None or new_version > old_version:
-            return True
-        else:
-            return False
 
     def install_assets(self) -> None:
         install_media_assets(self.asset_prefix, self.media)
@@ -84,15 +97,6 @@ class AnkiAssetManager:
 
 
 addon_path = os.path.dirname(__file__)
-
-
-def read_asset_version(asset_version_path: pathlib.Path) -> Optional[int]:
-    """Reads the integer representing the asset version from the file."""
-    try:
-        with open(asset_version_path, 'r') as f:
-            return int(f.read())
-    except:
-        return None
 
 
 def assets_directory() -> pathlib.Path:
@@ -151,9 +155,9 @@ def clear_cards(modify_templates: Callable[[Callable[[str], str]], None],
     modify_templates(lambda tmpl: delete_import_statements(tmpl).strip())
 
 
-def sync_assets(asset_manager: AssetManager) -> None:
+def sync_assets(has_newer_version: Callable[[], bool],
+                asset_manager: AssetManager) -> None:
     """Checks if assets need updating and updates them."""
-    if not asset_manager.has_newer_version():
-        return None
-    asset_manager.delete_assets()
-    asset_manager.install_assets()
+    if has_newer_version():
+        asset_manager.delete_assets()
+        asset_manager.install_assets()

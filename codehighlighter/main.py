@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 from .ankieditorextra import transform_selection
-from .assets import AnkiAssetManager, sync_assets
+from .assets import AnkiAssetManager, has_newer_version, sync_assets
 from .bs4extra import encode_soup
 from .highlighter import format_code
 
@@ -44,7 +44,7 @@ def get_config(key: str, default):
 def create_anki_asset_manager(col: anki.collection.Collection):
     return AnkiAssetManager(partial(transform_templates,
                                     col.models), col.media, ASSET_PREFIX,
-                            CSS_ASSETS, JS_ASSETS, VERSION_ASSET, CLASS_NAME)
+                            CSS_ASSETS, JS_ASSETS, CLASS_NAME)
 
 
 def ask_for_language(parent=None) -> Optional[str]:
@@ -140,7 +140,8 @@ def load_mw_and_sync():
             "https://github.com/gregorias/anki-code-highlighter/issues/new.")
         return None
     anki_asset_manager = create_anki_asset_manager(main_window.col)
-    sync_assets(anki_asset_manager)
+    sync_assets(has_newer_version(main_window.col.media, VERSION_ASSET),
+                anki_asset_manager)
 
 
 gui_hooks.profile_did_open.append(load_mw_and_sync)
