@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import QInputDialog  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, has_newer_version, sync_assets
 from .bs4extra import encode_soup
-from .highlighter import format_code, DISPLAY_STYLE, format_code_pygments
+from .highlighter import format_code_hljs, DISPLAY_STYLE, format_code_pygments
 
 import anki  # type: ignore
 
@@ -55,28 +55,6 @@ def ask_for_language(parent=None) -> Optional[str]:
     return ok and lang
 
 
-def highlight_block_action(editor: aqt.editor.Editor) -> None:
-    note = editor.note
-    currentFieldNo = editor.currentField
-    if note is None:
-        showWarning(
-            "You've run the code highlighter without selecting a note.\n" +
-            "Select a note before running the code highlighter.")
-        return None
-    if currentFieldNo is None:
-        showWarning(
-            "You've run the code highlighter without selecting a field.\n" +
-            "Select a note field before running the code highlighter.")
-        return None
-
-    def show_dialogs() -> str:
-        language = ask_for_language(parent=None)
-        return 'language-' + language if language else 'nohighlight'
-
-    transform_selection(editor, note, currentFieldNo, show_dialogs,
-                        format_code)
-
-
 def highlight_action(editor: aqt.editor.Editor) -> None:
     note = editor.note
     currentFieldNo = editor.currentField
@@ -93,12 +71,14 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
 
     def show_dialogs() -> Optional[Tuple[str, DISPLAY_STYLE, str]]:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
-        method, ok = QInputDialog.getItem(parent, 'Highlighting method',
-                                          'Select a highlighting method',
-                                          ['highlight.js', 'pygments'])
-        if not ok or not method:
-            return None
-        if method == 'pygments':
+        highlighter = get_config("default-highlighter", "")
+        if not highlighter:
+            highlighter, ok = QInputDialog.getItem(
+                parent, 'Highlighter', 'Select a highlighter',
+                ['highlight.js', 'pygments'])
+            if not ok or not highlighter:
+                return None
+        if highlighter == 'pygments':
             display_style, ok = QInputDialog.getItem(parent, 'Display style',
                                                      'Select a display style',
                                                      ['block', 'inline'])
@@ -112,7 +92,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         language = ask_for_language(parent=None)
         if not language:
             return None
-        return method, display_style, language
+        return highlighter, display_style, language
 
     def format(args: Optional[Tuple[str, DISPLAY_STYLE, str]],
                code) -> Union[bs4.Tag, bs4.BeautifulSoup]:
@@ -120,7 +100,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             return bs4.BeautifulSoup(code, features='html.parser')
         method, display_style, language = args
         if method == 'highlight.js':
-            return format_code(language, code)
+            return format_code_hljs(language, code)
         elif method == 'pygments':
             return format_code_pygments(language, display_style, code)
         else:
@@ -135,12 +115,7 @@ def on_editor_shortcuts_init(shortcuts: List[Tuple],
     aqt.qt.QShortcut(  # type: ignore
         aqt.qt.QKeySequence(shortcut),  # type: ignore
         editor.widget,
-        activated=lambda: highlight_block_action(editor))
-    for shortcut in ['ctrl+"', 'ctrl+shift+\'', 'ctrl+;']:
-        aqt.qt.QShortcut(  # type: ignore
-            aqt.qt.QKeySequence(shortcut),  # type: ignore
-            editor.widget,
-            activated=lambda: highlight_action(editor))
+        activated=lambda: highlight_action(editor))
 
 
 def transform_templates(models: anki.models.ModelManager,

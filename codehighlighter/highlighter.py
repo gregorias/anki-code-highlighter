@@ -17,7 +17,7 @@ import pygments.lexers  # type: ignore
 # Keep this module Anki agnostic. Only straighforward code operating on HTML.
 
 # This list contains the intended public API of this module.
-__all__ = ['format_code', 'DISPLAY_STYLE'
+__all__ = ['format_code_hljs', 'DISPLAY_STYLE'
            'format_code_pygments']
 
 
@@ -62,7 +62,7 @@ def walk(soup, func):
             dfs_stack.send(maybe_more_nodes)
 
 
-def format_code(language: str, code: str) -> bs4.Tag:
+def format_code_hljs(language: str, code: str) -> bs4.Tag:
     """Formats the code snippet.
 
     Returns:
@@ -70,7 +70,10 @@ def format_code(language: str, code: str) -> bs4.Tag:
     """
     soup = BeautifulSoup(code, features='html.parser')
     code_tag = soup.new_tag('code')
-    code_tag['class'] = [language]
+    if language == 'nohighlight':
+        code_tag['class'] = [language]
+    else:
+        code_tag['class'] = ['language-' + language]
     pre_tag = soup.new_tag('pre')
     pre_tag['style'] = "display:flex; justify-content:center;"
     code_tag.append(soup)

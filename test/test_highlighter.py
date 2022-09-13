@@ -2,7 +2,7 @@
 import unittest
 
 from codehighlighter.bs4extra import encode_soup
-from codehighlighter.highlighter import format_code
+from codehighlighter.highlighter import format_code_hljs
 
 
 class FormatCodeTestCase(unittest.TestCase):
@@ -13,7 +13,7 @@ class FormatCodeTestCase(unittest.TestCase):
             "<pre style=\"display:flex; justify-content:center;\">" +
             "<code class=\"language-python\">" + "def foo():\n" +
             "  return 0</code></pre>")
-        output_html = encode_soup(format_code('language-python', code_snippet))
+        output_html = encode_soup(format_code_hljs('python', code_snippet))
         self.assertEqual(output_html, expected_html)
 
     def test_formats_nested_code(self):
@@ -22,5 +22,5 @@ class FormatCodeTestCase(unittest.TestCase):
             "<pre style=\"display:flex; justify-content:center;\">" +
             "<code class=\"language-python\"><div>" + "def foo():\n" +
             "  return 0</div></code></pre>")
-        output_html = encode_soup(format_code('language-python', code_snippet))
+        output_html = encode_soup(format_code_hljs('python', code_snippet))
         self.assertEqual(output_html, expected_html)

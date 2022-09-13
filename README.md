@@ -34,6 +34,14 @@ Alternatively, you can install this plugin from source.
 For the list of supported languages and their corresponding codes, see
 `assets/_ch-hljs-lang-*.min.js` files in this repository.
 
+### Configuration
+
+The plugin accepts the following configuration options:
+
+- `shortcut` (e.g. `ctrl+;`) — this sets the shortcut that triggers this plugin.
+- `default-highlighter` (`highlight.js`, `pygments`, ``) — this sets the default highlighting mechanism.
+
+
 ## Refresh & Removal
 
 This plugin installs its own JS and CSS files as well as modifies card
