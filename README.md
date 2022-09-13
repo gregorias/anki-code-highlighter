@@ -34,6 +34,14 @@ Alternatively, you can install this plugin from source.
 For the list of supported languages and their corresponding codes, see
 `assets/_ch-hljs-lang-*.min.js` files in this repository.
 
+### Supported highlighters
+
+* [highlight.js](https://highlightjs.org/) — This highlighter highlights during
+  card display. It supports only code blocks.
+* [pygments](https://pygments.org/) — This highlighter creates highlighting
+  tags when you run this plugin. This can is useful for creating cloze cards.
+  It supports both inline code and code blocks.
+
 ### Configuration
 
 The plugin accepts the following configuration options:
