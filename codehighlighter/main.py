@@ -25,7 +25,6 @@ addon_path = os.path.dirname(__file__)
 config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
 ASSET_PREFIX = '_ch-'
 CSS_ASSETS = [
-    "_ch-pygments-solarized.old.css",
     "_ch-pygments-solarized.css",
     "_ch-hljs-solarized.css",
 ]

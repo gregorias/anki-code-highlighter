@@ -28,10 +28,6 @@
   --pygments-solarized-dark-color12: var(--pygments-solarized-light-color12);
 }
 
-.pygments-block {
-  display:flex;
-  justify-content:center;
-}
 .pygments>pre {
   background: var(--pygments-solarized-light-color08);
   color: var(--pygments-solarized-light-color10);

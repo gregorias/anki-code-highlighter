@@ -28,7 +28,7 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
                 highlighter.format_code_pygments(
                     language='c++',
                     display_style=highlighter.DISPLAY_STYLE.INLINE,
-                    code='true')), '<code class="highlight">' +
+                    code='true')), '<code class="pygments">' +
             '<span class="nb">true</span><span class="w"></span></code>')
 
     def test_highlights_block_python_code(self):

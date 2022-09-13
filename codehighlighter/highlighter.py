@@ -112,7 +112,7 @@ def format_code_pygments(language: str, display_style: DISPLAY_STYLE,
     if display_style is DISPLAY_STYLE.INLINE:
         htmlf = pygments.formatters.get_formatter_by_name('html', nowrap=True)
         highlighted = pygments.highlight(code, lexer, htmlf)
-        highlighted = '<code class="highlight">' + highlighted + '</code>'
+        highlighted = '<code class="pygments">' + highlighted + '</code>'
     elif display_style is DISPLAY_STYLE.BLOCK:
         htmlf = pygments.formatters.get_formatter_by_name('html')
         highlighted = pygments.highlight(code, lexer, htmlf)
