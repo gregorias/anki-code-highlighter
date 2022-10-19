@@ -27,14 +27,15 @@ def transform_elements_with_id(html: str, id: str,
 T = typing.TypeVar('T')
 
 
-# showDialogs is necessary, because a modal dialog causes the result of
-# editor.web.eval to be committed to the database, updating editor.note.
+# get_transform_config is necessary, because it may show a modal dialog, which
+# would cause the result of editor.web.eval to be committed to the database,
+# updating editor.note.
 # I couldn't make this function to work with editor.web.evalWithCallback, the
 # note didn't get updated in the continuation.
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(
         editor: aqt.editor.Editor, note: anki.notes.Note, currentField: int,
-        show_dialogs: Callable[[], T],
+        get_transform_config: Callable[[], T],
         transform: Callable[[T, str], Union[bs4.Tag,
                                             bs4.BeautifulSoup]]) -> None:
     """
@@ -43,8 +44,9 @@ def transform_selection(
     :param editor aqt.editor.Editor
     :param note anki.notes.Note: The note under edition. Usually `editor.note`.
     :param currentField int The ID of the field under focus.
-    :param show_dialogs Callable[[], T]:
-        A function that shows dialogs asking for user input.
+    :param get_transform_config Callable[[], T]:
+        A function that returns a configuration for the transformation, e.g.,
+        by showing dialogs asking for user input.
     :param transform Callable[[T, str], Union[bs4.Tag, bs4.BeautifulSoup]]:
         The transform function that receives selected text and returns
         transformed tag or soup.
@@ -67,7 +69,7 @@ def transform_selection(
          spanTag['id'] = '{random_id}'
          range.surroundContents(spanTag);
       }})();""")
-    transformData = show_dialogs()
+    transformData = get_transform_config()
     note.fields[currentField] = transform_elements_with_id(
         note.fields[currentField], random_id, partial(transform,
                                                       transformData))
