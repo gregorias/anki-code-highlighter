@@ -139,13 +139,20 @@ def setup_menu() -> None:
         return None
     main_window = mw
     main_window.form.menuTools.addSection("Code Highlighter")
-    anki_asset_manager = create_anki_asset_manager(main_window.col)
 
     def refresh() -> None:
+        # Create AnkiAssetManager inside actions and not in setup_menu,
+        # because:
+        # 1. setup_menu runs in main_window_did_init, which may happen before
+        #    profile load
+        #    (https://github.com/gregorias/anki-code-highlighter/issues/22).
+        # 2. create_anki_asset_manager requires a profile to be loaded.
+        anki_asset_manager = create_anki_asset_manager(main_window.col)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
+        anki_asset_manager = create_anki_asset_manager(main_window.col)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
