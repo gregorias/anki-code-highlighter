@@ -5,7 +5,7 @@ import os.path
 import pathlib
 import random
 import sys
-from typing import Callable, Generator, List, Optional, Tuple, Union
+from typing import Callable, Dict, Generator, List, Optional, Tuple, Union
 
 import aqt  # type: ignore
 from aqt import mw
@@ -52,26 +52,36 @@ def create_anki_asset_manager(col: anki.collection.Collection):
                             CSS_ASSETS, JS_ASSETS, CLASS_NAME)
 
 
-def ask_for_language(parent=None,
-                     languages: Optional[List[str]] = None) -> Optional[str]:
+def index_or(l, item, default):
+    try:
+        return l.index(item)
+    except ValueError:
+        return default
+
+
+def ask_for_language(
+    parent=None,
+    languages_with_current: Optional[Tuple[List[str], Optional[str]]] = None
+) -> Optional[str]:
     """
     Shows a dialog asking for a programming language.
 
     :param parent
-    :param languages Optional[List[str]]: The list of options to choose from.
+    :param languages_with_current Optional[Tuple[List[str], Optional[str]]]:
+        The list of options to choose from together with a default selection.
     :rtype Optional[str]: The chosen language if any.
     """
     parent = parent or (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
     enter_lang = 'Enter a language'
     provide_lang_long = 'Provide the snippet\'s language (e.g., cpp)'
-    if languages:
-        try:
-            default_index = languages.index('cpp')
-        except ValueError:
-            try:
-                default_index = languages.index('C++')
-            except ValueError:
-                default_index = 0
+
+    if languages_with_current:
+        languages, current = languages_with_current
+        lang_index_or = partial(index_or, languages)
+
+        default_index = (lang_index_or(current, None)
+                         or lang_index_or('cpp', None)
+                         or lang_index_or('C++', 0))
         lang, ok = QInputDialog.getItem(parent, enter_lang, provide_lang_long,
                                         languages, default_index)
     else:
@@ -79,9 +89,16 @@ def ask_for_language(parent=None,
     return ok and lang
 
 
+CACHED_SELECTED_LANGUAGES: Dict[str, Optional[str]] = {
+    'pygments': None,
+    'highlight.js': None,
+}
+
+
 def highlight_action(editor: aqt.editor.Editor) -> None:
     note = editor.note
     currentFieldNo = editor.currentField
+    global CACHED_SELECTED_LANGUAGES
     if note is None:
         showWarning(
             "You've run the code highlighter without selecting a note.\n" +
@@ -128,8 +145,14 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                                             ASSET_PREFIX)))
         else:
             available_languages = None
-        language = ask_for_language(parent=None, languages=available_languages)
-        if not language:
+        languages_with_current = (available_languages,
+                                  CACHED_SELECTED_LANGUAGES[highlighter]
+                                  ) if available_languages else None
+        language = ask_for_language(
+            parent=None, languages_with_current=languages_with_current)
+        if language:
+            CACHED_SELECTED_LANGUAGES[highlighter] = language
+        else:
             return None
         return highlighter, display_style, language
 
