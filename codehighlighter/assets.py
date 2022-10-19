@@ -18,6 +18,7 @@ __all__ = [
     'AssetManager',
     'AnkiAssetManager',
     'has_newer_version',
+    'list_plugin_media_files'
     'sync_assets',
 ]
 
@@ -109,6 +110,22 @@ def anki_media_directory(media: MediaManager) -> pathlib.Path:
 
 def list_files_with_prefix(dir: pathlib.Path, asset_prefix: str) -> List[str]:
     return [f for f in os.listdir(dir) if f.startswith(asset_prefix)]
+
+
+def list_plugin_media_files(media: MediaManager,
+                            plugin_asset_prefix: str) -> List[str]:
+    """
+    Return's the plugin's media files.
+
+    Media files are files (assets) installed in Anki.
+
+    :param media MediaManager
+    :param plugin_asset_prefix str: The plugin's identifying prefix, e.g.,
+      ('_ch').
+    :rtype List[str]: The plugin's media files.
+    """
+    return list_files_with_prefix(anki_media_directory(media),
+                                  plugin_asset_prefix)
 
 
 def install_media_assets(asset_prefix: str, media: MediaManager) -> None:

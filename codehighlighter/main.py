@@ -15,9 +15,10 @@ from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 from .ankieditorextra import transform_selection
-from .assets import AnkiAssetManager, has_newer_version, sync_assets
+from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
 from .highlighter import format_code_hljs, DISPLAY_STYLE, format_code_pygments
+import codehighlighter.hljs as hljs
 
 import anki  # type: ignore
 
@@ -46,11 +47,27 @@ def create_anki_asset_manager(col: anki.collection.Collection):
                             CSS_ASSETS, JS_ASSETS, CLASS_NAME)
 
 
-def ask_for_language(parent=None) -> Optional[str]:
+def ask_for_language(parent=None,
+                     languages: Optional[List[str]] = None) -> Optional[str]:
+    """
+    Shows a dialog asking for a programming language.
+
+    :param parent
+    :param languages Optional[List[str]]: The list of options to choose from.
+    :rtype Optional[str]: The chosen language if any.
+    """
     parent = parent or (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
-    lang, ok = QInputDialog.getText(
-        parent, 'Enter language',
-        'Provide language for the snippet (e.g. cpp)')
+    enter_lang = 'Enter a language'
+    provide_lang_long = 'Provide the snippet\'s language (e.g., cpp)'
+    if languages:
+        try:
+            default_index = languages.index('cpp')
+        except ValueError:
+            default_index = 0
+        lang, ok = QInputDialog.getItem(parent, enter_lang, provide_lang_long,
+                                        languages, default_index)
+    else:
+        lang, ok = QInputDialog.getText(parent, enter_lang, provide_lang_long)
     return ok and lang
 
 
@@ -88,7 +105,13 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         else:
             display_style = DISPLAY_STYLE.BLOCK
 
-        language = ask_for_language(parent=None)
+        available_languages = (None if highlighter == 'pygments' else
+                               hljs.get_available_languages(
+                                   sorted(
+                                       list_plugin_media_files(
+                                           editor.mw.col.media,
+                                           ASSET_PREFIX))))
+        language = ask_for_language(parent=None, languages=available_languages)
         if not language:
             return None
         return highlighter, display_style, language
