@@ -4,6 +4,7 @@ from functools import partial
 import os.path
 import pathlib
 import random
+import sys
 from typing import Callable, Generator, List, Optional, Tuple, Union
 
 import aqt  # type: ignore
@@ -13,6 +14,10 @@ from aqt.utils import showWarning  # type: ignore
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
 from PyQt5.QtWidgets import QInputDialog  # type: ignore
+
+sys.path.append(os.path.dirname(__file__))
+import pygments  # type: ignore
+import pygments.lexers  # type: ignore
 
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
@@ -63,7 +68,10 @@ def ask_for_language(parent=None,
         try:
             default_index = languages.index('cpp')
         except ValueError:
-            default_index = 0
+            try:
+                default_index = languages.index('C++')
+            except ValueError:
+                default_index = 0
         lang, ok = QInputDialog.getItem(parent, enter_lang, provide_lang_long,
                                         languages, default_index)
     else:
@@ -105,12 +113,21 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         else:
             display_style = DISPLAY_STYLE.BLOCK
 
-        available_languages = (None if highlighter == 'pygments' else
-                               hljs.get_available_languages(
-                                   sorted(
-                                       list_plugin_media_files(
-                                           editor.mw.col.media,
-                                           ASSET_PREFIX))))
+        if highlighter == 'pygments':
+            # Filter out lexers with spaces in their, because that
+            # get_lexer_by_name can't find them. Lexers with spaces are niche
+            # anyway.
+            available_languages = [
+                t[0] for t in pygments.lexers.get_all_lexers()
+                if ' ' not in t[0]
+            ]
+        elif highlighter == 'highlight.js':
+            available_languages = hljs.get_available_languages(
+                sorted(
+                    list_plugin_media_files(editor.mw.col.media,
+                                            ASSET_PREFIX)))
+        else:
+            available_languages = None
         language = ask_for_language(parent=None, languages=available_languages)
         if not language:
             return None
