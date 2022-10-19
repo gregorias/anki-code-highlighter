@@ -23,7 +23,7 @@ from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
 from .highlighter import format_code_hljs, DISPLAY_STYLE, format_code_pygments
-import codehighlighter.hljs as hljs
+from .hljs import get_available_languages
 
 import anki  # type: ignore
 
@@ -139,7 +139,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 if ' ' not in t[0]
             ]
         elif highlighter == 'highlight.js':
-            available_languages = hljs.get_available_languages(
+            available_languages = get_available_languages(
                 sorted(
                     list_plugin_media_files(editor.mw.col.media,
                                             ASSET_PREFIX)))
