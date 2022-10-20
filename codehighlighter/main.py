@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """The implementation of the code highlighter plugin."""
+from dataclasses import dataclass
+import enum
+from enum import Enum
 from functools import partial
 import os.path
 import pathlib
@@ -96,7 +99,7 @@ CACHED_SELECTED_LANGUAGES: Dict[str, Optional[str]] = {
 
 
 def highlight_action(editor: aqt.editor.Editor) -> None:
-    note = editor.note
+    note: Optional[anki.notes.Note] = editor.note
     currentFieldNo = editor.currentField
     global CACHED_SELECTED_LANGUAGES
     if note is None:
@@ -110,16 +113,46 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             "Select a note field before running the code highlighter.")
         return None
 
-    def show_dialogs() -> Optional[Tuple[str, DISPLAY_STYLE, str]]:
+    @enum.unique
+    class HIGHLIGHT_METHOD(Enum):
+        HLJS = 'highlight.js'
+        PYGMENTS = 'pygments'
+
+    @dataclass(frozen=True)
+    class HljsConfig:
+        language: str
+
+    @dataclass(frozen=True)
+    class PygmentsConfig:
+        display_style: DISPLAY_STYLE
+        language: str
+
+    FormatConfig = Union[HljsConfig, PygmentsConfig]
+
+    def show_dialogs() -> Optional[FormatConfig]:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
         highlighter = get_config("default-highlighter", "")
         if not highlighter:
             highlighter, ok = QInputDialog.getItem(
                 parent, 'Highlighter', 'Select a highlighter',
-                ['highlight.js', 'pygments'])
+                [HIGHLIGHT_METHOD.HLJS.value, HIGHLIGHT_METHOD.PYGMENTS.value])
             if not ok or not highlighter:
                 return None
-        if highlighter == 'pygments':
+
+        if highlighter == HIGHLIGHT_METHOD.HLJS.value:
+            available_languages = get_available_languages(
+                sorted(
+                    list_plugin_media_files(editor.mw.col.media,
+                                            ASSET_PREFIX)))
+            languages_with_current = (available_languages,
+                                      CACHED_SELECTED_LANGUAGES[highlighter]
+                                      ) if available_languages else None
+            language = ask_for_language(
+                parent=None, languages_with_current=languages_with_current)
+            if language:
+                CACHED_SELECTED_LANGUAGES[highlighter] = language
+                return HljsConfig(language)
+        else:
             display_style, ok = QInputDialog.getItem(parent, 'Display style',
                                                      'Select a display style',
                                                      ['block', 'inline'])
@@ -127,46 +160,33 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 return None
             display_style = (DISPLAY_STYLE.BLOCK if display_style == 'block'
                              else DISPLAY_STYLE.INLINE)
-        else:
-            display_style = DISPLAY_STYLE.BLOCK
 
-        if highlighter == 'pygments':
-            # Filter out lexers with spaces in their, because that
+            # Filter out lexers with spaces in their name, because
             # get_lexer_by_name can't find them. Lexers with spaces are niche
             # anyway.
             available_languages = [
                 t[0] for t in pygments.lexers.get_all_lexers()
                 if ' ' not in t[0]
             ]
-        elif highlighter == 'highlight.js':
-            available_languages = get_available_languages(
-                sorted(
-                    list_plugin_media_files(editor.mw.col.media,
-                                            ASSET_PREFIX)))
-        else:
-            available_languages = None
-        languages_with_current = (available_languages,
-                                  CACHED_SELECTED_LANGUAGES[highlighter]
-                                  ) if available_languages else None
-        language = ask_for_language(
-            parent=None, languages_with_current=languages_with_current)
-        if language:
-            CACHED_SELECTED_LANGUAGES[highlighter] = language
-        else:
-            return None
-        return highlighter, display_style, language
+            languages_with_current = (available_languages,
+                                      CACHED_SELECTED_LANGUAGES[highlighter]
+                                      ) if available_languages else None
+            language = ask_for_language(
+                parent=None, languages_with_current=languages_with_current)
+            if language:
+                CACHED_SELECTED_LANGUAGES[highlighter] = language
+                return PygmentsConfig(display_style, language)
+        return None
 
-    def format(args: Tuple[str, DISPLAY_STYLE, str],
-               code) -> Union[bs4.Tag, bs4.BeautifulSoup]:
-        method, display_style, language = args
-        if method == 'highlight.js':
-            return format_code_hljs(language, code)
-        elif method == 'pygments':
-            return format_code_pygments(language, display_style, code)
+    def format(args: FormatConfig, code) -> Union[bs4.Tag, bs4.BeautifulSoup]:
+        if isinstance(args, HljsConfig):
+            return format_code_hljs(args.language, code)
         else:
-            return bs4.BeautifulSoup(code, features='html.parser')
+            return format_code_pygments(args.language, args.display_style,
+                                        code)
 
-    transform_selection(editor, note, currentFieldNo, show_dialogs, format)
+    transform_selection(editor, note, currentFieldNo, show_dialogs,
+                        format)  # type: ignore
 
 
 def on_editor_shortcuts_init(shortcuts: List[Tuple],
