@@ -156,10 +156,8 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             return None
         return highlighter, display_style, language
 
-    def format(args: Optional[Tuple[str, DISPLAY_STYLE, str]],
+    def format(args: Tuple[str, DISPLAY_STYLE, str],
                code) -> Union[bs4.Tag, bs4.BeautifulSoup]:
-        if not args:
-            return bs4.BeautifulSoup(code, features='html.parser')
         method, display_style, language = args
         if method == 'highlight.js':
             return format_code_hljs(language, code)

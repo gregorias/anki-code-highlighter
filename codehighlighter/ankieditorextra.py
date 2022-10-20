@@ -1,7 +1,7 @@
 from functools import partial
 import random
 import typing
-from typing import Callable, Union
+from typing import Callable, Optional, Union
 
 import anki
 import aqt  # type: ignore
@@ -35,7 +35,7 @@ T = typing.TypeVar('T')
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(
         editor: aqt.editor.Editor, note: anki.notes.Note, currentField: int,
-        get_transform_config: Callable[[], T],
+        get_transform_config: Callable[[], Optional[T]],
         transform: Callable[[T, str], Union[bs4.Tag,
                                             bs4.BeautifulSoup]]) -> None:
     """
@@ -44,7 +44,7 @@ def transform_selection(
     :param editor aqt.editor.Editor
     :param note anki.notes.Note: The note under edition. Usually `editor.note`.
     :param currentField int The ID of the field under focus.
-    :param get_transform_config Callable[[], T]:
+    :param get_transform_config Callable[[], Optional[T]]:
         A function that returns a configuration for the transformation, e.g.,
         by showing dialogs asking for user input.
     :param transform Callable[[T, str], Union[bs4.Tag, bs4.BeautifulSoup]]:
@@ -71,9 +71,16 @@ def transform_selection(
          range.surroundContents(spanTag);
       }})();""")
     transformData = get_transform_config()
+    if transformData:
+        format: Callable[[str], Union[bs4.Tag, bs4.BeautifulSoup]] = partial(
+            transform, transformData)
+    else:
+        # If getting transform config has failed, use an effect-less transform
+        # to clean up annotations.
+        format = lambda code: bs4.BeautifulSoup(code, features='html.parser')
+
     note.fields[currentField] = transform_elements_with_id(
-        note.fields[currentField], random_id, partial(transform,
-                                                      transformData))
+        note.fields[currentField], random_id, format)
 
     # That's how aqt.editor.onHtmlEdit saves cards.
     # It's better than `editor.mw.reset()`, because the latter loses focus.
