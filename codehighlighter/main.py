@@ -152,7 +152,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             if language:
                 CACHED_SELECTED_LANGUAGES[highlighter] = language
                 return HljsConfig(language)
-        else:
+        elif highlighter == HIGHLIGHT_METHOD.PYGMENTS.value:
             display_style, ok = QInputDialog.getItem(parent, 'Display style',
                                                      'Select a display style',
                                                      ['block', 'inline'])
