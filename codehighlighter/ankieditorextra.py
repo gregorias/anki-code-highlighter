@@ -57,8 +57,9 @@ def transform_selection(
     # is deprecated and doesn't work for inline selections.
     # Using the Range API is better as it doesn't suffer from those drawbacks.
     #
-    # We need to wrap the selection in a tag, because `transform` may lose
-    # focus (e.g., by presenting a modal dialog) and therefore the selection.
+    # We need to wrap the selection in a tag, because `get_transform_config`
+    # may lose focus (e.g., by presenting a modal dialog) and therefore the
+    # selection.
     editor.web.eval(f"""
       (function() {{
          let selection = document.activeElement.shadowRoot.getSelection();
