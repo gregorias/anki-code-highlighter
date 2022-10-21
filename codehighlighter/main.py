@@ -8,7 +8,7 @@ import os.path
 import pathlib
 import random
 import sys
-from typing import Callable, Dict, Generator, List, Optional, Tuple, Union
+from typing import Callable, Dict, Generator, Generic, List, Optional, Tuple, TypeVar, Union
 
 import aqt  # type: ignore
 from aqt import mw
@@ -55,46 +55,104 @@ def create_anki_asset_manager(col: anki.collection.Collection):
                             CSS_ASSETS, JS_ASSETS, CLASS_NAME)
 
 
-def index_or(l, item, default):
+T = TypeVar('T')
+
+
+def index_or(l: List[T], item: T, default: Optional[int]) -> Optional[int]:
+    """
+    Like list.index, but does not throw and returns a default value instead.
+    """
     try:
         return l.index(item)
     except ValueError:
         return default
 
 
-def ask_for_language(
-    parent=None,
-    languages_with_current: Optional[Tuple[List[str], Optional[str]]] = None
-) -> Optional[str]:
+def showChoiceDialog(parent, title: str, message: str, options: List[str],
+                     current: Optional[int]) -> Optional[str]:
     """
-    Shows a dialog asking for a programming language.
+    Shows a choice selection dialog.
+
+    :param parent: A parent widget.
+    :param title str
+    :param message str
+    :param options List[str]: A list of available options.
+    :param current Optional[int]: The option's index to preselect.
+    :rtype Optional[str]: Selected option if any.
+    :raises Exception
+    """
+    if current and not (current >= 0 and current < len(options)):
+        raise Exception(f"The provided default index, {current}, " +
+                        f"is not within option range. " +
+                        f"The option range size is {len(options)}.")
+    if current is None:
+        label, ok = QInputDialog.getItem(parent, title, message, options)
+    else:
+        # If current is None, QInputDialog.getItem will throw a type error at
+        # runtime.
+        label, ok = QInputDialog.getItem(parent, title, message, options,
+                                         current)
+    return (ok and label) or None
+
+
+@dataclass(frozen=True)
+class ChoiceDialogState:
+    state: Optional[str]
+
+
+def showChoiceDialogWithState(
+        parent, title: str, message: str, options: List[str],
+        current: Optional[int], last_state: ChoiceDialogState
+) -> Tuple[Optional[str], ChoiceDialogState]:
+    """
+    Shows a choice selection dialog.
+
+    This dialog also maintains state that preselects the last chosen option if
+    any.
 
     :param parent
-    :param languages_with_current Optional[Tuple[List[str], Optional[str]]]:
-        The list of options to choose from together with a default selection.
-    :rtype Optional[str]: The chosen language if any.
+    :param title str
+    :param message str
+    :param options List[str]
+    :param current Optional[int]: The option to preselect if the last chosen
+      option is not available.
+    :param last_state ChoiceDialogState: The last state returned by this
+      dialog.
+    :rtype Tuple[Optional[str], ChoiceDialogState]: The selected option if any
+      with the new state.
     """
-    parent = parent or (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
+    if last_state.state:
+        current = index_or(options, last_state.state, current)
+    chosen_option = showChoiceDialog(parent, title, message, options, current)
+    return (chosen_option,
+            ChoiceDialogState(chosen_option) if chosen_option else last_state)
+
+
+def ask_for_language(
+        parent, languages: List[str], current: Optional[int],
+        last_state: ChoiceDialogState
+) -> Tuple[Optional[str], ChoiceDialogState]:
+    """
+    Shows a dialog asking for a programming language.
+    """
     enter_lang = 'Enter a language'
     provide_lang_long = 'Provide the snippet\'s language (e.g., cpp)'
 
-    if languages_with_current:
-        languages, current = languages_with_current
-        lang_index_or = partial(index_or, languages)
-
-        default_index = (lang_index_or(current, None)
-                         or lang_index_or('cpp', None)
-                         or lang_index_or('C++', 0))
-        lang, ok = QInputDialog.getItem(parent, enter_lang, provide_lang_long,
-                                        languages, default_index)
-    else:
-        lang, ok = QInputDialog.getText(parent, enter_lang, provide_lang_long)
-    return ok and lang
+    lang, new_state = showChoiceDialogWithState(parent, enter_lang,
+                                                provide_lang_long, languages,
+                                                current, last_state)
+    return (lang, new_state)
 
 
-CACHED_SELECTED_LANGUAGES: Dict[str, Optional[str]] = {
-    'pygments': None,
-    'highlight.js': None,
+@enum.unique
+class HIGHLIGHT_METHOD(Enum):
+    HLJS = 'highlight.js'
+    PYGMENTS = 'pygments'
+
+
+CACHED_SELECTED_LANGUAGES: Dict[HIGHLIGHT_METHOD, ChoiceDialogState] = {
+    HIGHLIGHT_METHOD.PYGMENTS: ChoiceDialogState(None),
+    HIGHLIGHT_METHOD.HLJS: ChoiceDialogState(None),
 }
 
 
@@ -112,11 +170,6 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             "You've run the code highlighter without selecting a field.\n" +
             "Select a note field before running the code highlighter.")
         return None
-
-    @enum.unique
-    class HIGHLIGHT_METHOD(Enum):
-        HLJS = 'highlight.js'
-        PYGMENTS = 'pygments'
 
     @dataclass(frozen=True)
     class HljsConfig:
@@ -144,13 +197,13 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 sorted(
                     list_plugin_media_files(editor.mw.col.media,
                                             ASSET_PREFIX)))
-            languages_with_current = (available_languages,
-                                      CACHED_SELECTED_LANGUAGES[highlighter]
-                                      ) if available_languages else None
-            language = ask_for_language(
-                parent=None, languages_with_current=languages_with_current)
+            language, new_state = ask_for_language(
+                parent=None,
+                languages=available_languages,
+                current=index_or(available_languages, 'cpp', None),
+                last_state=CACHED_SELECTED_LANGUAGES[HIGHLIGHT_METHOD.HLJS])
+            CACHED_SELECTED_LANGUAGES[HIGHLIGHT_METHOD.HLJS] = new_state
             if language:
-                CACHED_SELECTED_LANGUAGES[highlighter] = language
                 return HljsConfig(language)
         elif highlighter == HIGHLIGHT_METHOD.PYGMENTS.value:
             display_style, ok = QInputDialog.getItem(parent, 'Display style',
@@ -168,13 +221,14 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 t[0] for t in pygments.lexers.get_all_lexers()
                 if ' ' not in t[0]
             ]
-            languages_with_current = (available_languages,
-                                      CACHED_SELECTED_LANGUAGES[highlighter]
-                                      ) if available_languages else None
-            language = ask_for_language(
-                parent=None, languages_with_current=languages_with_current)
+            language, new_state = ask_for_language(
+                parent=None,
+                languages=available_languages,
+                current=index_or(available_languages, 'C++', None),
+                last_state=CACHED_SELECTED_LANGUAGES[
+                    HIGHLIGHT_METHOD.PYGMENTS])
+            CACHED_SELECTED_LANGUAGES[HIGHLIGHT_METHOD.PYGMENTS] = new_state
             if language:
-                CACHED_SELECTED_LANGUAGES[highlighter] = language
                 return PygmentsConfig(display_style, language)
         return None
 
