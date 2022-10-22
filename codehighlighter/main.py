@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """The implementation of the code highlighter plugin."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import enum
 from enum import Enum
 from functools import partial
@@ -128,6 +128,64 @@ def showChoiceDialogWithState(
             ChoiceDialogState(chosen_option) if chosen_option else last_state)
 
 
+@enum.unique
+class HIGHLIGHT_METHOD(Enum):
+    HLJS = 'highlight.js'
+    PYGMENTS = 'pygments'
+
+
+@dataclass
+class WizardState:
+    highlighter: ChoiceDialogState = ChoiceDialogState(None)
+    display_style: ChoiceDialogState = ChoiceDialogState(None)
+    language_select: Dict[HIGHLIGHT_METHOD, ChoiceDialogState] = field(
+        default_factory=lambda:
+        {m: ChoiceDialogState(None)
+         for m in list(HIGHLIGHT_METHOD)})
+
+
+WIZARD_STATE = WizardState()
+
+
+def ask_for_highlight_method(
+    parent, last_state: ChoiceDialogState
+) -> Tuple[Optional[HIGHLIGHT_METHOD], ChoiceDialogState]:
+    """
+    Shows a dialog asking for a highlighting method.
+    """
+    method_value, new_state = showChoiceDialogWithState(
+        parent,
+        'Highlighter',
+        'Select a highlighter', [m.value for m in list(HIGHLIGHT_METHOD)],
+        current=0,
+        last_state=last_state)
+    for m in list(HIGHLIGHT_METHOD):
+        if m.value == method_value:
+            return (m, new_state)
+    return (None, new_state)
+
+
+def ask_for_display_style(
+    parent, last_state: ChoiceDialogState
+) -> Tuple[Optional[DISPLAY_STYLE], ChoiceDialogState]:
+    """
+    Shows a dialog asking for a display style.
+    """
+    display_style_value, new_state = showChoiceDialogWithState(
+        parent,
+        'Display style',
+        'Select a display style', ['block', 'inline'],
+        current=0,
+        last_state=last_state)
+    if display_style_value == 'block':
+        ret = DISPLAY_STYLE.BLOCK
+    elif display_style_value == 'inline':
+        ret = DISPLAY_STYLE.INLINE
+    else:
+        ret = None
+    return (ret, new_state)
+
+
 def ask_for_language(
         parent, languages: List[str], current: Optional[int],
         last_state: ChoiceDialogState
@@ -142,18 +200,6 @@ def ask_for_language(
                                                 provide_lang_long, languages,
                                                 current, last_state)
     return (lang, new_state)
-
-
-@enum.unique
-class HIGHLIGHT_METHOD(Enum):
-    HLJS = 'highlight.js'
-    PYGMENTS = 'pygments'
-
-
-CACHED_SELECTED_LANGUAGES: Dict[HIGHLIGHT_METHOD, ChoiceDialogState] = {
-    HIGHLIGHT_METHOD.PYGMENTS: ChoiceDialogState(None),
-    HIGHLIGHT_METHOD.HLJS: ChoiceDialogState(None),
-}
 
 
 def highlight_action(editor: aqt.editor.Editor) -> None:
@@ -186,33 +232,30 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
         highlighter = get_config("default-highlighter", "")
         if not highlighter:
-            highlighter, ok = QInputDialog.getItem(
-                parent, 'Highlighter', 'Select a highlighter',
-                [HIGHLIGHT_METHOD.HLJS.value, HIGHLIGHT_METHOD.PYGMENTS.value])
-            if not ok or not highlighter:
+            highlighter, WIZARD_STATE.highlighter = ask_for_highlight_method(
+                parent, WIZARD_STATE.highlighter)
+            if not highlighter:
                 return None
 
-        if highlighter == HIGHLIGHT_METHOD.HLJS.value:
+        if highlighter == HIGHLIGHT_METHOD.HLJS:
             available_languages = get_available_languages(
                 sorted(
                     list_plugin_media_files(editor.mw.col.media,
                                             ASSET_PREFIX)))
-            language, new_state = ask_for_language(
-                parent=None,
-                languages=available_languages,
-                current=index_or(available_languages, 'cpp', None),
-                last_state=CACHED_SELECTED_LANGUAGES[HIGHLIGHT_METHOD.HLJS])
-            CACHED_SELECTED_LANGUAGES[HIGHLIGHT_METHOD.HLJS] = new_state
+            language, WIZARD_STATE.language_select[
+                HIGHLIGHT_METHOD.HLJS] = ask_for_language(
+                    parent=None,
+                    languages=available_languages,
+                    current=index_or(available_languages, 'cpp', None),
+                    last_state=WIZARD_STATE.language_select[
+                        HIGHLIGHT_METHOD.HLJS])
             if language:
                 return HljsConfig(language)
-        elif highlighter == HIGHLIGHT_METHOD.PYGMENTS.value:
-            display_style, ok = QInputDialog.getItem(parent, 'Display style',
-                                                     'Select a display style',
-                                                     ['block', 'inline'])
-            if not ok:
+        elif highlighter == HIGHLIGHT_METHOD.PYGMENTS:
+            display_style, WIZARD_STATE.display_style = ask_for_display_style(
+                parent, WIZARD_STATE.display_style)
+            if display_style is None:
                 return None
-            display_style = (DISPLAY_STYLE.BLOCK if display_style == 'block'
-                             else DISPLAY_STYLE.INLINE)
 
             # Filter out lexers with spaces in their name, because
             # get_lexer_by_name can't find them. Lexers with spaces are niche
@@ -221,13 +264,13 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 t[0] for t in pygments.lexers.get_all_lexers()
                 if ' ' not in t[0]
             ]
-            language, new_state = ask_for_language(
-                parent=None,
-                languages=available_languages,
-                current=index_or(available_languages, 'C++', None),
-                last_state=CACHED_SELECTED_LANGUAGES[
-                    HIGHLIGHT_METHOD.PYGMENTS])
-            CACHED_SELECTED_LANGUAGES[HIGHLIGHT_METHOD.PYGMENTS] = new_state
+            language, WIZARD_STATE.language_select[
+                HIGHLIGHT_METHOD.PYGMENTS] = ask_for_language(
+                    parent=None,
+                    languages=available_languages,
+                    current=index_or(available_languages, 'C++', None),
+                    last_state=WIZARD_STATE.language_select[
+                        HIGHLIGHT_METHOD.PYGMENTS])
             if language:
                 return PygmentsConfig(display_style, language)
         return None
