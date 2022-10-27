@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 TARGET_PATH=codehighlighter.ankiaddon
-TARGET_PATH=$(readlink -f ${TARGET_PATH})
 
 rm -f "${TARGET_PATH}" && \
 zip "${TARGET_PATH}" -j \
   codehighlighter/*.py \
   codehighlighter/config.json \
-  codehighlighter/manifest.json && \
+  codehighlighter/manifest.json
+TARGET_PATH=$(readlink -f ${TARGET_PATH})
 pushd codehighlighter
 zip -r "${TARGET_PATH}" icons/*.png
 popd
