@@ -1,5 +1,6 @@
 from functools import partial
 import random
+import re
 import typing
 from typing import Callable, Optional, Union
 
@@ -10,7 +11,7 @@ from bs4 import BeautifulSoup, NavigableString
 
 from .bs4extra import encode_soup
 
-__all__ = ['transform_selection']
+__all__ = ['extract_field_from_web_editor', 'transform_selection']
 
 
 # A helper function for `transform_selection` exposed for testing.
@@ -27,11 +28,28 @@ def transform_elements_with_id(html: str, id: str,
 T = typing.TypeVar('T')
 
 
+def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
+    """
+    Returns HTML of a note field.
+
+    :param web_editor_html str: The innerHTML of the webview's shadow root
+      containing the editing widget.
+    :rtype Optional[str]: On a failure to find the field, returns None.
+    """
+    result = re.search('<anki-editable[^>]*>(.*)</anki-editable>',
+                       web_editor_html, re.MULTILINE | re.DOTALL)
+    if result is None:
+        return None
+    return result.group(1)
+
+
 # get_transform_config is necessary, because it may show a modal dialog, which
 # would cause the result of editor.web.eval to be committed to the database,
 # updating editor.note.
-# I couldn't make this function to work with editor.web.evalWithCallback, the
-# note didn't get updated in the continuation.
+# This function has used `editor.web.eval` previously, but that executed
+# asynchronously, so there was no guarantee that editor.note would be up to
+# date with changes made by the JavaScript.
+# I arrived at the .evalWithCallback approach thanks to:
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(
         editor: aqt.editor.Editor, note: anki.notes.Note, currentField: int,
@@ -53,6 +71,35 @@ def transform_selection(
     :rtype None
     """
     random_id = str(random.randint(0, 10000))
+
+    def transform_field(web_editor_html: str) -> None:
+        field = extract_field_from_web_editor(web_editor_html)
+        transformData = get_transform_config()
+        if transformData:
+            format: Callable[[str], Union[bs4.Tag,
+                                          bs4.BeautifulSoup]] = partial(
+                                              transform, transformData)
+        else:
+            # If getting transform config has failed, use an effect-less transform
+            # to clean up annotations.
+            format = lambda code: bs4.BeautifulSoup(code,
+                                                    features='html.parser')
+
+        if field is None:
+            # Use note.fields[currentField] as a backup.
+            field = note.fields[currentField]
+
+        note.fields[currentField] = transform_elements_with_id(
+            field, random_id, format)
+
+        # That's how aqt.editor.onHtmlEdit saves cards.
+        # It's better than `editor.mw.reset()`, because the latter loses focus.
+        # Calls like editor.mw.reset() or editor.loadNote() are necessary to save
+        # HTML changes.
+        if not editor.addMode:
+            note.flush()  # type: ignore
+        editor.loadNoteKeepingFocus()
+
     # Not using Anki's own `wrap` function uses `document.execCommand`, which
     # is deprecated and doesn't work for inline selections.
     # Using the Range API is better as it doesn't suffer from those drawbacks.
@@ -60,7 +107,8 @@ def transform_selection(
     # We need to wrap the selection in a tag, because `get_transform_config`
     # may lose focus (e.g., by presenting a modal dialog) and therefore the
     # selection.
-    editor.web.eval(f"""
+    editor.web.evalWithCallback(
+        f"""
       (function() {{
          let selection = document.activeElement.shadowRoot.getSelection();
          if (selection.rangeCount == 0) return;
@@ -69,23 +117,5 @@ def transform_selection(
          const spanTag = document.createElement('span')
          spanTag['id'] = '{random_id}'
          range.surroundContents(spanTag);
-      }})();""")
-    transformData = get_transform_config()
-    if transformData:
-        format: Callable[[str], Union[bs4.Tag, bs4.BeautifulSoup]] = partial(
-            transform, transformData)
-    else:
-        # If getting transform config has failed, use an effect-less transform
-        # to clean up annotations.
-        format = lambda code: bs4.BeautifulSoup(code, features='html.parser')
-
-    note.fields[currentField] = transform_elements_with_id(
-        note.fields[currentField], random_id, format)
-
-    # That's how aqt.editor.onHtmlEdit saves cards.
-    # It's better than `editor.mw.reset()`, because the latter loses focus.
-    # Calls like editor.mw.reset() or editor.loadNote() are necessary to save
-    # HTML changes.
-    if not editor.addMode:
-        note.flush()  # type: ignore
-    editor.loadNoteKeepingFocus()
+         return document.activeElement.shadowRoot.innerHTML;
+      }})();""", transform_field)

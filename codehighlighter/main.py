@@ -286,13 +286,32 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                         format)  # type: ignore
 
 
+def get_shortcut() -> str:
+    """
+    Gets the keyboard shortcut for the highlighting action.
+
+    :rtype str: The keyboard shortcut, e.g., "ctrl+'".
+    """
+    return get_config("shortcut", "ctrl+'")
+
+
 def on_editor_shortcuts_init(shortcuts: List[Tuple],
                              editor: aqt.editor.Editor) -> None:
-    shortcut = get_config("shortcut", "ctrl+'")
     aqt.qt.QShortcut(  # type: ignore
-        aqt.qt.QKeySequence(shortcut),  # type: ignore
+        aqt.qt.QKeySequence(get_shortcut()),  # type: ignore
         editor.widget,
         activated=lambda: highlight_action(editor))
+
+
+def on_editor_buttons_init(buttons: List, editor: aqt.editor.Editor) -> None:
+    action_button = editor.addButton(
+        icon=os.path.join(addon_path, "icons", "icon.png"),
+        cmd="highlight",
+        func=lambda editor: highlight_action(editor),
+        tip=f"Highlight current text selection ({get_shortcut()}).",
+        # Skip label, because we already provide an icon.
+    )
+    buttons.append(action_button)
 
 
 def transform_templates(models: anki.models.ModelManager,
@@ -364,3 +383,4 @@ def load_mw_and_sync():
 gui_hooks.profile_did_open.append(load_mw_and_sync)
 gui_hooks.main_window_did_init.append(setup_menu)
 gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)
+gui_hooks.editor_did_init_buttons.append(on_editor_buttons_init)

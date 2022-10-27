@@ -29,7 +29,8 @@ Alternatively, you can install this plugin from source.
 
 1. Write a code snippet in a card editor.
 2. Select your code snippet.
-3. Press `CTRL+'` (on macOS, `⌘+'`).
+3. Press `CTRL+'` (on macOS, `⌘+'`) or click this add-on's button in the
+   editor's button bar.
 
 For the list of supported languages and their corresponding codes, see
 `assets/_ch-hljs-lang-*.min.js` files in this repository.
