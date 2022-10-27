@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 1120.66 889.39"
+   version="1.1"
+   id="svg78"
+   sodipodi:docname="CodesHighlight.svg"
+   inkscape:export-filename="CodesHighlight.png"
+   inkscape:export-xdpi="3.45"
+   inkscape:export-ydpi="3.45"
+   inkscape:version="1.2.1 (9c6d41e, 2022-07-14)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview80"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.69823136"
+     inkscape:cx="964.57999"
+     inkscape:cy="497.68604"
+     inkscape:window-width="1280"
+     inkscape:window-height="771"
+     inkscape:window-x="0"
+     inkscape:window-y="157"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="brackets" />
+  <defs
+     id="defs60">
+    <style
+       id="style58">.cls-1{fill:#fff;}.cls-2{fill:#f9e30d;}.cls-3{fill:#465ea8;}.cls-4{fill:#dd4a93;}.cls-5{fill:#00ace9;}.cls-6{fill:#48a847;}.cls-7{fill:#d93c45;}</style>
+  </defs>
+  <title
+     id="title62">Fichier 2</title>
+  <g
+     id="Calque_2"
+     data-name="Calque 2">
+    <g
+       id="Calque_1-2"
+       data-name="Calque 1">
+      <g
+         id="CodesHighlight">
+        <g
+           id="brackets">
+          <path
+             class="cls-1"
+             d="M0,486.16v-82q39.38,0,64.81-23.35T90.24,307.9V177.31Q90.24,0,237.92,0h10.66V71.49H237.92q-44.31,0-62.36,23.36t-18,76.74V327.92q0,47.68-22.56,78.17T72.19,445.17q40.2,8.58,62.77,39.09t22.56,78.16V717.81q0,53.37,18,76.73t62.36,23.36h10.66v71.49H237.92q-147.67,0-147.68-177.3V582.44q0-49.55-25.43-72.92T0,486.16Z"
+             id="path64"
+             style="fill:#4d4d4d" />
+          <path
+             class="cls-1"
+             d="M1120.66,404.18v82q-39.37,0-64.81,23.36t-25.43,72.92V712.09q0,177.3-147.67,177.3H872.08V817.9h10.67q44.29,0,62.35-23.36t18-76.73V562.42q0-47.65,22.57-78.16t62.76-39.09q-40.22-8.58-62.76-39.08t-22.57-78.17V171.59q0-53.39-18-76.74T882.75,71.49H872.08V0h10.67q147.66,0,147.67,177.31V307.9q0,49.59,25.43,72.93T1120.66,404.18Z"
+             id="path66"
+             style="fill:#4d4d4d" />
+        </g>
+        <rect
+           id="yellow"
+           class="cls-2"
+           x="371.55"
+           y="167.05"
+           width="170"
+           height="82.5"
+           rx="41.25" />
+        <rect
+           id="purple"
+           class="cls-3"
+           x="402.05"
+           y="657.84"
+           width="293.11"
+           height="82.5"
+           rx="41.25" />
+        <rect
+           id="pink"
+           class="cls-4"
+           x="601.16"
+           y="167.05"
+           width="295.39"
+           height="82.5"
+           rx="41.25" />
+        <rect
+           id="blue"
+           class="cls-5"
+           x="474.11"
+           y="494.25"
+           width="295.39"
+           height="82.5"
+           rx="41.25" />
+        <rect
+           id="green"
+           class="cls-6"
+           x="224.11"
+           y="494.25"
+           width="161.45"
+           height="82.5"
+           rx="41.25" />
+        <rect
+           id="red"
+           class="cls-7"
+           x="260.3"
+           y="330.65"
+           width="452.11"
+           height="82.5"
+           rx="41.25" />
+      </g>
+    </g>
+  </g>
+</svg>
