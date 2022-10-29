@@ -5,10 +5,11 @@ The module is plugin agnostic: it contains generic mechanisms for updating
 relevant assets.
 """
 # Media refers to static JS and CSS files.
+from functools import partial
 import os.path
 import pathlib
 import re
-from typing import Callable, List, Optional, Protocol, Union
+from typing import Callable, List, Optional, Protocol, Tuple, Union
 
 from anki.media import MediaManager  # type: ignore
 from aqt import mw  # type: ignore
@@ -20,6 +21,8 @@ __all__ = [
     'has_newer_version',
     'list_plugin_media_files'
     'sync_assets',
+    'append_import_statements',
+    'delete_import_statements',
 ]
 
 
@@ -66,7 +69,7 @@ class AnkiAssetManager:
     def __init__(self, modify_templates: Callable[[Callable[[str], str]],
                                                   None], media: MediaManager,
                  asset_prefix: str, css_assets: List[str],
-                 js_assets: List[str], class_name: str):
+                 js_assets: List[str], guard: str, class_name: str):
         """
         :param modify_templates Callable[[Callable[[str], str]],
                                                           None]:
@@ -75,6 +78,7 @@ class AnkiAssetManager:
         :param asset_prefix str: The prefix used for this plugin's assets.
         :param css_assets List[str]: All CSS files used by this plugin.
         :param js_assets List[str]: All JS files to be imported by this plugin.
+        :param guard str A guard string used for HTML comments wrapping the imports.
         :param class_name str: The unique HTML class name that this manager can
             use to identify its HTML elements.
         """
@@ -83,17 +87,21 @@ class AnkiAssetManager:
         self.asset_prefix = asset_prefix
         self.css_assets = css_assets
         self.js_assets = js_assets
+        self.guard = guard
         self.class_name = class_name
 
     def install_assets(self) -> None:
         install_media_assets(self.asset_prefix, self.media)
-        configure_cards(self.modify_templates,
-                        css_assets=self.css_assets,
-                        js_assets=self.js_assets,
-                        class_name=self.class_name)
+        self.modify_templates(
+            lambda tmpl: append_import_statements(css_assets=self.css_assets,
+                                                  js_assets=self.js_assets,
+                                                  guard=self.guard,
+                                                  class_name=self.class_name,
+                                                  tmpl=tmpl))
 
     def delete_assets(self) -> None:
-        clear_cards(self.modify_templates, class_name=self.class_name)
+        self.modify_templates(lambda tmpl: delete_import_statements(
+            guard=self.guard, class_name=self.class_name, tmpl=tmpl))
         delete_media_assets(self.asset_prefix, self.media)
 
 
@@ -142,10 +150,28 @@ def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
     media.trash_files(my_assets)
 
 
-def configure_cards(modify_templates: Callable[[Callable[[str], str]],
-                                               None], css_assets: List[str],
-                    js_assets: List[str], class_name: str) -> None:
+def guards(guard: str) -> Tuple[str, str]:
+    """
+    Creates HTML comments bracketing import statements.
 
+    :param guard str A guard string used for HTML comments wrapping the imports.
+    :rtype Tuple[str, str]
+    """
+    return (f'<!-- {guard} BEGIN -->\n', f'<!-- {guard} END -->\n')
+
+
+def append_import_statements(css_assets: List[str], js_assets: List[str],
+                             guard: str, class_name: str, tmpl: str) -> str:
+    """
+    Appends import statements to a card template.
+
+    :param css_assets List[str]
+    :param js_assets List[str]
+    :param guard str A guard string used for HTML comments wrapping the imports.
+    :param class_name str A class name that identifies this plugin.
+    :param tmpl str
+    :rtype str: A template with added import statements.
+    """
     IMPORT_STATEMENTS = (''.join([
         f'<link rel="stylesheet" href="{css_asset}" class="{class_name}">\n'
         for css_asset in css_assets
@@ -154,22 +180,42 @@ def configure_cards(modify_templates: Callable[[Callable[[str], str]],
         for js_asset in js_assets
     ]))
 
-    def append_import_statements(tmpl):
-        return tmpl + '\n' + IMPORT_STATEMENTS
+    GUARD_BEGIN, GUARD_END = guards(guard)
 
-    modify_templates(append_import_statements)
+    gap = '\n' if tmpl.endswith('\n') else '\n\n'
+
+    return tmpl + gap + GUARD_BEGIN + IMPORT_STATEMENTS + GUARD_END
 
 
-def clear_cards(modify_templates: Callable[[Callable[[str], str]], None],
-                class_name: str) -> None:
+def delete_import_statements(guard: str, class_name: str, tmpl: str) -> str:
+    """
+    Deletes import statements from a card template.
 
-    def delete_import_statements(tmpl):
-        return re.sub(f'^<[^>]*class="{class_name}"[^>]*>[^\n]*\n',
-                      "",
-                      tmpl,
-                      flags=re.MULTILINE)
+    :param guard str A guard string used for HTML comments wrapping the imports.
+    :param class_name str A class name that identifies this plugin.
+    :param tmpl str
+    :rtype str: A template with deleted import statements.
+    """
+    GUARD_BEGIN, GUARD_END = guards(guard)
+    tmpl = re.sub(f'\n{re.escape(GUARD_BEGIN)}.*{re.escape(GUARD_END)}',
+                  '',
+                  tmpl,
+                  flags=re.MULTILINE | re.DOTALL)
 
-    modify_templates(lambda tmpl: delete_import_statements(tmpl).strip())
+    # To handle old-style imports or modification by the author, delete
+    # individual remaining lines
+    tmpl = re.sub(f'^<[^>]*class="{re.escape(class_name)}"[^>]*>[^\n]*\n',
+                  '',
+                  tmpl,
+                  flags=re.MULTILINE)
+    tmpl = re.sub(f'<!--.*{re.escape(guard)}.*-->\n',
+                  '',
+                  tmpl,
+                  flags=re.MULTILINE)
+    if tmpl.endswith('\n\n'):
+        tmpl = tmpl.removesuffix('\n\n') + '\n'
+
+    return tmpl
 
 
 def sync_assets(has_newer_version: Callable[[], bool],
