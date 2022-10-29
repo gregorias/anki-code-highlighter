@@ -265,10 +265,11 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             # Filter out lexers with spaces in their name, because
             # get_lexer_by_name can't find them. Lexers with spaces are niche
             # anyway.
-            available_languages = [
-                t[0] for t in pygments.lexers.get_all_lexers()
-                if ' ' not in t[0]
-            ]
+            available_languages = list(
+                sorted([
+                    t[0] for t in pygments.lexers.get_all_lexers()
+                    if ' ' not in t[0]
+                ]))
             language, WIZARD_STATE.language_select[
                 HIGHLIGHT_METHOD.PYGMENTS] = ask_for_language(
                     parent=None,
