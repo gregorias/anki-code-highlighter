@@ -39,6 +39,7 @@ CSS_ASSETS = [
 ]
 JS_ASSETS = ["_ch-my-highlight.js"]
 VERSION_ASSET = '_ch-asset-version.txt'
+GUARD = 'Anki Code Highlighter (Addon 112228974)'
 CLASS_NAME = 'anki-code-highlighter'
 
 
@@ -50,9 +51,13 @@ def get_config(key: str, default):
 
 
 def create_anki_asset_manager(col: anki.collection.Collection):
-    return AnkiAssetManager(partial(transform_templates,
-                                    col.models), col.media, ASSET_PREFIX,
-                            CSS_ASSETS, JS_ASSETS, CLASS_NAME)
+    return AnkiAssetManager(partial(transform_templates, col.models),
+                            col.media,
+                            ASSET_PREFIX,
+                            CSS_ASSETS,
+                            JS_ASSETS,
+                            guard=GUARD,
+                            class_name=CLASS_NAME)
 
 
 T = TypeVar('T')

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import tempfile
+from textwrap import dedent
 import unittest
 
 from codehighlighter import assets
+from codehighlighter.assets import append_import_statements, delete_import_statements
 
 
 class FakeAssetManager:
@@ -39,7 +41,7 @@ class AssetsTestCase(unittest.TestCase):
             version_f.flush()
             self.assertEqual(assets.read_asset_version(version_f.name), 42)
 
-    def test_configure_and_clear_do_nothing(self):
+    def test_append_and_clear_import_statements_do_nothing(self):
         tmpl = """{{FrontSide}}
                     <hr id=answer>
                     {{Back}}
@@ -48,13 +50,64 @@ class AssetsTestCase(unittest.TestCase):
                     <div id=notes>
                     <h4>Notes</h4>
                     {{Notes}}"""
-        old_tmpl = tmpl
 
-        def modify_tmpl(modify):
-            nonlocal tmpl
-            tmpl = modify(tmpl)
-
+        GUARD = 'PLUGIN (Addon 123)'
         CLASS_NAME = 'anki-ch'
-        assets.configure_cards(modify_tmpl, ['css0'], [], CLASS_NAME)
-        assets.clear_cards(modify_tmpl, CLASS_NAME)
-        self.assertEqual(tmpl, old_tmpl)
+
+        new_tmpl = append_import_statements(['c.css'], ['j.js'], GUARD,
+                                            CLASS_NAME, tmpl)
+        self.assertEqual(delete_import_statements(GUARD, CLASS_NAME, new_tmpl),
+                         tmpl + '\n')
+
+    def test_append_import_statements_adds_them_with_a_gap(self):
+        self.assertEqual(
+            append_import_statements(['c.css'], ['j.js'],
+                                     'Anki Code Highlighter (Addon 112228974)',
+                                     'plugin', '{{Cloze}}'),
+            dedent('''\
+            {{Cloze}}
+
+            <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
+            <link rel="stylesheet" href="c.css" class="plugin">
+            <script src="j.js" class="plugin"></script>
+            <!-- Anki Code Highlighter (Addon 112228974) END -->
+            '''))
+
+    def test_append_import_statements_adds_them_with_a_gap_and_minds_a_newline_in_template(
+            self):
+        self.assertEqual(
+            append_import_statements(['c.css'], ['j.js'],
+                                     'Anki Code Highlighter (Addon 112228974)',
+                                     'plugin', '{{Cloze}}\n'),
+            dedent('''\
+            {{Cloze}}
+
+            <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
+            <link rel="stylesheet" href="c.css" class="plugin">
+            <script src="j.js" class="plugin"></script>
+            <!-- Anki Code Highlighter (Addon 112228974) END -->
+            '''))
+
+    def test_delete_import_statements_deletes_old_style_imports(self):
+        TMPL = dedent('''\
+            {{Cloze}}
+
+            <link rel="stylesheet" href="c.css" class="plugin">
+            <script src="j.js" class="plugin"></script>
+            ''')
+        self.assertEqual(
+            delete_import_statements('Anki Code Highlighter (Addon 112228974)',
+                                     'plugin', TMPL), '{{Cloze}}\n')
+
+    def test_delete_import_statements_deletes_new_style_imports(self):
+        TMPL = dedent('''\
+            {{Cloze}}
+
+            <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
+            <link rel="stylesheet" href="c.css" class="plugin">
+            <script src="j.js" class="plugin"></script>
+            <!-- Anki Code Highlighter (Addon 112228974) END -->
+            ''')
+        self.assertEqual(
+            delete_import_statements('Anki Code Highlighter (Addon 112228974)',
+                                     'plugin', TMPL), '{{Cloze}}\n')
