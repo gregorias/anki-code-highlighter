@@ -40,7 +40,7 @@ For the list of supported languages and their corresponding codes, see
 * [highlight.js](https://highlightjs.org/) — This highlighter highlights during
   card display. It supports only code blocks.
 * [pygments](https://pygments.org/) — This highlighter creates highlighting
-  tags when you run this plugin. This can is useful for creating cloze cards.
+  tags when you run this plugin. This is useful for creating cloze cards.
   It supports both inline code and code blocks.
 
 ### Configuration
