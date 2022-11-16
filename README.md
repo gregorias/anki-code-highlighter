@@ -53,7 +53,7 @@ The plugin accepts the following configuration options:
 
 ## Refresh & Removal
 
-This plugin installs its own JS and CSS files as well as modifies card
+This plugin installs its own JS and CSS files. It also modifies card
 templates. You need to run some manual steps if you:
 
 - add a new template
@@ -63,8 +63,8 @@ If you add a new card template, run `Extras/Tools > Refresh Code Highlighter
 Assets`.
 
 To remove the plugin, run `Extras/Tools > Delete Code Highlighter Assets`
-before deleting the plugin using Anki's internal add-on system. This manual
-step is necessary until Anki adds [add-on lifecycle
+before deleting the plugin using Anki's internal add-on system. This
+manual step is necessary until Anki adds [add-on lifecycle
 hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
 
 ## For Developers
