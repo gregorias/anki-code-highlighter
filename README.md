@@ -47,8 +47,46 @@ For the list of supported languages and their corresponding codes, see
 
 The plugin accepts the following configuration options:
 
+- `css-files` (default lives in `codehighlighter/main.py`) — the list of CSS styles to use.
 - `shortcut` (e.g. `ctrl+;`) — this sets the shortcut that triggers this plugin.
 - `default-highlighter` (`highlight.js`, `pygments`, ``) — this sets the default highlighting mechanism.
+
+### Custom styles
+
+This plugin supports a modified solarized theme out of the box (its day and
+night variants), but you may install your own style for highlighting with
+highlight.js (instructions for Pygments are not supported yet due to a more
+complicated setup).
+
+To setup a custom style, do the following:
+
+1. Download your new style from [the list of available
+   styles](https://github.com/highlightjs/highlight.js/tree/main/src/styles).
+1. Rename the CSS stylesheet file to start with `_`. This is necessary to
+   prevent garbage collection from Anki when you save it in the media
+   directory. Let's say you named it `_ch-my-style.css`.
+1. Save the CSS stylesheet file into [your Anki profile's media
+   directory]. If you have already installed this plugin, the media
+   directory should contain this plugin's assets, e.g.,
+   `_ch-hljs-solarized.css`.
+1. Open this plugin's configuration in Anki and change the value of
+   [`css-files`](#configuration) to use your new stylesheet, e.g.,:
+
+   ```json
+   {
+     "css-files": [
+       "_ch-my-style.css",
+       "_ch-pygments-solarized.css",
+     ]
+   }
+   ```
+
+   In the example above, we keep the default styles for Pygments.
+1. [Refresh this plugin's assets.](#refresh--removal).
+
+Your new styles will work now. You may customize it further by adding a custom
+border or add a separte style for dark mode. For how it's done, see
+[`_ch-hljs-solarized.css`](https://github.com/gregorias/anki-code-highlighter/blob/main/assets/_ch-hljs-solarized.css).
 
 
 ## Refresh & Removal

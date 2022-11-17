@@ -1,3 +1,7 @@
 {
+  "css-files": [
+    "_ch-pygments-solarized.css",
+    "_ch-hljs-solarized.css"
+  ],
   "shortcut": "ctrl+'"
 }
