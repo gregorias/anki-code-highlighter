@@ -31,9 +31,8 @@ from .hljs import get_available_languages
 import anki  # type: ignore
 
 addon_path = os.path.dirname(__file__)
-config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
 ASSET_PREFIX = '_ch-'
-CSS_ASSETS = [
+DEFAULT_CSS_ASSETS = [
     "_ch-pygments-solarized.css",
     "_ch-hljs-solarized.css",
 ]
@@ -43,18 +42,44 @@ GUARD = 'Anki Code Highlighter (Addon 112228974)'
 CLASS_NAME = 'anki-code-highlighter'
 
 
+def config():
+    return aqt.mw and aqt.mw.addonManager.getConfig(__name__)
+
+
 def get_config(key: str, default):
-    if config:
-        return config.get(key, default)
+    config_snapshot = config()
+    if config_snapshot:
+        return config_snapshot.get(key, default)
     else:
         return default
 
 
-def create_anki_asset_manager(col: anki.collection.Collection):
+def css_files() -> List[str]:
+    """
+    A list of configured css files to use for styling.
+
+    :rtype List[str]
+    """
+    config_css_files = get_config('css-files', DEFAULT_CSS_ASSETS)
+    print(repr(config_css_files))
+
+    if not (isinstance(config_css_files, list)
+            and all([isinstance(e, str) for e in config_css_files])):
+        showWarning(
+            "The configured css-files for the code highlighter plugin " +
+            f"should be a list of CSS files but got {repr(config_css_files)}.\n"
+            + "Fix the plugin's configuration.")
+        return DEFAULT_CSS_ASSETS
+
+    return config_css_files
+
+
+def create_anki_asset_manager(css_assets: List[str],
+                              col: anki.collection.Collection):
     return AnkiAssetManager(partial(transform_templates, col.models),
                             col.media,
                             ASSET_PREFIX,
-                            CSS_ASSETS,
+                            css_assets,
                             JS_ASSETS,
                             guard=GUARD,
                             class_name=CLASS_NAME)
@@ -350,12 +375,14 @@ def setup_menu() -> None:
         #    profile load
         #    (https://github.com/gregorias/anki-code-highlighter/issues/22).
         # 2. create_anki_asset_manager requires a profile to be loaded.
-        anki_asset_manager = create_anki_asset_manager(main_window.col)
+        anki_asset_manager = create_anki_asset_manager(css_files(),
+                                                       main_window.col)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
-        anki_asset_manager = create_anki_asset_manager(main_window.col)
+        anki_asset_manager = create_anki_asset_manager(css_files(),
+                                                       main_window.col)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
@@ -380,7 +407,8 @@ def load_mw_and_sync():
             "Please report it to the author at " +
             "https://github.com/gregorias/anki-code-highlighter/issues/new.")
         return None
-    anki_asset_manager = create_anki_asset_manager(main_window.col)
+    anki_asset_manager = create_anki_asset_manager(css_files(),
+                                                   main_window.col)
     sync_assets(
         partial(has_newer_version, main_window.col.media, VERSION_ASSET),
         anki_asset_manager)
