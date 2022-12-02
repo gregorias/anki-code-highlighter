@@ -82,10 +82,10 @@ To setup a custom style, do the following:
    ```
 
    In the example above, we keep the default styles for Pygments.
-1. [Refresh this plugin's assets.](#refresh--removal).
+1. [Refresh this plugin's assets.](#refresh--removal)
 
 Your new styles will work now. You may customize it further by adding a custom
-border or add a separte style for dark mode. For how it's done, see
+border or adding a separate style for dark mode. For how it's done, see
 [`_ch-hljs-solarized.css`](https://github.com/gregorias/anki-code-highlighter/blob/main/assets/_ch-hljs-solarized.css).
 
 
