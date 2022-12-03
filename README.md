@@ -109,6 +109,9 @@ hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/1853
 
 ### Dev Environment Setup
 
+This project requires [Lefthook](https://github.com/evilmartians/lefthook) and
+[Commitlint](https://github.com/conventional-changelog/commitlint).
+
 1. Install the required Python version:
 
    ```shell
@@ -119,12 +122,6 @@ hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/1853
 
     ```shell
     pipenv install --dev
-    ```
-
-1. Set up npm:
-
-    ```shell
-    npm install
     ```
 
 1. Install Lefthook:
