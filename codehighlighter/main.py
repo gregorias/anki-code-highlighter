@@ -307,11 +307,13 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         return None
 
     def format(args: FormatConfig, code) -> Union[bs4.Tag, bs4.BeautifulSoup]:
+        block_style = get_config("block-style",
+                                 "display:flex; justify-content:center;")
         if isinstance(args, HljsConfig):
-            return format_code_hljs(args.language, code)
+            return format_code_hljs(args.language, code, block_style)
         else:
             return format_code_pygments(args.language, args.display_style,
-                                        code)
+                                        code, block_style)
 
     transform_selection(editor, note, currentFieldNo, show_dialogs,
                         format)  # type: ignore

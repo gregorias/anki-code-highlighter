@@ -62,7 +62,10 @@ def walk(soup, func):
             dfs_stack.send(maybe_more_nodes)
 
 
-def format_code_hljs(language: str, code: str) -> bs4.Tag:
+def format_code_hljs(
+        language: str,
+        code: str,
+        block_style: str = "display:flex; justify-content:center;") -> bs4.Tag:
     """Formats the code snippet.
 
     Returns:
@@ -75,7 +78,8 @@ def format_code_hljs(language: str, code: str) -> bs4.Tag:
     else:
         code_tag['class'] = ['language-' + language]
     pre_tag = soup.new_tag('pre')
-    pre_tag['style'] = "display:flex; justify-content:center;"
+    if block_style:
+        pre_tag['style'] = block_style
     code_tag.append(soup)
     pre_tag.append(code_tag)
     walk(pre_tag, walk_func)
@@ -106,8 +110,12 @@ class DISPLAY_STYLE(Enum):
     INLINE = 2
 
 
-def format_code_pygments(language: str, display_style: DISPLAY_STYLE,
-                         code: str) -> bs4.BeautifulSoup:
+def format_code_pygments(
+    language: str,
+    display_style: DISPLAY_STYLE,
+    code: str,
+    block_style: str = "display:flex; justify-content:center;"
+) -> bs4.BeautifulSoup:
     lexer = pygments.lexers.get_lexer_by_name(language)
     if display_style is DISPLAY_STYLE.INLINE:
         htmlf = pygments.formatters.get_formatter_by_name('html', nowrap=True)
@@ -122,9 +130,10 @@ def format_code_pygments(language: str, display_style: DISPLAY_STYLE,
         highlighted = highlighted.removeprefix('<pre>')
         highlighted = highlighted.removesuffix('</pre>')
         highlighted = highlighted.removeprefix('<span></span>')
-        highlighted = (
-            f'<div class="pygments" style="display:flex; justify-content:center;">\n  <pre><code class="nohighlight">{highlighted}'
-            + '</code></pre>\n</div>\n')
+        style_attr = f' style="{block_style}"' if block_style else ""
+        highlighted = (f'<div class="pygments"{style_attr}>\n' +
+                       f'  <pre><code class="nohighlight">{highlighted}' +
+                       '</code></pre>\n</div>\n')
     highlighted = apply_eye_candy(highlighted, language=language)
     if display_style is DISPLAY_STYLE.INLINE:
         highlighted = remove_spurious_inline_newline(highlighted)

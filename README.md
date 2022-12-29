@@ -53,9 +53,15 @@ for how to fix this.
 
 The plugin accepts the following configuration options:
 
-- `css-files` (default lives in `codehighlighter/main.py`) — the list of CSS styles to use.
-- `shortcut` (e.g. `ctrl+;`) — this sets the shortcut that triggers this plugin.
-- `default-highlighter` (`highlight.js`, `pygments`, ``) — this sets the default highlighting mechanism.
+* `block-style` (default: "display:flex; justify-content:center;") — The CSS
+  style applied to the outer most container of a block code snippet. The
+  default centers the block.
+* `css-files` (default lives in `codehighlighter/main.py`) — the list of CSS
+  styles to use.
+* `shortcut` (e.g. `ctrl+;`) — this sets the shortcut that triggers this
+  plugin.
+* `default-highlighter` (`highlight.js`, `pygments`, ``) — this sets the
+  default highlighting mechanism.
 
 ### Custom styles
 
