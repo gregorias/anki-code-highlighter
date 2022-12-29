@@ -35,6 +35,12 @@ Alternatively, you can install this plugin from source.
 For the list of supported languages and their corresponding codes, see
 `assets/_ch-hljs-lang-*.min.js` files in this repository.
 
+The plugin works on untagged code blocks. Do not add your own HTML tags like
+`<code>` or `<pre><code>` to the snippet you want to highlight. If you have run
+into issues with preannotated code snippets, see [this
+comment](https://github.com/gregorias/anki-code-highlighter/issues/29#issuecomment-1367298126)
+for how to fix this.
+
 ### Supported highlighters
 
 * [highlight.js](https://highlightjs.org/) — This highlighter highlights during
