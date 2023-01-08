@@ -41,8 +41,8 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
                     display_style=highlighter.DISPLAY_STYLE.BLOCK,
                     code=input)), expected)
 
-    def test_removes_break_tags(self):
-        code_snippet = ("def foo():<br>  return 0")
+    def test_removes_html_entities(self):
+        code_snippet = ("def foo():<br>&nbsp; return 0")
         expected_html = (
             '<div class="pygments" style="display:flex; justify-content:center;">\n'
             +

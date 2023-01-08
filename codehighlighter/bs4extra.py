@@ -4,6 +4,8 @@ from typing import Union
 import bs4
 from bs4 import BeautifulSoup
 
+import re
+
 __all__ = [
     'encode_soup',
 ]
@@ -29,4 +31,5 @@ def replace_br_tags_with_newlines(html: str) -> str:
     soup = BeautifulSoup(html, features='html.parser')
     for br in soup.find_all('br'):
         br.replace_with('\n')
-    return encode_soup(soup)
+    new_html = encode_soup(soup)
+    return re.sub('&nbsp;', ' ', new_html)
