@@ -7,6 +7,7 @@ from typing import List
 
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
+from .bs4extra import replace_br_tags_with_newlines
 
 import os, sys
 
@@ -117,6 +118,7 @@ def format_code_pygments(
     block_style: str = "display:flex; justify-content:center;"
 ) -> bs4.BeautifulSoup:
     lexer = pygments.lexers.get_lexer_by_name(language)
+    code = replace_br_tags_with_newlines(code)
     if display_style is DISPLAY_STYLE.INLINE:
         htmlf = pygments.formatters.get_formatter_by_name('html', nowrap=True)
         highlighted = pygments.highlight(code, lexer, htmlf)

@@ -40,3 +40,18 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
                     language='python',
                     display_style=highlighter.DISPLAY_STYLE.BLOCK,
                     code=input)), expected)
+
+    def test_removes_break_tags(self):
+        code_snippet = ("def foo():<br>  return 0")
+        expected_html = (
+            '<div class="pygments" style="display:flex; justify-content:center;">\n'
+            +
+            '<pre><code class="nohighlight"><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>\n'
+            + '  <span class="k">return</span> <span class="mi">0</span>\n' +
+            '</code></pre>\n' + '</div>\n')
+        output_html = encode_soup(
+            highlighter.format_code_pygments(
+                language='python',
+                display_style=highlighter.DISPLAY_STYLE.BLOCK,
+                code=code_snippet))
+        self.assertEqual(output_html, expected_html)
