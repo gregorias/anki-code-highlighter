@@ -197,25 +197,10 @@ def delete_import_statements(guard: str, class_name: str, tmpl: str) -> str:
     :rtype str: A template with deleted import statements.
     """
     GUARD_BEGIN, GUARD_END = guards(guard)
-    tmpl = re.sub(f'\n{re.escape(GUARD_BEGIN)}.*{re.escape(GUARD_END)}',
+    return re.sub(f'\n{re.escape(GUARD_BEGIN)}.*{re.escape(GUARD_END)}',
                   '',
                   tmpl,
                   flags=re.MULTILINE | re.DOTALL)
-
-    # To handle old-style imports or modification by the author, delete
-    # individual remaining lines
-    tmpl = re.sub(f'^<[^>]*class="{re.escape(class_name)}"[^>]*>[^\n]*\n',
-                  '',
-                  tmpl,
-                  flags=re.MULTILINE)
-    tmpl = re.sub(f'<!--.*{re.escape(guard)}.*-->\n',
-                  '',
-                  tmpl,
-                  flags=re.MULTILINE)
-    if tmpl.endswith('\n\n'):
-        tmpl = tmpl.removesuffix('\n\n') + '\n'
-
-    return tmpl
 
 
 def sync_assets(has_newer_version: Callable[[], bool],

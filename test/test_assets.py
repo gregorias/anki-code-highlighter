@@ -88,17 +88,6 @@ class AssetsTestCase(unittest.TestCase):
             <!-- Anki Code Highlighter (Addon 112228974) END -->
             '''))
 
-    def test_delete_import_statements_deletes_old_style_imports(self):
-        TMPL = dedent('''\
-            {{Cloze}}
-
-            <link rel="stylesheet" href="c.css" class="plugin">
-            <script src="j.js" class="plugin"></script>
-            ''')
-        self.assertEqual(
-            delete_import_statements('Anki Code Highlighter (Addon 112228974)',
-                                     'plugin', TMPL), '{{Cloze}}\n')
-
     def test_delete_import_statements_deletes_new_style_imports(self):
         TMPL = dedent('''\
             {{Cloze}}
