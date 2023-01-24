@@ -36,6 +36,7 @@ def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
       containing the editing widget.
     :rtype Optional[str]: On a failure to find the field, returns None.
     """
+    web_editor_html = web_editor_html or ""
     result = re.search('<anki-editable[^>]*>(.*)</anki-editable>',
                        web_editor_html, re.MULTILINE | re.DOTALL)
     if result is None:
