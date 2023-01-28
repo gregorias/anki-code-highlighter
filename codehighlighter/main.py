@@ -319,7 +319,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             return format_code_pygments(args.language, args.display_style,
                                         code, block_style)
 
-    transform_selection(editor, note, currentFieldNo, format)
+    transform_selection(editor, note, currentFieldNo, format, showWarning)
 
 
 def get_shortcut() -> str:

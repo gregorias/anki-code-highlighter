@@ -5,6 +5,7 @@ import typing
 from typing import Callable, Optional, Union
 
 import anki
+from aqt.utils import showWarning  # type: ignore
 import aqt  # type: ignore
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
@@ -48,10 +49,12 @@ def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
 # date with changes made by the JavaScript.
 # I arrived at the .evalWithCallback approach thanks to:
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
-def transform_selection(
-    editor: aqt.editor.Editor, note: anki.notes.Note, currentField: int,
-    transform: Callable[[str], Union[bs4.Tag, bs4.BeautifulSoup,
-                                     None]]) -> None:
+def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
+                        currentField: int,
+                        transform: Callable[[str],
+                                            Union[bs4.Tag, bs4.BeautifulSoup,
+                                                  None]],
+                        onError: Callable[[str], typing.Any]) -> None:
     """
     Transforms selected text using `transform`.
 
@@ -61,13 +64,47 @@ def transform_selection(
     :param transform Callable[[str], Union[bs4.Tag, bs4.BeautifulSoup, None]]:
         The transform function that receives selected text and returns
         transformed tag, or None on error.
+    :param onError Callable[[str], typing.Any]:
+        The callback function that is called if an unrecoverable error has
+        occurred. Provides an error message.
     :rtype None
     """
     random_id = str(random.randint(0, 10000))
+    failed_to_find_selection = 'Failed to find a selection.'
 
-    def transform_field(web_editor_html: str) -> None:
+    def transform_field(selection_return: typing.Any) -> None:
+
+        def safe_get(d, key):
+            if isinstance(d, dict):
+                return d.get(key)
+            return None
+
+        if not safe_get(selection_return, 'field'):
+            error = safe_get(selection_return, 'error')
+            message = safe_get(error, 'message')
+            if message == failed_to_find_selection:
+                onError(
+                    "Failed to find a code selection to highlight." +
+                    " You need to select a code snippet before triggerring the highlight action."
+                )
+            elif message == (
+                    "Failed to execute 'surroundContents' on 'Range': " +
+                    "The Range has partially selected a non-Text node."):
+                onError(
+                    "The selected code contains partial HTML tags. " +
+                    " Clean up your code snippet in the HTML editor " +
+                    "(https://docs.ankiweb.net/editing.html#editing-features)"
+                    + " before highlighting.")
+            else:
+                onError(
+                    f"An unknown transformation error has occurred ({repr(selection_return)}). "
+                    +
+                    " Report it to the developer at https://github.com/gregorias/anki-code-highlighter/issues/new."
+                )
+            return None
+
         # Use note.fields[currentField] as a backup.
-        field = (extract_field_from_web_editor(web_editor_html)
+        field = (extract_field_from_web_editor(selection_return['field'])
                  or note.fields[currentField])
 
         def format(code: str) -> Union[bs4.Tag, bs4.BeautifulSoup]:
@@ -96,12 +133,20 @@ def transform_selection(
     editor.web.evalWithCallback(
         f"""
       (function() {{
-         let selection = document.activeElement.shadowRoot.getSelection();
-         if (selection.rangeCount == 0) return;
-         const range = selection.getRangeAt(selection.rangeCount - 1);
-         if (!range) return;
-         const spanTag = document.createElement('span')
-         spanTag['id'] = '{random_id}'
-         range.surroundContents(spanTag);
-         return document.activeElement.shadowRoot.innerHTML;
+         try {{
+             let selection = document.activeElement.shadowRoot.getSelection();
+             if (selection.rangeCount == 0)
+                return {{ error: {{ name: 'InvalidStateError',
+                                    message: '{failed_to_find_selection}' }} }};
+             const range = selection.getRangeAt(selection.rangeCount - 1);
+             if (!range) return;
+             const spanTag = document.createElement('span')
+             spanTag['id'] = '{random_id}'
+             range.surroundContents(spanTag);
+             return {{ field: document.activeElement.shadowRoot.innerHTML }};
+         }} catch(e) {{
+             if ('name' in e && 'message' in e)
+                 return {{ error: {{ name: e.name, message: e.message }} }}
+             return {{ error: JSON.stringify(e) }}
+         }}
       }})();""", transform_field)
