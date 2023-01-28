@@ -43,47 +43,36 @@ def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
     return result.group(1)
 
 
-# get_transform_config is necessary, because it may show a modal dialog, which
-# would cause the result of editor.web.eval to be committed to the database,
-# updating editor.note.
 # This function has used `editor.web.eval` previously, but that executed
 # asynchronously, so there was no guarantee that editor.note would be up to
 # date with changes made by the JavaScript.
 # I arrived at the .evalWithCallback approach thanks to:
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(
-        editor: aqt.editor.Editor, note: anki.notes.Note, currentField: int,
-        get_transform_config: Callable[[], Optional[T]],
-        transform: Callable[[T, str], Union[bs4.Tag,
-                                            bs4.BeautifulSoup]]) -> None:
+    editor: aqt.editor.Editor, note: anki.notes.Note, currentField: int,
+    transform: Callable[[str], Union[bs4.Tag, bs4.BeautifulSoup,
+                                     None]]) -> None:
     """
     Transforms selected text using `transform`.
 
     :param editor aqt.editor.Editor
     :param note anki.notes.Note: The note under edition. Usually `editor.note`.
     :param currentField int The ID of the field under focus.
-    :param get_transform_config Callable[[], Optional[T]]:
-        A function that returns a configuration for the transformation, e.g.,
-        by showing dialogs asking for user input.
-    :param transform Callable[[T, str], Union[bs4.Tag, bs4.BeautifulSoup]]:
+    :param transform Callable[[str], Union[bs4.Tag, bs4.BeautifulSoup, None]]:
         The transform function that receives selected text and returns
-        transformed tag or soup.
+        transformed tag, or None on error.
     :rtype None
     """
     random_id = str(random.randint(0, 10000))
 
     def transform_field(web_editor_html: str) -> None:
         field = extract_field_from_web_editor(web_editor_html)
-        transformData = get_transform_config()
-        if transformData:
-            format: Callable[[str], Union[bs4.Tag,
-                                          bs4.BeautifulSoup]] = partial(
-                                              transform, transformData)
-        else:
-            # If getting transform config has failed, use an effect-less transform
-            # to clean up annotations.
-            format = lambda code: bs4.BeautifulSoup(code,
-                                                    features='html.parser')
+
+        def format(code: str) -> Union[bs4.Tag, bs4.BeautifulSoup]:
+            # If the provided transform has failed, use an effect-less
+            # transform to clean up annotations.
+            return transform(code) or bs4.BeautifulSoup(code,
+                                                        features='html.parser')
 
         if field is None:
             # Use note.fields[currentField] as a backup.
@@ -104,9 +93,8 @@ def transform_selection(
     # is deprecated and doesn't work for inline selections.
     # Using the Range API is better as it doesn't suffer from those drawbacks.
     #
-    # We need to wrap the selection in a tag, because `get_transform_config`
-    # may lose focus (e.g., by presenting a modal dialog) and therefore the
-    # selection.
+    # We need to wrap the selection in a tag, because `transform` may lose
+    # focus (e.g., by presenting a modal dialog) and with it, the selection.
     editor.web.evalWithCallback(
         f"""
       (function() {{
