@@ -66,17 +66,15 @@ def transform_selection(
     random_id = str(random.randint(0, 10000))
 
     def transform_field(web_editor_html: str) -> None:
-        field = extract_field_from_web_editor(web_editor_html)
+        # Use note.fields[currentField] as a backup.
+        field = (extract_field_from_web_editor(web_editor_html)
+                 or note.fields[currentField])
 
         def format(code: str) -> Union[bs4.Tag, bs4.BeautifulSoup]:
             # If the provided transform has failed, use an effect-less
             # transform to clean up annotations.
-            return transform(code) or bs4.BeautifulSoup(code,
-                                                        features='html.parser')
-
-        if field is None:
-            # Use note.fields[currentField] as a backup.
-            field = note.fields[currentField]
+            return (transform(code)
+                    or bs4.BeautifulSoup(code, features='html.parser'))
 
         note.fields[currentField] = transform_elements_with_id(
             field, random_id, format)
