@@ -106,8 +106,8 @@ border or adding a separate style for dark mode. For how it's done, see
 This plugin installs its own JS and CSS files. It also modifies card
 templates. You need to run some manual steps if you:
 
-- add a new template
-- want to delete the plugin
+* add a new template
+* want to delete the plugin
 
 If you add a new card template, run `Extras/Tools > Refresh Code Highlighter
 Assets`.
