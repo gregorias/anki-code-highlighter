@@ -10,7 +10,7 @@ import aqt  # type: ignore
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
 
-from .bs4extra import encode_soup
+from .bs4extra import create_soup, encode_soup
 
 __all__ = ['extract_field_from_web_editor', 'transform_selection']
 
@@ -20,7 +20,7 @@ def transform_elements_with_id(html: str, id: str,
                                replace: Callable[[str],
                                                  Union[bs4.Tag,
                                                        bs4.BeautifulSoup]]):
-    soup = BeautifulSoup(html, features='html.parser')
+    soup = create_soup(html)
     for element in soup.find_all(id=id):
         element.replace_with(replace(element.decode_contents()))
     return encode_soup(soup)
@@ -110,8 +110,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
         def format(code: str) -> Union[bs4.Tag, bs4.BeautifulSoup]:
             # If the provided transform has failed, use an effect-less
             # transform to clean up annotations.
-            return (transform(code)
-                    or bs4.BeautifulSoup(code, features='html.parser'))
+            return transform(code) or create_soup(code)
 
         note.fields[currentField] = transform_elements_with_id(
             field, random_id, format)

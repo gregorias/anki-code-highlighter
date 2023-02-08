@@ -7,7 +7,7 @@ from typing import List
 
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
-from .bs4extra import replace_br_tags_with_newlines
+from .bs4extra import create_soup, replace_br_tags_with_newlines
 
 import os, sys
 
@@ -72,7 +72,7 @@ def format_code_hljs(
     Returns:
         A BeautifulSoup tag.
     """
-    soup = BeautifulSoup(code, features='html.parser')
+    soup = create_soup(code)
     code_tag = soup.new_tag('code')
     if language == 'nohighlight':
         code_tag['class'] = [language]
@@ -140,4 +140,4 @@ def format_code_pygments(
     if display_style is DISPLAY_STYLE.INLINE:
         highlighted = remove_spurious_inline_newline(highlighted)
 
-    return BeautifulSoup(highlighted, features='html.parser')
+    return create_soup(highlighted)
