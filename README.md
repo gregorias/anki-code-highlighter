@@ -193,4 +193,12 @@ This plugin saves its assets directly in the global `assets` directory.
 Loading files from Internet has the disadvantage of making my Anki solving
 experience depend on Internet, which I don't think is reasonable on mobile.
 
+#### Card template instrumentation mode
+
+The plugin instruments all card templates by default, because that's what most
+people will want. It requires zero-effort from a user to get to what they want,
+which is being able to highlight code. It's non-intrusive, the added styles
+should not interfere with users' preexisting settings as they are namespaced by
+a class (`hljs` or `pygments`).
+
 [hljs]: https://highlightjs.org/
