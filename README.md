@@ -175,21 +175,22 @@ with pygments plus a few lines for general styles. I generated the style there w
 
 This section discuss some design decisions made for this plugin.
 
-### Using `assets/_ch*` files for CSS and JS
+#### Using `assets/_ch*` files for CSS and JS
 
 The asset files start with an underscore, because then Anki ignores them
 ([source](https://anki.tenderapp.com/discussions/ankidesktop/39510-anki-is-completely-ignoring-media-files-starting-with-underscores-when-cleaning-up)).
 
 This plugin saves its assets directly in the global `assets` directory.
 
-* The only way to share files seems to be through `collection.media`.
+* The only way to share files across desktop and mobile seems to be through
+  `collection.media`.
 * Anki does not support file directories in `collection.media`.
 
-#### Alternatives considered
+##### Alternatives considered
 
-##### Fetching CSS and JS assets from Internet
+###### Fetching CSS and JS assets from Internet
 
 Loading files from Internet has the disadvantage of making my Anki solving
-experience depend on Internet.
+experience depend on Internet, which I don't think is reasonable on mobile.
 
 [hljs]: https://highlightjs.org/
