@@ -83,10 +83,9 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             error = safe_get(selection_return, 'error')
             message = safe_get(error, 'message')
             if message == failed_to_find_selection:
-                onError(
-                    "Failed to find a code selection to highlight." +
-                    " You need to select a code snippet before triggerring the highlight action."
-                )
+                onError("Failed to find a code selection to highlight." +
+                        " You need to select a code snippet " +
+                        "before triggerring the highlight action.")
             elif message == (
                     "Failed to execute 'surroundContents' on 'Range': " +
                     "The Range has partially selected a non-Text node."):
@@ -97,9 +96,10 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                     + " before highlighting.")
             else:
                 onError(
-                    f"An unknown transformation error has occurred ({repr(selection_return)}). "
-                    +
-                    " Report it to the developer at https://github.com/gregorias/anki-code-highlighter/issues/new."
+                    f"An unknown transformation error has occurred " +
+                    "({repr(selection_return)}). " +
+                    " Report it to the developer at " +
+                    "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
             return None
 
@@ -117,8 +117,8 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
 
         # That's how aqt.editor.onHtmlEdit saves cards.
         # It's better than `editor.mw.reset()`, because the latter loses focus.
-        # Calls like editor.mw.reset() or editor.loadNote() are necessary to save
-        # HTML changes.
+        # Calls like editor.mw.reset() or editor.loadNote() are necessary to
+        # save HTML changes.
         if not editor.addMode:
             note.flush()  # type: ignore
         editor.loadNoteKeepingFocus()
