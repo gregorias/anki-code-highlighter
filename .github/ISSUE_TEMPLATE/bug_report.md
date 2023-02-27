@@ -7,10 +7,10 @@ assignees: ''
 
 ---
 
-**Describe the bug**
+**Bug description**
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+**Reproduction steps**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -23,8 +23,8 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
+**Additional information**
+ - OS version: [e.g. macOS 13.2.1]
 
 **Additional context**
 Add any other context about the problem here.
