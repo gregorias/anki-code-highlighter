@@ -5,6 +5,11 @@ pre-commit:
     "check-asset-version.py":
       runner: python3
   commands:
+    markdownlint:
+      tags: documentation style
+      files: git diff --name-only --cached --diff-filter=AM
+      glob: '*.md'
+      run: markdownlint {files}
     unit-tests:
       run: "./dev/bin/testall"
 commit-msg:

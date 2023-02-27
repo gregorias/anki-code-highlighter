@@ -100,7 +100,6 @@ Your new styles will work now. You may customize it further by adding a custom
 border or adding a separate style for dark mode. For how it's done, see
 [`_ch-hljs-solarized.css`](https://github.com/gregorias/anki-code-highlighter/blob/main/assets/_ch-hljs-solarized.css).
 
-
 ## Refresh & Removal
 
 This plugin installs its own JS and CSS files. It also modifies card
