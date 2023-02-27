@@ -1,4 +1,4 @@
-# Anki Code Highlighter
+# 🌈 Anki Code Highlighter
 
 An Anki plugin that adds syntax highlighting to code snippets.
 
