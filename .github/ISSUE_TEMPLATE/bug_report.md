@@ -17,7 +17,7 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-If applicable, provide the offending field's HTML code. For instructions how to get that code, see [this Anki's help page](https://docs.ankiweb.net/editing.html#:~:text=allows%20editing%20the%20underlying%20html%20of%20a%20field.%2).
+If applicable, provide the offending field's HTML code. For instructions how to get that code, see [this Anki's help page](https://docs.ankiweb.net/editing.html#:~:text=button%20allows%20editing%20the%20underlying%20html).
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
