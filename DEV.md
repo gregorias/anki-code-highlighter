@@ -14,9 +14,9 @@ This project requires the following tools:
 
 1. Install the required Python version:
 
-   ```shell
-   pyenv install CHECK_PIPFILE
-   ```
+    ```shell
+    pyenv install CHECK_PIPFILE
+    ```
 
 1. Set up Pipenv:
 
