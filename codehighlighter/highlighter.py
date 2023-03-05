@@ -2,6 +2,7 @@
 """The main function that highlights the code snippet."""
 import enum
 from enum import Enum
+import html
 import re
 from typing import List
 
@@ -117,6 +118,7 @@ def format_code_pygments(
     code: str,
     block_style: str = "display:flex; justify-content:center;"
 ) -> bs4.BeautifulSoup:
+    code = html.unescape(code)
     lexer = pygments.lexers.get_lexer_by_name(language)
     code = replace_br_tags_with_newlines(code)
     if display_style is DISPLAY_STYLE.INLINE:

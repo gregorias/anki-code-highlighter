@@ -41,6 +41,16 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
                     display_style=highlighter.DISPLAY_STYLE.BLOCK,
                     code=input)), expected)
 
+    def test_highlights_block_html_code(self):
+        input = read_file(self.testdata_dir / "in1.html")
+        expected = read_file(self.testdata_dir / "out1.html")
+        self.assertEqual(
+            encode_soup(
+                highlighter.format_code_pygments(
+                    language='python',
+                    display_style=highlighter.DISPLAY_STYLE.BLOCK,
+                    code=input)), expected)
+
     def test_removes_html_entities(self):
         code_snippet = ("def foo():<br>&nbsp; return 0")
         expected_html = (
