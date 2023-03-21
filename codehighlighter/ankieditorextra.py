@@ -44,6 +44,33 @@ def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
     return result.group(1)
 
 
+def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
+                          callback: Callable[[typing.Any], None]) -> None:
+    """
+    Evaluates JavaScript in the webview and calls `callback` with the result.
+
+    Wraps the code inside a try-catch statement. On exception, gives the
+    callback a dictionary ({'error': {'name': str, 'message', str}}) or just
+    {'error': str}.
+
+    :param webview:
+    :param js:
+    :param callback:
+    :return: None
+    """
+    webview.evalWithCallback(
+        f"""
+        (function() {{
+           try {{
+               {js}
+           }} catch(e) {{
+               if ('name' in e && 'message' in e)
+                   return {{ error: {{ name: e.name, message: e.message }} }}
+               return {{ error: JSON.stringify(e) }}
+           }}
+        }})();""", callback)
+
+
 # This function has used `editor.web.eval` previously, but that executed
 # asynchronously, so there was no guarantee that editor.note would be up to
 # date with changes made by the JavaScript.
@@ -129,23 +156,16 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
     #
     # We need to wrap the selection in a tag, because `transform` may lose
     # focus (e.g., by presenting a modal dialog) and with it, the selection.
-    editor.web.evalWithCallback(
-        f"""
-      (function() {{
-         try {{
-             let selection = document.activeElement.shadowRoot.getSelection();
-             if (selection.rangeCount == 0)
-                return {{ error: {{ name: 'InvalidStateError',
-                                    message: '{failed_to_find_selection}' }} }};
-             const range = selection.getRangeAt(selection.rangeCount - 1);
-             if (!range) return;
-             const spanTag = document.createElement('span')
-             spanTag['id'] = '{random_id}'
-             range.surroundContents(spanTag);
-             return {{ field: document.activeElement.shadowRoot.innerHTML }};
-         }} catch(e) {{
-             if ('name' in e && 'message' in e)
-                 return {{ error: {{ name: e.name, message: e.message }} }}
-             return {{ error: JSON.stringify(e) }}
-         }}
-      }})();""", transform_field)
+    eval_js_with_callback(
+        editor.web, f"""
+        let selection = document.activeElement.shadowRoot.getSelection();
+        if (selection.rangeCount == 0)
+           return {{ error: {{ name: 'InvalidStateError',
+                               message: '{failed_to_find_selection}' }} }};
+        const range = selection.getRangeAt(selection.rangeCount - 1);
+        if (!range) return;
+        const spanTag = document.createElement('span')
+        spanTag['id'] = '{random_id}'
+        range.surroundContents(spanTag);
+        return {{ field: document.activeElement.shadowRoot.innerHTML }};
+        """, transform_field)
