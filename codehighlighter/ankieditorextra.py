@@ -12,7 +12,11 @@ from bs4 import BeautifulSoup, NavigableString
 
 from .bs4extra import create_soup, encode_soup
 
-__all__ = ['extract_field_from_web_editor', 'transform_selection']
+__all__ = [
+    'extract_field_from_web_editor',
+    'extract_selection_from_field',
+    'transform_selection',
+]
 
 
 # A helper function for `transform_selection` exposed for testing.
@@ -44,6 +48,20 @@ def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
     return result.group(1)
 
 
+def extract_selection_from_field(field_html: str, id: str) -> Optional[str]:
+    """
+    Returns HTML of a selected text.
+
+    :param field_html str: The HTML of the note field.
+    :param id str: The ID of the selection.
+    :rtype Optional[str]: On a failure to find the selection, returns None.
+    """
+    soup = create_soup(field_html)
+    for element in soup.find_all(id=id):
+        return element.decode_contents()
+    return None
+
+
 def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
                           callback: Callable[[typing.Any], None]) -> None:
     """
@@ -69,6 +87,15 @@ def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
                return {{ error: JSON.stringify(e) }}
            }}
         }})();""", callback)
+
+
+def extract_my_span_from_web_editor(web_editor_html: str,
+                                    span_id: str) -> Optional[str]:
+    """Returns the HTML of the spanned selection."""
+    soup = create_soup(web_editor_html)
+    for element in soup.find_all(id=span_id):
+        return element.decode_contents()
+    return None
 
 
 # This function has used `editor.web.eval` previously, but that executed
@@ -106,6 +133,13 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                 return d.get(key)
             return None
 
+        a = typing.TypeVar('a')
+        b = typing.TypeVar('b')
+
+        def maybe_fmap(
+                f: Callable[[a], b]) -> Callable[[Optional[a]], Optional[b]]:
+            return lambda x: f(x) if x is not None else None
+
         if not safe_get(selection_return, 'field'):
             error = safe_get(selection_return, 'error')
             message = safe_get(error, 'message')
@@ -124,31 +158,52 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             else:
                 onError(
                     f"An unknown transformation error has occurred " +
-                    "({repr(selection_return)}). " +
+                    f"({repr(selection_return)}). " +
                     " Report it to the developer at " +
                     "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
             return None
 
-        # Use note.fields[currentField] as a backup.
-        field = (extract_field_from_web_editor(selection_return['field'])
-                 or note.fields[currentField])
+        field = extract_field_from_web_editor(selection_return['field'])
+        if field is None:
+            onError(
+                f"Failed to extract the field from the web editor. " +
+                f"({repr(selection_return)}). " +
+                "Report it to the developer at " +
+                "https://github.com/gregorias/anki-code-highlighter/issues/new."
+            )
+            return None
 
-        def format(code: str) -> Union[bs4.Tag, bs4.BeautifulSoup]:
-            # If the provided transform has failed, use an effect-less
-            # transform to clean up annotations.
-            return transform(code) or create_soup(code)
+        selection = extract_selection_from_field(field, random_id)
+        if selection is None:
+            onError(
+                f"Failed to extract the selection from the field. " +
+                f"({repr(selection_return)}, {repr(random_id)}). " +
+                "Report it to the developer at " +
+                "https://github.com/gregorias/anki-code-highlighter/issues/new."
+            )
+            return None
 
-        note.fields[currentField] = transform_elements_with_id(
-            field, random_id, format)
+        # If the transform has failed, we don't want to lose the selection.
+        formatted_selection = maybe_fmap(encode_soup)(
+            transform(selection)) or selection
 
-        # That's how aqt.editor.onHtmlEdit saves cards.
-        # It's better than `editor.mw.reset()`, because the latter loses focus.
-        # Calls like editor.mw.reset() or editor.loadNote() are necessary to
-        # save HTML changes.
-        if not editor.addMode:
-            note.flush()  # type: ignore
-        editor.loadNoteKeepingFocus()
+        # Replace the selection span directly in the webview.
+        #
+        # This approach is simpler and more robust than replacing the selection
+        # inside Python and flushing the new note to Anki's DB:
+        # * We avoid having to figure out flush field changes DB and see them
+        #   reflected in the webview.
+        # * The field's representation in webview and the serialized note can
+        #   differ significantly. Mathjax expressions in a webview are a
+        #   complex HTML element, while they get serialized to `\(expr\)`
+        #   inside a note. Not having to reconcile that is good, as we don't
+        #   have to touch non-selection code.
+        eval_js_with_callback(
+            editor.web, f"""
+            let selection = document.activeElement.shadowRoot.getElementById({random_id});
+            selection.outerHTML = {repr(formatted_selection)};
+            return {{}};""", lambda _: None)
 
     # Not using Anki's own `wrap` function uses `document.execCommand`, which
     # is deprecated and doesn't work for inline selections.
