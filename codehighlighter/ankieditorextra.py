@@ -224,8 +224,13 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
         eval_js_with_callback(
             editor.web, f"""
             let selection = document.activeElement.shadowRoot.getElementById({random_id});
+            // A hack against spurious br-tags that get inserted by the Anki editor.
+            // https://github.com/gregorias/anki-code-highlighter/issues/51
+            if (selection.nextElementSibling?.tagName === "BR" && selection.nextElementSibling.nextSibling === null) {{
+                selection.nextElementSibling.remove();
+            }}
             selection.outerHTML = {repr(highlighted_selection)};
-            return {{}};""", lambda _: None)
+            return null;""", lambda _: None)
 
     # Not using Anki's own `wrap` function uses `document.execCommand`, which
     # is deprecated and doesn't work for inline selections.
