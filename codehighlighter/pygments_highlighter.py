@@ -36,6 +36,11 @@ def remove_spurious_inline_newline(html: str) -> str:
     return re.sub('</span>\n</code>$', '</span></code>', html)
 
 
+def remove_spurious_inline_spanw(html: str) -> str:
+    """Removes the spurious <span class="w"></span> that Pygments inserts."""
+    return re.sub('<span class="w"></span>', '', html)
+
+
 def highlight(code: str, language: str, style: HtmlStyle) -> bs4.Tag:
     """
     Highlights the code snippet with Pygments.
@@ -51,6 +56,7 @@ def highlight(code: str, language: str, style: HtmlStyle) -> bs4.Tag:
     ) if style.display_style == "inline" else pygments.formatters.get_formatter_by_name(
         'html')
     highlighted = pygments.highlight(code, lexer, htmlf)
+    highlighted = remove_spurious_inline_spanw(highlighted)
 
     if style.display_style == "inline":
         highlighted = '<code class="pygments">' + highlighted + '</code>'

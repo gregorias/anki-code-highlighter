@@ -31,7 +31,7 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
 
         self.assertEqual(
             result, '<code class="pygments">' +
-            '<span class="nb">true</span><span class="w"></span>' + '</code>')
+            '<span class="nb">true</span>' + '</code>')
 
     def test_highlights_block_python_code(self):
         input = read_file(self.testdata_dir / "in0.py")
