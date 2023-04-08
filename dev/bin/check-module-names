@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Checks that we don't introduce a module in codehighlighter that conflicts with
+pydeps.
+
+This is important, because during packaging, we move codehighlighter/*.py and
+pydeps/* into one directory, and we want to avoid the name collission.
+"""
+import sys
+
+if __name__ == '__main__':
+    for file in sys.argv[1:]:
+        if file == 'codehighlighter/pygments.py' or file.startswith(
+                'codehighlighter/pygments/'):
+            sys.exit(1)

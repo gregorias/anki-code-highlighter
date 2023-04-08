@@ -4,6 +4,9 @@ pre-commit:
     "check-asset-version.py":
       runner: python3
   commands:
+    check-module-names:
+      glob: '*.py'
+      run: ./dev/bin/check-module-names {staged_files}
     markdownlint:
       tags: documentation style
       files: git diff --name-only --cached --diff-filter=AM
