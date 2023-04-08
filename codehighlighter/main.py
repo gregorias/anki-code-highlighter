@@ -278,6 +278,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 sorted(
                     list_plugin_media_files(editor.mw.col.media,
                                             ASSET_PREFIX)))
+            available_languages = list(sorted(available_languages))
             language, WIZARD_STATE.language_select[
                 HIGHLIGHT_METHOD.HLJS] = ask_for_language(
                     parent=None,
@@ -293,14 +294,9 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             if display_style is None:
                 return None
 
-            # Filter out lexers with spaces in their name, because
-            # get_lexer_by_name can't find them. Lexers with spaces are niche
-            # anyway.
-            available_languages = list(
-                sorted([
-                    t[0] for t in pygments.lexers.get_all_lexers()
-                    if ' ' not in t[0]
-                ]))
+            available_languages = pygments_highlighter.get_available_languages(
+            )
+            available_languages = list(sorted(available_languages))
             language, WIZARD_STATE.language_select[
                 HIGHLIGHT_METHOD.PYGMENTS] = ask_for_language(
                     parent=None,
