@@ -1,4 +1,5 @@
 pre-commit:
+  parallel: true
   scripts:
     "check-asset-version.py":
       runner: python3
