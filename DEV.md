@@ -63,6 +63,20 @@ with pygments plus a few lines for general styles. I generated the style there w
 
 This section discuss some design decisions made for this plugin.
 
+### Highlighter concept
+
+One fundamental abstraction is that of **highlighter**. A highlighter is
+essentially a function that produces an HTML representing a highlighted code
+snippet given the following:
+
+- A string with the unmarked code snippet.
+- A language that code snippet represents.
+- Additional styling options.
+
+For code clarity and modularity, I keep such pure highlighters in separate
+modules (`hljs` and `pygments`). A highlighter does not implement any logic
+related to Anki including sanitising input from HTML markup.
+
 ### Using `assets/_ch*` files for CSS and JS
 
 The asset files start with an underscore, because then Anki ignores them

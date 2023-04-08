@@ -25,8 +25,8 @@ import pygments.lexers  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
-from .highlighter import format_code_hljs, DISPLAY_STYLE, format_code_pygments
-from .hljs import get_available_languages
+from . import hljs
+from . import pygments_highlighter
 
 import anki  # type: ignore
 
@@ -195,6 +195,12 @@ def ask_for_highlight_method(
     return (None, new_state)
 
 
+@enum.unique
+class DISPLAY_STYLE(Enum):
+    BLOCK = 1
+    INLINE = 2
+
+
 def ask_for_display_style(
     parent, last_state: ChoiceDialogState
 ) -> Tuple[Optional[DISPLAY_STYLE], ChoiceDialogState]:
@@ -268,7 +274,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 return None
 
         if highlighter == HIGHLIGHT_METHOD.HLJS:
-            available_languages = get_available_languages(
+            available_languages = hljs.get_available_languages(
                 sorted(
                     list_plugin_media_files(editor.mw.col.media,
                                             ASSET_PREFIX)))
@@ -306,7 +312,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 return PygmentsConfig(display_style, language)
         return None
 
-    def format(code: str) -> Union[bs4.Tag, bs4.BeautifulSoup, None]:
+    def format(code: str) -> Optional[bs4.Tag]:
         args: Optional[FormatConfig] = show_dialogs()
         if not args:
             return None
@@ -314,10 +320,17 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         block_style = get_config("block-style",
                                  "display:flex; justify-content:center;")
         if isinstance(args, HljsConfig):
-            return format_code_hljs(args.language, code, block_style)
+            return hljs.highlight(code,
+                                  language=args.language,
+                                  block_style=block_style)
         else:
-            return format_code_pygments(args.language, args.display_style,
-                                        code, block_style)
+            html_style = (pygments_highlighter.create_inline_style()
+                          if args.display_style == DISPLAY_STYLE.INLINE else
+                          pygments_highlighter.create_block_style(block_style))
+
+            return pygments_highlighter.highlight(code,
+                                                  language=args.language,
+                                                  style=html_style)
 
     transform_selection(editor, note, currentFieldNo, format, showWarning)
 

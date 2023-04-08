@@ -10,7 +10,7 @@ import aqt  # type: ignore
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString
 
-from .bs4extra import create_soup, encode_soup
+from .bs4extra import create_soup, encode_soup, replace_br_tags_with_newlines
 
 __all__ = [
     'extract_field_from_web_editor',
@@ -98,6 +98,28 @@ def extract_my_span_from_web_editor(web_editor_html: str,
     return None
 
 
+# This function returns `str` and not bs4.Tag, because this function will be
+# unit-tested, and I want unit-tests to also test the encoding functionality.
+def highlight_selection(
+        selection: str,
+        highlighter: Callable[[str], Optional[bs4.Tag]]) -> Optional[str]:
+    """
+    Highlights a selection from a field.
+
+    This function sanitizes the input by removing HTML markup. It returns an
+    encoded HTML.
+
+    :param selection: A an HTML string representing the code.
+    :param highlighter: A function that highlights the code.
+    :return: The highlighter HTML tag.
+    """
+    selection = replace_br_tags_with_newlines(selection)
+    selection_soup = create_soup(selection)
+    highlighted_selection = highlighter(selection_soup.text)
+    return encode_soup(
+        highlighted_selection) if highlighted_selection else None
+
+
 # This function has used `editor.web.eval` previously, but that executed
 # asynchronously, so there was no guarantee that editor.note would be up to
 # date with changes made by the JavaScript.
@@ -105,9 +127,7 @@ def extract_my_span_from_web_editor(web_editor_html: str,
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                         currentField: int,
-                        transform: Callable[[str],
-                                            Union[bs4.Tag, bs4.BeautifulSoup,
-                                                  None]],
+                        highlight: Callable[[str], Optional[bs4.Tag]],
                         onError: Callable[[str], typing.Any]) -> None:
     """
     Transforms selected text using `transform`.
@@ -115,15 +135,17 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
     :param editor aqt.editor.Editor
     :param note anki.notes.Note: The note under edition. Usually `editor.note`.
     :param currentField int The ID of the field under focus.
-    :param transform Callable[[str], Union[bs4.Tag, bs4.BeautifulSoup, None]]:
-        The transform function that receives selected text and returns
-        transformed tag, or None on error.
+    :param highlight Callable[[str], bs4.Tag]:
+        The highlighting function that receives code snippets and returns HTML
+        with highlighting information.
     :param onError Callable[[str], typing.Any]:
         The callback function that is called if an unrecoverable error has
         occurred. Provides an error message.
     :rtype None
     """
     random_id = str(random.randint(0, 10000))
+    highlight_html2html: Callable[[str], Optional[str]] = partial(
+        highlight_selection, highlighter=highlight)
     failed_to_find_selection = 'Failed to find a selection.'
 
     def transform_field(selection_return: typing.Any) -> None:
@@ -158,7 +180,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             else:
                 onError(
                     f"An unknown transformation error has occurred " +
-                    f"({repr(selection_return)}). " +
+                    f"(repr(selection_return)). " +
                     " Report it to the developer at " +
                     "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
@@ -184,9 +206,9 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             )
             return None
 
-        # If the transform has failed, we don't want to lose the selection.
-        formatted_selection = maybe_fmap(encode_soup)(
-            transform(selection)) or selection
+        # On failure, revert back to selection, so that we don't delete user
+        # input during replacement.
+        highlighted_selection = highlight_html2html(selection) or selection
 
         # Replace the selection span directly in the webview.
         #
@@ -202,7 +224,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
         eval_js_with_callback(
             editor.web, f"""
             let selection = document.activeElement.shadowRoot.getElementById({random_id});
-            selection.outerHTML = {repr(formatted_selection)};
+            selection.outerHTML = {repr(highlighted_selection)};
             return {{}};""", lambda _: None)
 
     # Not using Anki's own `wrap` function uses `document.execCommand`, which

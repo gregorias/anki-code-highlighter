@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """ Extra functions extending BeautifulSoup."""
-from typing import Union
+from typing import Optional, Union
 import warnings
 
 import bs4
@@ -14,14 +14,17 @@ __all__ = [
 ]
 
 
-def create_soup(html: str) -> bs4.BeautifulSoup:
+def create_soup(html: Optional[str] = None) -> bs4.BeautifulSoup:
     """Creates a BeautifulSoup from HTML code."""
     # Using html.parser, because it should be bundled in all Python
     # environments.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore",
-                              category=bs4.MarkupResemblesLocatorWarning)
-        return BeautifulSoup(html, features='html.parser')
+    if html:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore",
+                                  category=bs4.MarkupResemblesLocatorWarning)
+            return BeautifulSoup(html, features='html.parser')
+    else:
+        return BeautifulSoup(features='html.parser')
 
 
 def encode_soup(tag: Union[bs4.Tag, bs4.BeautifulSoup]) -> str:
