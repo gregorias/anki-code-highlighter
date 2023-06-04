@@ -22,7 +22,7 @@ management.
 
 Alternatively, you can install this plugin from source.
 
-1. Run `package`.
+1. Run `dev/bin/package`.
 2. Import `codehighlighter.ankiaddon` in Anki.
 
 ## Usage
