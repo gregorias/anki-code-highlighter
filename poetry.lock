@@ -2,16 +2,16 @@
 
 [[package]]
 name = "anki"
-version = "2.1.50"
+version = "2.1.65"
 description = ""
 optional = false
-python-versions = "*"
+python-versions = ">=3.9"
 files = [
-    {file = "anki-2.1.50-cp39-abi3-macosx_10_13_x86_64.whl", hash = "sha256:fd0174655fccbc893541ec3cb09ef8da8425420066e22e27fa22a7b0fbb11913"},
-    {file = "anki-2.1.50-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:b14fc4ae487510a19e61f4d8832330e1137a81f88bf23d0fff919ab7d419668d"},
-    {file = "anki-2.1.50-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:0f1dbcaf89a7584e6ebef848a7abad6f008f4be882d634bc245a0e2bddfc18c6"},
-    {file = "anki-2.1.50-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:97dcb8b5442fa84165d4a5956679da1539f7de91c64001df7417d9443f75776c"},
-    {file = "anki-2.1.50-cp39-abi3-win_amd64.whl", hash = "sha256:acef9b5d81aceefc346bf51e1e4aa38973758a6b6d260b4b72d7d13ddef89135"},
+    {file = "anki-2.1.65-cp39-abi3-macosx_10_13_x86_64.whl", hash = "sha256:a810a698d35f5016caa579289e98930de8890762dea785eed86d69d24722e666"},
+    {file = "anki-2.1.65-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:78eb0aeb197b0a1a0e4951b9c90b3b657bc306d733db9152445eca320bf5a108"},
+    {file = "anki-2.1.65-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:49da74cb96742b53b1062a642e673b33ccce8a8209733643d3d1e9cfbf51c3fd"},
+    {file = "anki-2.1.65-cp39-abi3-manylinux_2_31_aarch64.whl", hash = "sha256:20341eb6e0033c5580a94d0e10d5261d948e9ad719187fd87e5e5be1f183b4fb"},
+    {file = "anki-2.1.65-cp39-abi3-win_amd64.whl", hash = "sha256:ef3b24d93b609850756f682ca983ac6f538e407b5a1ba29289526945821689f1"},
 ]
 
 [package.dependencies]
@@ -20,12 +20,9 @@ decorator = "*"
 distro = {version = "*", markers = "sys_platform != \"darwin\" and sys_platform != \"win32\""}
 markdown = "*"
 orjson = "*"
-protobuf = ">=3.17"
+protobuf = ">=4.21"
 psutil = {version = "*", markers = "sys_platform == \"win32\""}
 requests = {version = "*", extras = ["socks"]}
-
-[package.extras]
-syncserver = ["flask", "waitress"]
 
 [[package]]
 name = "ansicon"
@@ -40,16 +37,16 @@ files = [
 
 [[package]]
 name = "aqt"
-version = "2.1.50"
+version = "2.1.65"
 description = ""
 optional = false
-python-versions = "*"
+python-versions = ">=3.9"
 files = [
-    {file = "aqt-2.1.50-py3-none-any.whl", hash = "sha256:5b2d10e940dbc82c584bb9cb5657ad70a9bdfebb70bc82f4b1f90052184d6355"},
+    {file = "aqt-2.1.65-py3-none-any.whl", hash = "sha256:970f8728c370dd0ca4a86ff2e30c5ed3e28c3900f197d1b9bf9b8fe37c55ddb9"},
 ]
 
 [package.dependencies]
-anki = "2.1.50"
+anki = "2.1.65"
 beautifulsoup4 = "*"
 flask = "*"
 flask_cors = "*"
@@ -58,8 +55,7 @@ psutil = {version = "*", markers = "sys_platform == \"win32\""}
 pywin32 = {version = "*", markers = "sys_platform == \"win32\""}
 requests = "*"
 send2trash = "*"
-waitress = "*"
-winrt = {version = "*", markers = "sys_platform == \"win32\""}
+waitress = ">=2.0.0"
 
 [package.extras]
 qt5 = ["pyqt5 (>=5.14)", "pyqtwebengine"]
@@ -1272,21 +1268,6 @@ MarkupSafe = ">=2.1.1"
 watchdog = ["watchdog (>=2.3)"]
 
 [[package]]
-name = "winrt"
-version = "1.0.21033.1"
-description = "Access Windows Runtime APIs from Python"
-optional = false
-python-versions = "*"
-files = [
-    {file = "winrt-1.0.21033.1-cp37-none-win32.whl", hash = "sha256:d035570ce2cf7e8caa785abb43f25a6ede600c2cde0378c931495bdbeaf1a075"},
-    {file = "winrt-1.0.21033.1-cp37-none-win_amd64.whl", hash = "sha256:da3ca3626fb992f2efa4528993d4760b298f399a7f459f7e070a2f8681d82106"},
-    {file = "winrt-1.0.21033.1-cp38-none-win32.whl", hash = "sha256:224e13eb172435aaabdc7066752898a61dae0fcc3022f6f8cbd1ce953be3358c"},
-    {file = "winrt-1.0.21033.1-cp38-none-win_amd64.whl", hash = "sha256:f5ab502117da4777ab49b846ad1919fbf448bd5e49b4aca00cc59667bae2c362"},
-    {file = "winrt-1.0.21033.1-cp39-none-win32.whl", hash = "sha256:9d7b7d2e48c301855afd3280aaf51ea0d3c683450f46de2db813f71ee1cd5937"},
-    {file = "winrt-1.0.21033.1-cp39-none-win_amd64.whl", hash = "sha256:ad4afd1c7b041a6b770256d70e07093920fa83eecd80e42cac2704cd03902243"},
-]
-
-[[package]]
 name = "yapf"
 version = "0.40.1"
 description = "A formatter for Python code."
@@ -1320,4 +1301,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "==3.9.7"
-content-hash = "d58a5eb8c4f69fca06c7b83c152cf0b3cb7bf2a520d52f0a7b05fc991462778e"
+content-hash = "830a76a2d6ce0065cb2e0dc3b8448d5b667c653caaddd29a418bad49aea0de0d"
