@@ -11,6 +11,7 @@ This project requires the following tools:
 - [Commitlint]
 - [Lefthook]
 - [Markdownlint]
+- [Poetry]
 
 1. Install the required Python version:
 
@@ -18,10 +19,10 @@ This project requires the following tools:
     pyenv install CHECK_PIPFILE
     ```
 
-1. Set up Pipenv:
+1. Set up Poetry:
 
     ```shell
-    pipenv install --dev
+    poetry install
     ```
 
 1. Install Lefthook:
@@ -106,4 +107,5 @@ a class (`hljs` or `pygments`).
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
 [Markdownlint]: https://github.com/igorshubovych/markdownlint-cli
+[Poetry]: https://python-poetry.org
 [hljs]: https://highlightjs.org/
