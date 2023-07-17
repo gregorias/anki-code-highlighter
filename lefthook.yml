@@ -16,6 +16,14 @@ pre-commit:
       tags: lint
       glob: 'pyproject.toml'
       run: poetry check
+    toml-taplo-lint:
+      tags: style
+      glob: "*.toml"
+      run: taplo check {staged_files}
+    toml-taplo-fmt:
+      tags: style
+      glob: "*.toml"
+      run: taplo fmt --check {staged_files}
     yapf:
       tags: style
       glob: '*.py'
