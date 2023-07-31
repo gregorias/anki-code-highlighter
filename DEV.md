@@ -12,11 +12,12 @@ This project requires the following tools:
 - [Lefthook]
 - [Markdownlint]
 - [Poetry]
+- [Pyenv]
 
 1. Install the required Python version:
 
     ```shell
-    pyenv install CHECK_PIPFILE
+    pyenv install
     ```
 
 1. Set up Poetry:
@@ -104,8 +105,19 @@ which is being able to highlight code. It's non-intrusive, the added styles
 should not interfere with users' preexisting settings as they are namespaced by
 a class (`hljs` or `pygments`).
 
+## Updating Python
+
+This package sets up a specific Python version to keep the dev environment in
+sync with what Anki uses. To update this Python version, you need to:
+
+1. If in the Poetry venv, deactive and remove it.
+2. Update Python spec in `.python-version` and `pyproject.toml`.
+3. Install the new Python version with `pyenv install`.
+4. Install the new virtual environment with `poetry install`.
+
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
 [Markdownlint]: https://github.com/igorshubovych/markdownlint-cli
 [Poetry]: https://python-poetry.org
+[Pyenv]: https://github.com/pyenv/pyenv
 [hljs]: https://highlightjs.org/
