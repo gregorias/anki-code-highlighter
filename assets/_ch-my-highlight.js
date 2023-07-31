@@ -13,48 +13,61 @@ async function loadScript(url) {
   })
 };
 
+/**
+ * @param {HighlightedHTMLElement} block - the HTML element to determine language for
+ */
+function codeBlockLanguage(block) {
+  let classes = block.className;
+  let languageClass = classes
+    .split(/\s+/)
+    .find((_class) => _class.startsWith("language-"));
+  if (!languageClass) return null;
+  return languageClass.replace("language-", "");
+}
+
+function removeDuplicates(array) {
+  return [...new Set(array)];
+}
+
+function removeNulls(array) {
+  return array.filter((item) => item);
+}
+
+function findUsedLanguages() {
+  let codeBlocks = document.querySelectorAll("pre code");
+  if (!codeBlocks) return [];
+  let languageArray = Array.from(codeBlocks).map(codeBlockLanguage);
+  languageArray = removeNulls(languageArray);
+  return removeDuplicates(languageArray);
+}
+
 async function main() {
+  // If we are called too early in the loading process, defer until later.
+  // We can't find the active code blocks until the page is fully loaded.
+  if (document.readyState === "loading") {
+    window.wantsHighlight = true;
+    return;
+  }
+
+  // Only load the languages that are actually used on the page.
+  // Loading all available languages is too slow and leads to visible
+  // flickering even on M1 Macs.
+  let usedLanguages = findUsedLanguages();
+
+  // Don't load anything if there are no code blocks.
+  if (usedLanguages.length === 0) return;
+
   await loadScript("_ch-highlight.js");
-  langs = [
-    "armasm",
-    "avrasm",
-    "bash",
-    "c",
-    "clojure",
-    "coq",
-    "cpp",
-    "csharp",
-    "css",
-    "go",
-    "groovy",
-    "haskell",
-    "java",
-    "javascript",
-    "kotlin",
-    "latex",
-    "lisp",
-    "lua",
-    "php",
-    "plaintext",
-    "protobuf",
-    "python",
-    "python-repl",
-    "r",
-    "ruby",
-    "rust",
-    "scss",
-    "shell",
-    "sql",
-    "swift",
-    "typescript",
-    "vbnet",
-    "vim",
-    "wasm",
-    "yaml",
-    "xml"];
   await Promise.allSettled(
-    langs.map((lang) => loadScript("_ch-hljs-lang-" + lang + ".min.js")))
+    usedLanguages.map((lang) => loadScript("_ch-hljs-lang-" + lang + ".min.js")))
   hljs.highlightAll();
 };
-main();
 
+function boot() {
+  if (window.wantsHighlight) main();
+}
+
+main();
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('DOMContentLoaded', boot, false);
+}
