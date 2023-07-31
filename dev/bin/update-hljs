@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+"""Installs HLJS_VERSION of highlight.js."""
+import contextlib
+import re
+import os
+import os.path
+import shutil
+import subprocess
+import tempfile
+import typing
+
+HLJS_VERSION = '11.8.0'
+HLJS_REPO = 'https://github.com/highlightjs/highlight.js'
+
+
+@contextlib.contextmanager
+def pushd(new_dir):
+    previous_dir = os.getcwd()
+    os.chdir(new_dir)
+    try:
+        yield
+    finally:
+        os.chdir(previous_dir)
+
+
+class HLJSBuild(typing.NamedTuple):
+    hljs_file: str
+    hljs_language_files: typing.List[str]
+
+
+def build_hljs() -> HLJSBuild:
+    hljs_dir = 'highlight.js'
+    subprocess.run(['git', 'clone', HLJS_REPO])
+    with pushd(hljs_dir):
+        subprocess.run(['git', 'checkout', HLJS_VERSION])
+        subprocess.run(['npm', 'install'])
+        subprocess.run(['node', 'tools/build.js', '-t', 'cdn'])
+
+        hljs_file = 'build/highlight.js'
+        language_files = os.listdir('build/languages')
+        language_files = [f'build/languages/{l}' for l in language_files]
+    return HLJSBuild(f'{hljs_dir}/{hljs_file}',
+                     [f'{hljs_dir}/{l}' for l in language_files])
+
+
+def extract_language_from_filename(filename: str) -> str:
+    """
+    >>> extract_language_from_filename('build/languages/c.min.js')
+    'c'
+    """
+    basename = os.path.basename(filename)
+    m = re.match(r'(.*)\.min\.js', basename)
+    if not m:
+        raise Exception(f'Could not extract language from {filename}.')
+    return m.group(1)
+
+
+def delete_old_hljs_scripts() -> None:
+    """Deletes all JS files associated with HLJS."""
+    for f in os.listdir('assets'):
+        if f.startswith('_ch-hljs-lang-'):
+            os.remove(f'assets/{f}')
+    os.remove('assets/_ch-highlight.js')
+
+
+if __name__ == '__main__':
+    with tempfile.TemporaryDirectory() as d:
+        with pushd(d):
+            hljs_build = build_hljs()
+        delete_old_hljs_scripts()
+        shutil.copy(f'{d}/{hljs_build.hljs_file}', 'assets/_ch-highlight.js')
+        for l in sorted(hljs_build.hljs_language_files):
+            l_basename = os.path.basename(l)
+            shutil.copy(f'{d}/{l}', f'assets/_ch-hljs-lang-{l_basename}')

@@ -34,14 +34,20 @@ This project requires the following tools:
 
 ## Updating highlight.js
 
-`_assets/_cs-highlight.js` contains the single-file implementation of
-[highlight.js][hljs]. It comes from the ZIP package available on [their main
-site][hljs].
+Anki code highlighter comes in bundled with the [highlight.js][hljs] JavaScript
+package. The JS package's files are included in `assets`, e.g.,
+`assets/_ch-highlight.js` contains the single-file implementation of
+[highlight.js][hljs].
+
+To update [highlight.js][hljs]:
+
+1. Set `HLJS_VERSION` in `dev/bin/update-hljs`.
+1. Run `dev/bin/update-hljs`.
 
 ## Updating Pygments
 
-This anki-code-highlighter comes in bundled with the [Pygments] library, and
-its version is tracked as a [Git
+Anki code hightlighter comes in bundled with the [Pygments] library, and its
+version is tracked as a [Git
 submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) inside this
 repository.
 
