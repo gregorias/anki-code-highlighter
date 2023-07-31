@@ -38,6 +38,22 @@ This project requires the following tools:
 [highlight.js][hljs]. It comes from the ZIP package available on [their main
 site][hljs].
 
+## Updating Pygments
+
+This anki-code-highlighter comes in bundled with the [Pygments] library, and
+its version is tracked as a [Git
+submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) inside this
+repository.
+
+To update Pygments, go to the submodule and pull the desired version. For
+example:
+
+```shell
+cd pydeps/pygments
+git fetch
+git checkout 2.15.1
+```
+
 ## Generating Pygment stylesheets
 
 In `assets/_ch-pygment-solarized.css` I keep the stylesheet for code formatted
