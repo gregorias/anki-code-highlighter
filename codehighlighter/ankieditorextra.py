@@ -172,9 +172,15 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             elif message == (
                     "Failed to execute 'surroundContents' on 'Range': " +
                     "The Range has partially selected a non-Text node."):
+                # Make sure this error message is clear
+                # (https://github.com/gregorias/anki-code-highlighter/issues/60)
                 onError(
-                    "The selected code contains partial HTML tags. " +
-                    " Clean up your code snippet in the HTML editor " +
+                    "The selection splits an HTML node, which prevents the " +
+                    "highlighting plugin from proceeding.\n" +
+                    "Make sure that you select entire HTML elements, e.g., " +
+                    "if your code is `<span>hello</span>world`, don't select" +
+                    " just `ello</span>world`.\n" +
+                    "You can refactor your code snippet in the HTML editor " +
                     "(https://docs.ankiweb.net/editing.html#editing-features)"
                     + " before highlighting.")
             else:
