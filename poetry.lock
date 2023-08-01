@@ -286,12 +286,13 @@ testing = ["cssselect", "importlib-resources", "jaraco.test (>=5.1)", "lxml", "p
 
 [[package]]
 name = "curtsies"
-version = "0.4.1"
+version = "0.4.2"
 description = "Curses-like terminal wrapper, with colored strings!"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "curtsies-0.4.1.tar.gz", hash = "sha256:62d10f349c553845306556a7f2663ce96b098d8c5bbc40daec7a6eedde1622b0"},
+    {file = "curtsies-0.4.2-py3-none-any.whl", hash = "sha256:f24d676a8c4711fb9edba1ab7e6134bc52305a222980b3b717bb303f5e94cec6"},
+    {file = "curtsies-0.4.2.tar.gz", hash = "sha256:6ebe33215bd7c92851a506049c720cca4cf5c192c1665c1d7a98a04c4702760e"},
 ]
 
 [package.dependencies]
@@ -1252,6 +1253,21 @@ files = [
 ]
 
 [[package]]
+name = "webcolors"
+version = "1.13"
+description = "A library for working with the color formats defined by HTML and CSS."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "webcolors-1.13-py3-none-any.whl", hash = "sha256:29bc7e8752c0a1bd4a1f03c14d6e6a72e93d82193738fa860cbff59d0fcc11bf"},
+    {file = "webcolors-1.13.tar.gz", hash = "sha256:c225b674c83fa923be93d235330ce0300373d02885cef23238813b0d5668304a"},
+]
+
+[package.extras]
+docs = ["furo", "sphinx", "sphinx-copybutton", "sphinx-inline-tabs", "sphinx-notfound-page", "sphinxext-opengraph"]
+tests = ["pytest", "pytest-cov"]
+
+[[package]]
 name = "werkzeug"
 version = "2.3.6"
 description = "The comprehensive WSGI web application library."
@@ -1301,5 +1317,5 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [metadata]
 lock-version = "2.0"
-python-versions = "==3.9.7"
-content-hash = "830a76a2d6ce0065cb2e0dc3b8448d5b667c653caaddd29a418bad49aea0de0d"
+python-versions = "==3.9.17"
+content-hash = "3f8036ae93696521fcb0df7d77b84188e97360f6071b3294b9e2d28ada40388f"

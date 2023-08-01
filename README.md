@@ -63,43 +63,6 @@ The plugin accepts the following configuration options:
 * `default-highlighter` (`highlight.js`, `pygments`, ``) — this sets the
   default highlighting mechanism.
 
-### Custom styles
-
-This plugin supports a modified solarized theme out of the box (its day and
-night variants), but you may install your own style for highlighting with
-highlight.js (instructions for Pygments are not supported yet due to a more
-complicated setup).
-
-To setup a custom style, do the following:
-
-1. Download your new style from [the list of available
-   styles](https://github.com/highlightjs/highlight.js/tree/main/src/styles).
-1. Rename the CSS stylesheet file to start with `_`. This is necessary to
-   prevent garbage collection from Anki when you save it in the media
-   directory. Let's say you named it `_ch-my-style.css`.
-1. Save the CSS stylesheet file into [your Anki profile's media
-   directory]. If you have already installed this plugin, the media
-   directory should contain this plugin's assets, e.g.,
-   `_ch-hljs-solarized.css`.
-1. Open this plugin's configuration in Anki and change the value of
-   [`css-files`](#configuration) to use your new stylesheet, e.g.,:
-
-   ```json
-   {
-     "css-files": [
-       "_ch-my-style.css",
-       "_ch-pygments-solarized.css",
-     ]
-   }
-   ```
-
-   In the example above, we keep the default styles for Pygments.
-1. [Refresh this plugin's assets.](#refresh--removal)
-
-Your new styles will work now. You may customize it further by adding a custom
-border or adding a separate style for dark mode. For how it's done, see
-[`_ch-hljs-solarized.css`](https://github.com/gregorias/anki-code-highlighter/blob/main/assets/_ch-hljs-solarized.css).
-
 ## Refresh & Removal
 
 This plugin installs its own JS and CSS files. It also modifies card
@@ -115,3 +78,59 @@ To remove the plugin, run `Extras/Tools > Delete Code Highlighter Assets`
 before deleting the plugin using Anki's internal add-on system. This
 manual step is necessary until Anki adds [add-on lifecycle
 hooks](https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532).
+
+## Custom Styles
+
+This plugin supports a modified Solarized style out of the box (its day and
+night variants) provided by two CSS stylesheets:
+
+* `assets/_ch-hljs-solarized.css`
+* `assets/_ch-pygments-solarized.css`
+
+You may install your own style but defining and configuring custom stylesheets.
+
+### Adding a custom style
+
+To add a custom style, do the following:
+
+1. Create your new CSS stylesheet. See subsections below for generation tips
+   for each highlighter.
+1. Rename the CSS stylesheet file to start with `_`. This is necessary to
+   prevent garbage collection from Anki when you save it in the media
+   directory. Let's say you named it `_ch-my-style.css`.
+1. Save the CSS stylesheet file into [your Anki profile's media
+   directory](https://docs.ankiweb.net/files.html). If you have already
+   installed this plugin, the media directory should contain this plugin's
+   assets, e.g., `_ch-hljs-solarized.css`.
+1. Open this plugin's configuration in Anki and change the value of
+   [`css-files`](#configuration) to use your new stylesheet, e.g.,:
+
+   ```json
+   {
+     "css-files": [
+       "_ch-my-style.css",
+       "_ch-pygments-solarized.css",
+     ]
+   }
+   ```
+
+   In the example above, we keep the default styles for Pygments.
+1. [Refresh this plugin's assets.](#refresh--removal)
+
+### Generating a stylesheet for highlight.js
+
+You may download a ready stylesheet for highlight.js from [the list of
+available
+styles](https://github.com/highlightjs/highlight.js/tree/main/src/styles).
+
+You may customize it further by adding a custom border or adding a separate
+style for dark mode. For how it's done, see
+[`_ch-hljs-solarized.css`](https://github.com/gregorias/anki-code-highlighter/blob/main/assets/_ch-hljs-solarized.css).
+
+### Generating a stylesheet for pygments
+
+1. Modify `XXX_STYLE` variables in `dev/bin/generate-pygments-css` to use your
+   desired style for each mode.
+1. To generate a ready to use stylesheet, run `dev/bin/generate-pygments-css`.
+   You may need to install a few dependencies for that script to run
+   (`pygments`, `webcolors`). Import errors will guide you.
