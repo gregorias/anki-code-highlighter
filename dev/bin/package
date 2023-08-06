@@ -4,8 +4,7 @@ TARGET_PATH=codehighlighter.ankiaddon
 
 # Delete pycache, because Anki forbids it.
 # https://addon-docs.ankiweb.net/sharing.html#:~:text=python%20automatically%20creates%20pycache%20folders%20when%20your%20add-on%20is%20run.%20please%20make%20sure%20you%20delete%20these%20prior%20to%20creating%20the%20zip%20file%2C%20as%20ankiweb%20can%20not%20accept%20zip%20files%20that%20contain%20pycache%20folders.
-find . --name __pycache__ | xargs rm -r
-
+find . -name __pycache__ | xargs rm -r && \
 rm -f "${TARGET_PATH}" && \
 zip "${TARGET_PATH}" -j \
   codehighlighter/*.py \
