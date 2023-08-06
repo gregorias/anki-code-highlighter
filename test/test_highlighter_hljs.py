@@ -6,6 +6,10 @@ import warnings
 from codehighlighter.bs4extra import encode_soup
 from codehighlighter import ankieditorextra
 from codehighlighter import hljs
+from codehighlighter import hljslangs
+
+cpp = hljslangs.Language(name='C++', alias='cpp')
+python = hljslangs.Language(name='Python', alias='python')
 
 
 class HighlighterHljsTestCase(unittest.TestCase):
@@ -17,7 +21,7 @@ class HighlighterHljsTestCase(unittest.TestCase):
                     "  return 0</code></pre>")
 
         result = ankieditorextra.highlight_selection(
-            code, lambda code: hljs.highlight(code, 'python'))
+            code, lambda code: hljs.highlight(code, python))
         self.assertEqual(result, expected)
 
     def test_highlights_nested_code(self):
@@ -27,7 +31,7 @@ class HighlighterHljsTestCase(unittest.TestCase):
                     "  return 0</code></pre>")
 
         result = ankieditorextra.highlight_selection(
-            code, lambda code: hljs.highlight(code, 'python'))
+            code, lambda code: hljs.highlight(code, python))
         self.assertEqual(result, expected)
 
     def test_hljs_doesnt_throw_warnings(self):
@@ -46,5 +50,5 @@ class HighlighterHljsTestCase(unittest.TestCase):
         code = textwrap.dedent(code)
         with warnings.catch_warnings(record=True) as caught_warnings:
             ankieditorextra.highlight_selection(
-                code, lambda code: hljs.highlight(code, 'cpp'))
+                code, lambda code: hljs.highlight(code, cpp))
             self.assertListEqual(caught_warnings, [])

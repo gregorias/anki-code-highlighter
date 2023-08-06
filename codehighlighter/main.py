@@ -26,6 +26,7 @@ from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
 from . import hljs
+from . import hljslangs
 from . import pygments_highlighter
 
 import anki  # type: ignore
@@ -36,7 +37,7 @@ DEFAULT_CSS_ASSETS = [
     "_ch-pygments-solarized.css",
     "_ch-hljs-solarized.css",
 ]
-JS_ASSETS = ["_ch-my-highlight.js"]
+JS_ASSETS = ["_ch-highlight.js", "_ch-my-highlight.js"]
 VERSION_ASSET = '_ch-asset-version.txt'
 GUARD = 'Anki Code Highlighter (Addon 112228974)'
 CLASS_NAME = 'anki-code-highlighter'
@@ -230,7 +231,7 @@ def ask_for_language(
     Shows a dialog asking for a programming language.
     """
     enter_lang = 'Enter a language'
-    provide_lang_long = 'Provide the snippet\'s language (e.g., cpp)'
+    provide_lang_long = 'Provide the snippet\'s language (e.g., C++)'
 
     lang, new_state = showChoiceDialogWithState(parent, enter_lang,
                                                 provide_lang_long, languages,
@@ -255,7 +256,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
 
     @dataclass(frozen=True)
     class HljsConfig:
-        language: str
+        language: Optional[hljslangs.Language]
 
     @dataclass(frozen=True)
     class PygmentsConfig:
@@ -274,20 +275,17 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 return None
 
         if highlighter == HIGHLIGHT_METHOD.HLJS:
-            available_languages = hljs.get_available_languages(
-                sorted(
-                    list_plugin_media_files(editor.mw.col.media,
-                                            ASSET_PREFIX)))
-            available_languages = list(sorted(available_languages))
-            language, WIZARD_STATE.language_select[
+            language_dict = hljs.get_available_languages_as_dict()
+            language_names = list(sorted(language_dict.keys()))
+            language_name, WIZARD_STATE.language_select[
                 HIGHLIGHT_METHOD.HLJS] = ask_for_language(
                     parent=None,
-                    languages=available_languages,
-                    current=index_or(available_languages, 'cpp', None),
+                    languages=language_names,
+                    current=index_or(language_names, 'C++', None),
                     last_state=WIZARD_STATE.language_select[
                         HIGHLIGHT_METHOD.HLJS])
-            if language:
-                return HljsConfig(language)
+            if language_name:
+                return HljsConfig(language_dict.get(language_name, None))
         elif highlighter == HIGHLIGHT_METHOD.PYGMENTS:
             display_style, WIZARD_STATE.display_style = ask_for_display_style(
                 parent, WIZARD_STATE.display_style)
