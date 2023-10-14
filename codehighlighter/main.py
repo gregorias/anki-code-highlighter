@@ -42,17 +42,20 @@ VERSION_ASSET = '_ch-asset-version.txt'
 GUARD = 'Anki Code Highlighter (Addon 112228974)'
 CLASS_NAME = 'anki-code-highlighter'
 
-
-def config():
-    return aqt.mw and aqt.mw.addonManager.getConfig(__name__)
+Config = Dict[str, str]
 
 
-def get_config(key: str, default):
+def config() -> Optional[Config]:
+    if not aqt.mw:
+        return None
+    return aqt.mw.addonManager.getConfig(__name__)
+
+
+def get_config(key: str) -> Optional[str]:
     config_snapshot = config()
-    if config_snapshot:
-        return config_snapshot.get(key, default)
-    else:
-        return default
+    if not config_snapshot:
+        return None
+    return config_snapshot.get(key)
 
 
 def css_files() -> List[str]:
@@ -61,7 +64,7 @@ def css_files() -> List[str]:
 
     :rtype List[str]
     """
-    config_css_files = get_config('css-files', DEFAULT_CSS_ASSETS)
+    config_css_files = get_config('css-files') or DEFAULT_CSS_ASSETS
     print(repr(config_css_files))
 
     if not (isinstance(config_css_files, list)
@@ -165,6 +168,13 @@ class HIGHLIGHT_METHOD(Enum):
     PYGMENTS = 'pygments'
 
 
+def highlight_method_name_to_enum(name: str) -> Optional[HIGHLIGHT_METHOD]:
+    for m in list(HIGHLIGHT_METHOD):
+        if m.value == name:
+            return m
+    return None
+
+
 @dataclass
 class WizardState:
     highlighter: ChoiceDialogState = ChoiceDialogState(None)
@@ -178,22 +188,19 @@ class WizardState:
 WIZARD_STATE = WizardState()
 
 
-def ask_for_highlight_method(
-    parent, last_state: ChoiceDialogState
-) -> Tuple[Optional[HIGHLIGHT_METHOD], ChoiceDialogState]:
+def ask_for_highlight_method(parent) -> Optional[HIGHLIGHT_METHOD]:
     """
     Shows a dialog asking for a highlighting method.
     """
-    method_value, new_state = showChoiceDialogWithState(
+    method_value, WIZARD_STATE.highlighter = showChoiceDialogWithState(
         parent,
         'Highlighter',
         'Select a highlighter', [m.value for m in list(HIGHLIGHT_METHOD)],
         current=0,
-        last_state=last_state)
-    for m in list(HIGHLIGHT_METHOD):
-        if m.value == method_value:
-            return (m, new_state)
-    return (None, new_state)
+        last_state=WIZARD_STATE.highlighter)
+    if method_value is None:
+        return None
+    return highlight_method_name_to_enum(method_value)
 
 
 @enum.unique
@@ -239,6 +246,19 @@ def ask_for_language(
     return (lang, new_state)
 
 
+def get_effective_highlighter(config: Optional[Config],
+                              parent) -> Optional[HIGHLIGHT_METHOD]:
+    # Try the config first.
+    if config:
+        default_highlighter = config.get("default-highlighter")
+        if default_highlighter:
+            highlighter = highlight_method_name_to_enum(default_highlighter)
+            if highlighter:
+                return highlighter
+
+    return ask_for_highlight_method(parent)
+
+
 def highlight_action(editor: aqt.editor.Editor) -> None:
     note: Optional[anki.notes.Note] = editor.note
     currentFieldNo = editor.currentField
@@ -267,12 +287,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
 
     def show_dialogs() -> Optional[FormatConfig]:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
-        highlighter = get_config("default-highlighter", "")
-        if not highlighter:
-            highlighter, WIZARD_STATE.highlighter = ask_for_highlight_method(
-                parent, WIZARD_STATE.highlighter)
-            if not highlighter:
-                return None
+        highlighter = get_effective_highlighter(config(), parent)
 
         if highlighter == HIGHLIGHT_METHOD.HLJS:
             language_dict = hljs.get_available_languages_as_dict()
@@ -311,8 +326,8 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         if not args:
             return None
 
-        block_style = get_config("block-style",
-                                 "display:flex; justify-content:center;")
+        block_style = (get_config("block-style")
+                       or "display:flex; justify-content:center;")
         if isinstance(args, HljsConfig):
             return hljs.highlight(code,
                                   language=args.language,
@@ -335,7 +350,7 @@ def get_shortcut() -> str:
 
     :rtype str: The keyboard shortcut, e.g., "ctrl+'".
     """
-    return get_config("shortcut", "ctrl+'")
+    return get_config("shortcut") or "ctrl+'"
 
 
 def on_editor_shortcuts_init(shortcuts: List[Tuple],
