@@ -78,7 +78,8 @@ with pygments plus a few lines for general styles. I generated the style there w
 ## Release & distribution
 
 1. Create a release commit.
-    1. Bump up the package version in `codehighlighter/manifest.json`.
+    1. Bump up the package version in `codehighlighter/manifest.json`
+       and `pyproject.toml`.
     2. Tag the release commit `git tag vx.y.z && git push origin vx.y.z`.
 2. Use the `dev/bin/package` tool to create `codehighlighter.ankiaddon`.
 3. [Share the package on Anki.](https://addon-docs.ankiweb.net/#/sharing)
