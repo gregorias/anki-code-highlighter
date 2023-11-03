@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """The implementation of the code highlighter plugin."""
 from dataclasses import dataclass, field
 import enum
@@ -10,13 +9,13 @@ import random
 import sys
 from typing import Callable, Dict, Generator, Generic, List, Optional, Tuple, TypeVar, Union
 
-import aqt  # type: ignore
+import aqt
 from aqt import mw
 from aqt import gui_hooks
-from aqt.utils import showWarning  # type: ignore
-import bs4  # type: ignore
+from aqt.qt import QInputDialog
+from aqt.utils import showWarning
+import bs4
 from bs4 import BeautifulSoup, NavigableString
-from PyQt5.QtWidgets import QInputDialog  # type: ignore
 
 sys.path.append(os.path.dirname(__file__))
 import pygments  # type: ignore
