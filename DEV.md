@@ -2,7 +2,7 @@
 
 This is a documentation file for Code Highlighter's developers.
 
-## Dev Environment Setup
+## Dev environment setup
 
 This section describes how to setup your development environment.
 
@@ -81,8 +81,9 @@ with pygments plus a few lines for general styles. I generated the style there w
     1. Bump up the package version in `codehighlighter/manifest.json`
        and `pyproject.toml`.
     2. Tag the release commit `git tag vx.y.z && git push origin vx.y.z`.
-2. Use the `dev/bin/package` tool to create `codehighlighter.ankiaddon`.
-3. [Share the package on Anki.](https://addon-docs.ankiweb.net/#/sharing)
+1. Use the `dev/bin/package` tool to create `codehighlighter.ankiaddon`.
+1. Create a GitHub release: `gh release create vx.y.z codehighlighter.ankiaddon`.
+1. [Share the package on Anki.](https://addon-docs.ankiweb.net/#/sharing)
 
 ## Design Decisions
 
