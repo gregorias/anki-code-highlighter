@@ -63,6 +63,17 @@ The plugin accepts the following configuration options:
 * `default-highlighter` (`highlight.js`, `pygments`, ``) — this sets the
   default highlighting mechanism.
 
+### Known limitations
+
+#### Can't highlight split HTML nodes
+
+If you see "The selection splits an HTML node, which prevents the highlighting
+plugin from proceeding", you are partially selecting an HTML element.
+
+This plugin can not highlight a selection that partially selects an HTML
+element. To work around this, [see these
+instructions](https://github.com/gregorias/anki-code-highlighter/issues/72#issuecomment-1830404297).
+
 ## Refresh & Removal
 
 This plugin installs its own JS and CSS files. It also modifies card
