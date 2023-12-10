@@ -2,7 +2,9 @@
 """The Pygments highlighter.
 
 See DEV.md for more information on the highlighter concept."""
+from collections.abc import Iterable
 from dataclasses import dataclass
+import functools
 import re
 from typing import NamedTuple, Optional
 
@@ -12,7 +14,11 @@ from .bs4extra import create_soup
 
 import pygments  # type: ignore
 import pygments.formatters  # type: ignore
+import pygments.lexer
 import pygments.lexers  # type: ignore
+
+LexerName = str
+LexerAlias = str
 
 
 class HtmlStyle(NamedTuple):
@@ -41,7 +47,7 @@ def remove_spurious_inline_spanw(html: str) -> str:
     return re.sub('<span class="w"></span>', '', html)
 
 
-def highlight(code: str, language: str, style: HtmlStyle) -> bs4.Tag:
+def highlight(code: str, language: LexerName, style: HtmlStyle) -> bs4.Tag:
     """
     Highlights the code snippet with Pygments.
 
@@ -50,7 +56,7 @@ def highlight(code: str, language: str, style: HtmlStyle) -> bs4.Tag:
     :param style: The style options to use.
     :return: A BeautifulSoup tag representing the highlighted code.
     """
-    lexer = pygments.lexers.get_lexer_by_name(language)
+    lexer = get_lexer_by_name(language)
     htmlf = pygments.formatters.get_formatter_by_name(
         'html', nowrap=True
     ) if style.display_style == "inline" else pygments.formatters.get_formatter_by_name(
@@ -76,8 +82,37 @@ def highlight(code: str, language: str, style: HtmlStyle) -> bs4.Tag:
     return create_soup(highlighted)
 
 
-def get_available_languages() -> list[str]:
-    # Filter out lexers with spaces in their name, because
-    # get_lexer_by_name can't find them. Lexers with spaces are niche
-    # anyway.
-    return [t[0] for t in pygments.lexers.get_all_lexers() if ' ' not in t[0]]
+@functools.cache
+def get_lexer_name_alias_map() -> dict[LexerName, LexerAlias]:
+    """Returns a map from a lexer name to its lexer alias."""
+    # We need to check if `t[1]` has an element, because not all lexer tuples
+    # have this.
+    # Deprecated lexers have an empty alias list.
+    return {
+        t[0]: t[1][0]
+        for t in pygments.lexers.get_all_lexers() if len(t[1]) >= 1
+    }
+
+
+@functools.cache
+def get_lexer_by_name(name: LexerName) -> pygments.lexer.Lexer:
+    """Returns a lexer by its name.
+
+    pygments.lexers.get_lexer_by_name actually accepts an alias. This function
+    corrects this conceptual mismatch.
+    """
+    name_alias_map = get_lexer_name_alias_map()
+    # Treat the name itself as an alias if it is not in the map.
+    # This is done to facilitate user manually entering strings like "python"
+    # or "cpp".
+    alias = name_alias_map.get(name, name)
+    return pygments.lexers.get_lexer_by_name(alias)
+
+
+@functools.cache
+def get_available_languages() -> Iterable[LexerName]:
+    """Returns a list of all available languages.
+
+    The languages are in human-readable form, e.g. "C++", not "cpp".
+    """
+    return get_lexer_name_alias_map().keys()

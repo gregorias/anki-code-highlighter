@@ -306,9 +306,8 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             if display_style is None:
                 return None
 
-            available_languages = pygments_highlighter.get_available_languages(
-            )
-            available_languages = list(sorted(available_languages))
+            available_languages = list(
+                sorted(pygments_highlighter.get_available_languages()))
             language, WIZARD_STATE.language_select[
                 HIGHLIGHT_METHOD.PYGMENTS] = ask_for_language(
                     parent=None,

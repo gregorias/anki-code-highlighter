@@ -3,6 +3,9 @@ from os import path
 import pathlib
 import unittest
 
+import pygments.lexer
+import pygments.lexers
+
 from codehighlighter.bs4extra import encode_soup
 from codehighlighter import ankieditorextra
 from codehighlighter import pygments_highlighter
@@ -24,10 +27,19 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
     def setUp(self):
         self.testdata_dir = get_testdata_dir()
 
+    def test_all_lexer_names_lead_to_a_lexer(self):
+        for language in pygments_highlighter.get_available_languages():
+            lexer = pygments_highlighter.get_lexer_by_name(language)
+            self.assertIsInstance(lexer, pygments.lexer.Lexer)
+
+    def test_get_lexer_by_name_also_works_with_aliases(self):
+        lexer = pygments_highlighter.get_lexer_by_name('cpp')
+        self.assertEqual(lexer.name, 'C++')
+
     def test_highlights_inline_code_to_one_line(self):
         result = ankieditorextra.highlight_selection(
             'true', lambda code: pygments_highlighter.highlight(
-                code, 'c++', create_inline_style()))
+                code, 'C++', create_inline_style()))
 
         self.assertEqual(
             result, '<code class="pygments">' +
@@ -38,7 +50,7 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
         expected = read_file(self.testdata_dir / "out0.html")
         result = ankieditorextra.highlight_selection(
             input, lambda code: pygments_highlighter.highlight(
-                code, 'python', create_block_style()))
+                code, 'Python', create_block_style()))
         self.assertEqual(result, expected)
 
     def test_highlights_block_html_code(self):
@@ -46,7 +58,7 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
         expected = read_file(self.testdata_dir / "out1.html")
         result = ankieditorextra.highlight_selection(
             input, lambda code: pygments_highlighter.highlight(
-                code, 'python', create_block_style()))
+                code, 'Python', create_block_style()))
         self.assertEqual(result, expected)
 
     def test_removes_html_entities(self):
@@ -59,5 +71,5 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
             '</code></pre>\n' + '</div>\n')
         result = ankieditorextra.highlight_selection(
             code_snippet, lambda code: pygments_highlighter.highlight(
-                code, 'python', create_block_style()))
+                code, 'Python', create_block_style()))
         self.assertEqual(result, expected)
