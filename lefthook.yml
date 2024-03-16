@@ -5,16 +5,16 @@ pre-commit:
       runner: python3
   commands:
     check-module-names:
-      glob: '*.py'
+      glob: "*.py"
       run: ./dev/bin/check-module-names {staged_files}
     markdownlint:
       tags: documentation style
       files: git diff --name-only --cached --diff-filter=AM
-      glob: '*.md'
+      glob: "*.md"
       run: markdownlint {files}
     poetry-check:
       tags: lint
-      glob: 'pyproject.toml'
+      glob: "pyproject.toml"
       run: poetry check
     toml-taplo-lint:
       tags: style
@@ -26,10 +26,10 @@ pre-commit:
       run: taplo fmt --check {staged_files}
     yapf:
       tags: style
-      glob: '*.py'
+      glob: "*.py"
       run: yapf -i -r {staged_files} && git add {staged_files}
-    unit-tests:
-      run: "./dev/bin/testall"
+    test:
+      run: just test
 commit-msg:
   commands:
     commitlint:

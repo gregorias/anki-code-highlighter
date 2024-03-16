@@ -10,6 +10,7 @@ This project requires the following tools:
 
 - [Commitlint]
 - [Lefthook]
+- [Just]
 - [Markdownlint]
 - [Poetry]
 - [Pyenv]
@@ -71,7 +72,7 @@ with pygments plus a few lines for general styles. I generated the style there w
 
 ## Testing
 
-1. Run unit tests and mypy with `testall`.
+1. Run unit tests and mypy with `just test`.
 2. Test supported Anki versions (2.1.49 and latest) by packaging the plugin and
    importing the plugin into the lowest and the newest support Anki.
 
@@ -153,6 +154,7 @@ sync with what Anki uses. To update this Python version, you need to:
 
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
+[Just]: https://github.com/casey/just
 [Markdownlint]: https://github.com/igorshubovych/markdownlint-cli
 [Poetry]: https://python-poetry.org
 [Pyenv]: https://github.com/pyenv/pyenv

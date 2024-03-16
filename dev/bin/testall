@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-set -o verbose
-mypy --config-file=mypy.ini codehighlighter/ test && \
-python -m unittest discover -s test/ -t .
