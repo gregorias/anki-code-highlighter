@@ -155,13 +155,6 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                 return d.get(key)
             return None
 
-        a = typing.TypeVar('a')
-        b = typing.TypeVar('b')
-
-        def maybe_fmap(
-                f: Callable[[a], b]) -> Callable[[Optional[a]], Optional[b]]:
-            return lambda x: f(x) if x is not None else None
-
         if not safe_get(selection_return, 'field'):
             error = safe_get(selection_return, 'error')
             message = safe_get(error, 'message')
