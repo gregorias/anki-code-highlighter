@@ -27,8 +27,19 @@ Alternatively, you can install this plugin from source.
 
 ## Usage
 
+You can either highlight code from your clipboard or highlight a snippet of
+code already present in a card field.
+
+### Highlighting from clipboard
+
+1. Put the cursor in the place you want to place your code.
+2. Press `CTRL+'` (on macOS, `⌘+'`) or click this add-on's button in the
+   editor's button bar.
+
+### Highlighting an already written code snippet
+
 1. Write a code snippet in a card editor.
-2. Select your code snippet.
+2. Select the code snippet.
 3. Press `CTRL+'` (on macOS, `⌘+'`) or click this add-on's button in the
    editor's button bar.
 

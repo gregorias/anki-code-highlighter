@@ -12,7 +12,7 @@ from typing import Callable, Dict, Generator, Generic, List, Optional, Tuple, Ty
 import aqt
 from aqt import mw
 from aqt import gui_hooks
-from aqt.qt import QInputDialog
+from aqt.qt import QApplication, QInputDialog
 from aqt.utils import showWarning
 import bs4
 from bs4 import BeautifulSoup, NavigableString
@@ -24,6 +24,7 @@ import pygments.lexers  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
+from .format import Clipboard, EmptyClipboard, format_selected_code
 from . import hljs
 from . import hljslangs
 from . import pygments_highlighter
@@ -258,6 +259,11 @@ def get_effective_highlighter(config: Optional[Config],
     return ask_for_highlight_method(parent)
 
 
+def get_qclipboard_or_empty() -> Clipboard:
+    """Returns the QApplication clipboard or an empty clipboard."""
+    return QApplication.clipboard() or EmptyClipboard()
+
+
 def highlight_action(editor: aqt.editor.Editor) -> None:
     note: Optional[anki.notes.Note] = editor.note
     currentFieldNo = editor.currentField
@@ -319,7 +325,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 return PygmentsConfig(display_style, language)
         return None
 
-    def format(code: str) -> Optional[bs4.Tag]:
+    def highlight(code: str) -> Optional[bs4.Tag]:
         args: Optional[FormatConfig] = show_dialogs()
         if not args:
             return None
@@ -338,6 +344,11 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             return pygments_highlighter.highlight(code,
                                                   language=args.language,
                                                   style=html_style)
+
+    def format(code: str) -> Optional[bs4.Tag]:
+        return format_selected_code(code,
+                                    highlight=highlight,
+                                    clipboard=get_qclipboard_or_empty())
 
     transform_selection(editor, note, currentFieldNo, format, showWarning)
 

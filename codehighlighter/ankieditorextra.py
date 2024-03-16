@@ -109,7 +109,7 @@ def highlight_selection(
     This function sanitizes the input by removing HTML markup. It returns an
     encoded HTML.
 
-    :param selection: A an HTML string representing the code.
+    :param selection: An HTML string representing the code.
     :param highlighter: A function that highlights the code.
     :return: The highlighter HTML tag.
     """
