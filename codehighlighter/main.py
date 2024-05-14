@@ -26,6 +26,7 @@ from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version
 from .bs4extra import encode_soup
 from .dialog import showChoiceDialog
 from .format import Clipboard, EmptyClipboard, format_selected_code
+from .listextra import index_or
 from . import hljs
 from . import hljslangs
 from . import pygments_highlighter
@@ -88,19 +89,6 @@ def create_anki_asset_manager(css_assets: List[str],
                             JS_ASSETS,
                             guard=GUARD,
                             class_name=CLASS_NAME)
-
-
-T = TypeVar('T')
-
-
-def index_or(l: List[T], item: T, default: Optional[int]) -> Optional[int]:
-    """
-    Like list.index, but does not throw and returns a default value instead.
-    """
-    try:
-        return l.index(item)
-    except ValueError:
-        return default
 
 
 @dataclass(frozen=True)
