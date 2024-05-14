@@ -24,11 +24,11 @@ import pygments.lexers  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
-from .dialog import showChoiceDialog
+from .dialog import HIGHLIGHT_METHOD, showChoiceDialog, HljsConfig, ask_for_language, ask_for_hljs_config
+from . import dialog
 from .format import Clipboard, EmptyClipboard, format_selected_code
 from .listextra import index_or
 from . import hljs
-from . import hljslangs
 from . import pygments_highlighter
 
 import anki  # type: ignore
@@ -123,45 +123,16 @@ def showChoiceDialogWithState(
             ChoiceDialogState(chosen_option) if chosen_option else last_state)
 
 
-@enum.unique
-class HIGHLIGHT_METHOD(Enum):
-    HLJS = 'highlight.js'
-    PYGMENTS = 'pygments'
-
-
-def highlight_method_name_to_enum(name: str) -> Optional[HIGHLIGHT_METHOD]:
-    for m in list(HIGHLIGHT_METHOD):
-        if m.value == name:
-            return m
-    return None
-
-
 @dataclass
 class WizardState:
-    highlighter: ChoiceDialogState = ChoiceDialogState(None)
+    highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.HLJS
     display_style: ChoiceDialogState = ChoiceDialogState(None)
-    language_select: Dict[HIGHLIGHT_METHOD, ChoiceDialogState] = field(
-        default_factory=lambda:
-        {m: ChoiceDialogState(None)
-         for m in list(HIGHLIGHT_METHOD)})
+    hljs_config: HljsConfig = HljsConfig(
+        hljs.get_available_languages_as_dict().get("C++", None))
+    pygments_language: Optional[str] = None
 
 
 WIZARD_STATE = WizardState()
-
-
-def ask_for_highlight_method(parent) -> Optional[HIGHLIGHT_METHOD]:
-    """
-    Shows a dialog asking for a highlighting method.
-    """
-    method_value, WIZARD_STATE.highlighter = showChoiceDialogWithState(
-        parent,
-        'Highlighter',
-        'Select a highlighter', [m.value for m in list(HIGHLIGHT_METHOD)],
-        current=0,
-        last_state=WIZARD_STATE.highlighter)
-    if method_value is None:
-        return None
-    return highlight_method_name_to_enum(method_value)
 
 
 @enum.unique
@@ -191,20 +162,15 @@ def ask_for_display_style(
     return (ret, new_state)
 
 
-def ask_for_language(
-        parent, languages: List[str], current: Optional[int],
-        last_state: ChoiceDialogState
-) -> Tuple[Optional[str], ChoiceDialogState]:
+def ask_for_highlight_method(parent) -> Optional[HIGHLIGHT_METHOD]:
     """
-    Shows a dialog asking for a programming language.
+    Shows a dialog asking for a highlighting method.
     """
-    enter_lang = 'Enter a language'
-    provide_lang_long = 'Provide the snippet\'s language (e.g., C++)'
-
-    lang, new_state = showChoiceDialogWithState(parent, enter_lang,
-                                                provide_lang_long, languages,
-                                                current, last_state)
-    return (lang, new_state)
+    method_value = dialog.ask_for_highlight_method(parent,
+                                                   WIZARD_STATE.highlighter)
+    if method_value is not None:
+        WIZARD_STATE.highlighter = method_value
+    return method_value
 
 
 def get_effective_highlighter(config: Optional[Config],
@@ -213,7 +179,8 @@ def get_effective_highlighter(config: Optional[Config],
     if config:
         default_highlighter = config.get("default-highlighter")
         if default_highlighter:
-            highlighter = highlight_method_name_to_enum(default_highlighter)
+            highlighter = dialog.highlight_method_name_to_enum(
+                default_highlighter)
             if highlighter:
                 return highlighter
 
@@ -241,10 +208,6 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         return None
 
     @dataclass(frozen=True)
-    class HljsConfig:
-        language: Optional[hljslangs.Language]
-
-    @dataclass(frozen=True)
     class PygmentsConfig:
         display_style: DISPLAY_STYLE
         language: str
@@ -256,17 +219,10 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         highlighter = get_effective_highlighter(config(), parent)
 
         if highlighter == HIGHLIGHT_METHOD.HLJS:
-            language_dict = hljs.get_available_languages_as_dict()
-            language_names = list(sorted(language_dict.keys()))
-            language_name, WIZARD_STATE.language_select[
-                HIGHLIGHT_METHOD.HLJS] = ask_for_language(
-                    parent=None,
-                    languages=language_names,
-                    current=index_or(language_names, 'C++', None),
-                    last_state=WIZARD_STATE.language_select[
-                        HIGHLIGHT_METHOD.HLJS])
-            if language_name:
-                return HljsConfig(language_dict.get(language_name, None))
+            hljs_config = ask_for_hljs_config(parent, WIZARD_STATE.hljs_config)
+            if hljs_config is not None:
+                WIZARD_STATE.hljs_config = hljs_config
+                return hljs_config
         elif highlighter == HIGHLIGHT_METHOD.PYGMENTS:
             display_style, WIZARD_STATE.display_style = ask_for_display_style(
                 parent, WIZARD_STATE.display_style)
@@ -275,14 +231,12 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
 
             available_languages = list(
                 sorted(pygments_highlighter.get_available_languages()))
-            language, WIZARD_STATE.language_select[
-                HIGHLIGHT_METHOD.PYGMENTS] = ask_for_language(
-                    parent=None,
-                    languages=available_languages,
-                    current=index_or(available_languages, 'C++', None),
-                    last_state=WIZARD_STATE.language_select[
-                        HIGHLIGHT_METHOD.PYGMENTS])
+            language = ask_for_language(parent=None,
+                                        languages=available_languages,
+                                        current=WIZARD_STATE.pygments_language
+                                        or "C++")
             if language:
+                WIZARD_STATE.pygments_language = language
                 return PygmentsConfig(display_style, language)
         return None
 
