@@ -117,9 +117,8 @@ def showChoiceDialogWithState(
     :rtype Tuple[Optional[str], ChoiceDialogState]: The selected option if any
       with the new state.
     """
-    if last_state.state:
-        current = index_or(options, last_state.state, current)
-    chosen_option = showChoiceDialog(parent, title, message, options, current)
+    chosen_option = showChoiceDialog(parent, title, message, options,
+                                     last_state.state or current)
     return (chosen_option,
             ChoiceDialogState(chosen_option) if chosen_option else last_state)
 
