@@ -12,7 +12,7 @@ from typing import Callable, Dict, Generator, Generic, List, Optional, Tuple, Ty
 import aqt
 from aqt import mw
 from aqt import gui_hooks
-from aqt.qt import QApplication, QInputDialog
+from aqt.qt import QApplication
 from aqt.utils import showWarning
 import bs4
 from bs4 import BeautifulSoup, NavigableString
@@ -24,6 +24,7 @@ import pygments.lexers  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
+from .dialog import showChoiceDialog
 from .format import Clipboard, EmptyClipboard, format_selected_code
 from . import hljs
 from . import hljslangs
@@ -100,33 +101,6 @@ def index_or(l: List[T], item: T, default: Optional[int]) -> Optional[int]:
         return l.index(item)
     except ValueError:
         return default
-
-
-def showChoiceDialog(parent, title: str, message: str, options: List[str],
-                     current: Optional[int]) -> Optional[str]:
-    """
-    Shows a choice selection dialog.
-
-    :param parent: A parent widget.
-    :param title str
-    :param message str
-    :param options List[str]: A list of available options.
-    :param current Optional[int]: The option's index to preselect.
-    :rtype Optional[str]: Selected option if any.
-    :raises Exception
-    """
-    if current and not (current >= 0 and current < len(options)):
-        raise Exception(f"The provided default index, {current}, " +
-                        f"is not within option range. " +
-                        f"The option range size is {len(options)}.")
-    if current is None:
-        label, ok = QInputDialog.getItem(parent, title, message, options)
-    else:
-        # If current is None, QInputDialog.getItem will throw a type error at
-        # runtime.
-        label, ok = QInputDialog.getItem(parent, title, message, options,
-                                         current)
-    return (ok and label) or None
 
 
 @dataclass(frozen=True)
