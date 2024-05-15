@@ -24,7 +24,7 @@ import pygments.lexers  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
-from .dialog import HIGHLIGHT_METHOD, showChoiceDialog, HljsConfig, ask_for_language, ask_for_hljs_config
+from .dialog import DISPLAY_STYLE, HIGHLIGHT_METHOD, showChoiceDialog, HljsConfig, ask_for_hljs_config, PygmentsConfig, ask_for_pygments_config
 from . import dialog
 from .format import Clipboard, EmptyClipboard, format_selected_code
 from .listextra import index_or
@@ -126,40 +126,13 @@ def showChoiceDialogWithState(
 @dataclass
 class WizardState:
     highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.HLJS
-    display_style: ChoiceDialogState = ChoiceDialogState(None)
     hljs_config: HljsConfig = HljsConfig(
         hljs.get_available_languages_as_dict().get("C++", None))
-    pygments_language: Optional[str] = None
+    pygments_config: PygmentsConfig = PygmentsConfig(
+        display_style=DISPLAY_STYLE.BLOCK, language="C++")
 
 
 WIZARD_STATE = WizardState()
-
-
-@enum.unique
-class DISPLAY_STYLE(Enum):
-    BLOCK = 1
-    INLINE = 2
-
-
-def ask_for_display_style(
-    parent, last_state: ChoiceDialogState
-) -> Tuple[Optional[DISPLAY_STYLE], ChoiceDialogState]:
-    """
-    Shows a dialog asking for a display style.
-    """
-    display_style_value, new_state = showChoiceDialogWithState(
-        parent,
-        'Display style',
-        'Select a display style', ['block', 'inline'],
-        current=0,
-        last_state=last_state)
-    if display_style_value == 'block':
-        ret = DISPLAY_STYLE.BLOCK
-    elif display_style_value == 'inline':
-        ret = DISPLAY_STYLE.INLINE
-    else:
-        ret = None
-    return (ret, new_state)
 
 
 def ask_for_highlight_method(parent) -> Optional[HIGHLIGHT_METHOD]:
@@ -207,11 +180,6 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             "Select a note field before running the code highlighter.")
         return None
 
-    @dataclass(frozen=True)
-    class PygmentsConfig:
-        display_style: DISPLAY_STYLE
-        language: str
-
     FormatConfig = Union[HljsConfig, PygmentsConfig]
 
     def show_dialogs() -> Optional[FormatConfig]:
@@ -224,20 +192,11 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                 WIZARD_STATE.hljs_config = hljs_config
                 return hljs_config
         elif highlighter == HIGHLIGHT_METHOD.PYGMENTS:
-            display_style, WIZARD_STATE.display_style = ask_for_display_style(
-                parent, WIZARD_STATE.display_style)
-            if display_style is None:
-                return None
-
-            available_languages = list(
-                sorted(pygments_highlighter.get_available_languages()))
-            language = ask_for_language(parent=None,
-                                        languages=available_languages,
-                                        current=WIZARD_STATE.pygments_language
-                                        or "C++")
-            if language:
-                WIZARD_STATE.pygments_language = language
-                return PygmentsConfig(display_style, language)
+            pygments_config = ask_for_pygments_config(
+                parent, WIZARD_STATE.pygments_config)
+            if pygments_config:
+                WIZARD_STATE.pygments_config = pygments_config
+                return pygments_config
         return None
 
     def highlight(code: str) -> Optional[bs4.Tag]:
