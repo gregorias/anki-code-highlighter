@@ -1,13 +1,18 @@
-"""Functions for working with dialogs.
+"""Functions for working with dialogs and wizards.
 
-This module contains functions for working with dialogs and wizards. This
-module contains code that touches both the Anki GUI and depends on
-highlighters. The highlighting functionality must not depend on this module.
+This module contains functions for working with dialogs and wizards.
+
+This module contains code that touches both the Anki GUI and depends on
+highlighters.
+The highlighting functionality must not depend on this module. Also, for
+minimizing responsibility, serialization of state should also be outside of
+this module.
 """
+import dataclasses
 from dataclasses import dataclass
 import enum
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 from aqt.qt import QInputDialog
 
@@ -188,3 +193,58 @@ def ask_for_pygments_config(
         return None
 
     return PygmentsConfig(display_style, language)
+
+
+@dataclass
+class HighlighterWizardState:
+    """
+    The state of the highlighter wizard.
+
+    It provides useful defaults to preselect.
+    """
+    highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.HLJS
+    hljs_config: HljsConfig = HljsConfig(
+        hljs.get_available_languages_as_dict().get("C++", None))
+    pygments_config: PygmentsConfig = PygmentsConfig(
+        display_style=DISPLAY_STYLE.BLOCK, language="C++")
+
+
+# The highlighter config chosen by the user.
+HighlighterConfig = Union[HljsConfig, PygmentsConfig]
+
+
+def ask_for_highlighter_config(
+    parent, state: HighlighterWizardState,
+    get_highlighter: Callable[[HIGHLIGHT_METHOD], Optional[HIGHLIGHT_METHOD]]
+) -> Tuple[Optional[HighlighterConfig], HighlighterWizardState]:
+    """
+    Shows a wizard that configures a highlighter.
+
+    This wizard comes with a state. Users like to have sticky options.
+
+    :param parent
+    :param state HighlighterWizardState: The state of the wizard to use.
+    :param get_highlighter: A function that fetches the selected highlight method given a preselected default.
+    :return: The selected config and a new state.
+    """
+    highlighter = get_highlighter(state.highlighter)
+
+    if highlighter is None:
+        return (None, state)
+
+    state = dataclasses.replace(state, highlighter=highlighter)
+
+    if highlighter == HIGHLIGHT_METHOD.HLJS:
+        hljs_config = ask_for_hljs_config(parent, state.hljs_config)
+        if hljs_config is not None:
+            return (hljs_config,
+                    dataclasses.replace(state, hljs_config=hljs_config))
+    elif highlighter == HIGHLIGHT_METHOD.PYGMENTS:
+        pygments_config = ask_for_pygments_config(parent,
+                                                  state.pygments_config)
+        if pygments_config is not None:
+            return (pygments_config,
+                    dataclasses.replace(state,
+                                        pygments_config=pygments_config))
+
+    return (None, state)

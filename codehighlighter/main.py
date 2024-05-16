@@ -1,5 +1,5 @@
 """The implementation of the code highlighter plugin."""
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import enum
 from enum import Enum
 from functools import partial
@@ -24,7 +24,9 @@ import pygments.lexers  # type: ignore
 from .ankieditorextra import transform_selection
 from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
 from .bs4extra import encode_soup
-from .dialog import DISPLAY_STYLE, HIGHLIGHT_METHOD, showChoiceDialog, HljsConfig, ask_for_hljs_config, PygmentsConfig, ask_for_pygments_config
+from .dialog import (DISPLAY_STYLE, HIGHLIGHT_METHOD, ask_for_highlight_method,
+                     HljsConfig, HighlighterConfig, HighlighterWizardState,
+                     ask_for_highlighter_config)
 from . import dialog
 from .format import Clipboard, EmptyClipboard, format_selected_code
 from .listextra import index_or
@@ -60,6 +62,13 @@ def get_config(key: str) -> Optional[str]:
     return config_snapshot.get(key)
 
 
+def get_default_highlighter(config: Config) -> Optional[HIGHLIGHT_METHOD]:
+    default_highlighter = config.get("default-highlighter")
+    if default_highlighter is None:
+        return None
+    return dialog.highlight_method_name_to_enum(default_highlighter)
+
+
 def css_files() -> List[str]:
     """
     A list of configured css files to use for styling.
@@ -91,73 +100,7 @@ def create_anki_asset_manager(css_assets: List[str],
                             class_name=CLASS_NAME)
 
 
-@dataclass(frozen=True)
-class ChoiceDialogState:
-    state: Optional[str]
-
-
-def showChoiceDialogWithState(
-        parent, title: str, message: str, options: List[str],
-        current: Optional[int], last_state: ChoiceDialogState
-) -> Tuple[Optional[str], ChoiceDialogState]:
-    """
-    Shows a choice selection dialog.
-
-    This dialog also maintains state that preselects the last chosen option if
-    any.
-
-    :param parent
-    :param title str
-    :param message str
-    :param options List[str]
-    :param current Optional[int]: The option to preselect if the last chosen
-      option is not available.
-    :param last_state ChoiceDialogState: The last state returned by this
-      dialog.
-    :rtype Tuple[Optional[str], ChoiceDialogState]: The selected option if any
-      with the new state.
-    """
-    chosen_option = showChoiceDialog(parent, title, message, options,
-                                     last_state.state or current)
-    return (chosen_option,
-            ChoiceDialogState(chosen_option) if chosen_option else last_state)
-
-
-@dataclass
-class WizardState:
-    highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.HLJS
-    hljs_config: HljsConfig = HljsConfig(
-        hljs.get_available_languages_as_dict().get("C++", None))
-    pygments_config: PygmentsConfig = PygmentsConfig(
-        display_style=DISPLAY_STYLE.BLOCK, language="C++")
-
-
-WIZARD_STATE = WizardState()
-
-
-def ask_for_highlight_method(parent) -> Optional[HIGHLIGHT_METHOD]:
-    """
-    Shows a dialog asking for a highlighting method.
-    """
-    method_value = dialog.ask_for_highlight_method(parent,
-                                                   WIZARD_STATE.highlighter)
-    if method_value is not None:
-        WIZARD_STATE.highlighter = method_value
-    return method_value
-
-
-def get_effective_highlighter(config: Optional[Config],
-                              parent) -> Optional[HIGHLIGHT_METHOD]:
-    # Try the config first.
-    if config:
-        default_highlighter = config.get("default-highlighter")
-        if default_highlighter:
-            highlighter = dialog.highlight_method_name_to_enum(
-                default_highlighter)
-            if highlighter:
-                return highlighter
-
-    return ask_for_highlight_method(parent)
+WIZARD_STATE = HighlighterWizardState()
 
 
 def get_qclipboard_or_empty() -> Clipboard:
@@ -180,27 +123,25 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             "Select a note field before running the code highlighter.")
         return None
 
-    FormatConfig = Union[HljsConfig, PygmentsConfig]
-
-    def show_dialogs() -> Optional[FormatConfig]:
+    def show_dialogs() -> Optional[HighlighterConfig]:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
-        highlighter = get_effective_highlighter(config(), parent)
 
-        if highlighter == HIGHLIGHT_METHOD.HLJS:
-            hljs_config = ask_for_hljs_config(parent, WIZARD_STATE.hljs_config)
-            if hljs_config is not None:
-                WIZARD_STATE.hljs_config = hljs_config
-                return hljs_config
-        elif highlighter == HIGHLIGHT_METHOD.PYGMENTS:
-            pygments_config = ask_for_pygments_config(
-                parent, WIZARD_STATE.pygments_config)
-            if pygments_config:
-                WIZARD_STATE.pygments_config = pygments_config
-                return pygments_config
-        return None
+        config_dict = config()
+        default_highlighter = config_dict and get_default_highlighter(
+            config_dict)
+        if default_highlighter:
+            get_highlighter = lambda _: default_highlighter
+        else:
+            get_highlighter = partial(ask_for_highlight_method,
+                                      parent)  # type: ignore
+
+        global WIZARD_STATE
+        highlighter_config, WIZARD_STATE = ask_for_highlighter_config(
+            parent, WIZARD_STATE, get_highlighter=get_highlighter)
+        return highlighter_config
 
     def highlight(code: str) -> Optional[bs4.Tag]:
-        args: Optional[FormatConfig] = show_dialogs()
+        args: Optional[HighlighterConfig] = show_dialogs()
         if not args:
             return None
 
