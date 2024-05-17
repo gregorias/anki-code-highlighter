@@ -6,7 +6,6 @@ import unittest
 import pygments.lexer
 import pygments.lexers
 
-from codehighlighter.bs4extra import encode_soup
 from codehighlighter import ankieditorextra
 from codehighlighter import pygments_highlighter
 from codehighlighter.pygments_highlighter import create_inline_style, create_block_style

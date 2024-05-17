@@ -5,7 +5,7 @@ necessary JS and CSS files in card templates. This module only wraps the code,
 so that the JS scripts can pick it up.
 
 See DEV.md for more information on the highlighter concept."""
-from typing import List, Optional
+from typing import Optional
 
 import bs4
 

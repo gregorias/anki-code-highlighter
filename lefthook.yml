@@ -16,6 +16,10 @@ pre-commit:
       tags: lint
       glob: "pyproject.toml"
       run: poetry check
+    ruff:
+      tags: lint
+      glob: "*.py"
+      run: just ruff
     toml-taplo-lint:
       tags: style
       glob: "*.toml"

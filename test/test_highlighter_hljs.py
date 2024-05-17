@@ -3,7 +3,6 @@ import textwrap
 import unittest
 import warnings
 
-from codehighlighter.bs4extra import encode_soup
 from codehighlighter import ankieditorextra
 from codehighlighter import hljs
 from codehighlighter import hljslangs

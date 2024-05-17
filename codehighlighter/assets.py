@@ -5,21 +5,19 @@ The module is plugin agnostic: it contains generic mechanisms for updating
 relevant assets.
 """
 # Media refers to static JS and CSS files.
-from functools import partial
 import os.path
 import pathlib
 import re
-from typing import Callable, List, Optional, Protocol, Tuple, Union
+from typing import Callable, List, Optional, Protocol, Tuple
 
 from anki.media import MediaManager  # type: ignore
-from aqt import mw  # type: ignore
 
 # This list contains the intended public API of this module.
 __all__ = [
     'AssetManager',
     'AnkiAssetManager',
     'has_newer_version',
-    'list_plugin_media_files'
+    'list_plugin_media_files',
     'sync_assets',
     'append_import_statements',
     'delete_import_statements',
@@ -60,7 +58,7 @@ def read_asset_version(asset_version_path: pathlib.Path) -> Optional[int]:
     try:
         with open(asset_version_path, 'r') as f:
             return int(f.read())
-    except:
+    except Exception:
         return None
 
 

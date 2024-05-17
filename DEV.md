@@ -14,6 +14,7 @@ This project requires the following tools:
 - [Markdownlint]
 - [Poetry]
 - [Pyenv]
+- [Ruff]
 
 1. Install the required Python version:
 
@@ -158,4 +159,5 @@ sync with what Anki uses. To update this Python version, you need to:
 [Markdownlint]: https://github.com/igorshubovych/markdownlint-cli
 [Poetry]: https://python-poetry.org
 [Pyenv]: https://github.com/pyenv/pyenv
+[Ruff]: https://github.com/astral-sh/ruff
 [hljs]: https://highlightjs.org/

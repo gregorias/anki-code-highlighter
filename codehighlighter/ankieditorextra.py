@@ -5,10 +5,8 @@ import typing
 from typing import Callable, Optional, Union
 
 import anki
-from aqt.utils import showWarning  # type: ignore
 import aqt  # type: ignore
 import bs4  # type: ignore
-from bs4 import BeautifulSoup, NavigableString
 
 from .bs4extra import create_soup, encode_soup, replace_br_tags_with_newlines
 
@@ -178,8 +176,8 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                     + " before highlighting.")
             else:
                 onError(
-                    f"An unknown transformation error has occurred " +
-                    f"(repr(selection_return)). " +
+                    "An unknown transformation error has occurred " +
+                    "(repr(selection_return)). " +
                     " Report it to the developer at " +
                     "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
@@ -188,7 +186,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
         field = extract_field_from_web_editor(selection_return['field'])
         if field is None:
             onError(
-                f"Failed to extract the field from the web editor. " +
+                "Failed to extract the field from the web editor. " +
                 f"({repr(selection_return)}). " +
                 "Report it to the developer at " +
                 "https://github.com/gregorias/anki-code-highlighter/issues/new."
@@ -198,7 +196,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
         selection = extract_selection_from_field(field, random_id)
         if selection is None:
             onError(
-                f"Failed to extract the selection from the field. " +
+                "Failed to extract the selection from the field. " +
                 f"({repr(selection_return)}, {repr(random_id)}). " +
                 "Report it to the developer at " +
                 "https://github.com/gregorias/anki-code-highlighter/issues/new."

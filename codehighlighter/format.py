@@ -1,8 +1,5 @@
 """Functionalities related to generic formatting and highlighting."""
-from typing import Callable, Optional, Protocol, TypeVar
-
-from aqt.qt import QApplication
-import bs4
+from typing import Callable, Protocol, TypeVar
 
 
 class Clipboard(Protocol):

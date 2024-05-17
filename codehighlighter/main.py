@@ -1,13 +1,8 @@
 """The implementation of the code highlighter plugin."""
-from dataclasses import dataclass
-import enum
-from enum import Enum
 from functools import partial
 import os.path
-import pathlib
-import random
 import sys
-from typing import Callable, Dict, Generator, Generic, List, Optional, Tuple, TypeVar, Union
+from typing import Callable, Dict, List, Optional, Tuple
 
 import aqt
 from aqt import mw
@@ -15,21 +10,16 @@ from aqt import gui_hooks
 from aqt.qt import QApplication
 from aqt.utils import showWarning
 import bs4
-from bs4 import BeautifulSoup, NavigableString
 
 sys.path.append(os.path.dirname(__file__))
-import pygments  # type: ignore
-import pygments.lexers  # type: ignore
 
 from .ankieditorextra import transform_selection
-from .assets import AnkiAssetManager, list_plugin_media_files, has_newer_version, sync_assets
-from .bs4extra import encode_soup
+from .assets import AnkiAssetManager, has_newer_version, sync_assets
 from .dialog import (DISPLAY_STYLE, HIGHLIGHT_METHOD, ask_for_highlight_method,
                      HljsConfig, HighlighterConfig, HighlighterWizardState,
                      ask_for_highlighter_config)
 from . import dialog
 from .format import Clipboard, EmptyClipboard, format_selected_code
-from .listextra import index_or
 from . import hljs
 from . import pygments_highlighter
 
@@ -129,11 +119,14 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         config_dict = config()
         default_highlighter = config_dict and get_default_highlighter(
             config_dict)
-        if default_highlighter:
-            get_highlighter = lambda _: default_highlighter
-        else:
-            get_highlighter = partial(ask_for_highlight_method,
-                                      parent)  # type: ignore
+
+        def get_highlighter(
+                current: Optional[HIGHLIGHT_METHOD]
+        ) -> Optional[HIGHLIGHT_METHOD]:
+            if default_highlighter:
+                return default_highlighter
+            else:
+                return ask_for_highlight_method(parent, current)
 
         global WIZARD_STATE
         highlighter_config, WIZARD_STATE = ask_for_highlighter_config(

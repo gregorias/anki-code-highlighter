@@ -3,7 +3,6 @@
 
 See DEV.md for more information on the highlighter concept."""
 from collections.abc import Iterable
-from dataclasses import dataclass
 import functools
 import re
 from typing import NamedTuple, Optional
