@@ -170,6 +170,21 @@ class HljsConfig:
     language: Optional[hljslangs.Language]
 
 
+class HljsConfigJSONConverter(JSONObjectConverter[HljsConfig]):
+
+    def deconvert(self, json_object) -> Optional[HljsConfig]:
+        if json_object is None:
+            return HljsConfig(None)
+
+        for lang in hljslangs.languages:
+            if lang.alias == json_object:
+                return HljsConfig(lang)
+        return None
+
+    def convert(self, t: HljsConfig):
+        return t.language and t.language.alias
+
+
 def ask_for_hljs_config(parent, current: HljsConfig) -> Optional[HljsConfig]:
     """
     Shows a wizard that configures hljs.
