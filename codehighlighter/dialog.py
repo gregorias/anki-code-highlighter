@@ -17,6 +17,7 @@ from typing import Callable, List, Optional, Tuple, Union
 from aqt.qt import QInputDialog
 
 from .listextra import index_or
+from .serialization import JSONObjectConverter
 from . import hljs
 from . import hljslangs
 from . import pygments_highlighter
@@ -73,6 +74,15 @@ def showChoiceDialog(parent, title: str, message: str, options: List[str],
 class HIGHLIGHT_METHOD(Enum):
     HLJS = 'highlight.js'
     PYGMENTS = 'pygments'
+
+
+class HighlightMethodJSONConverter(JSONObjectConverter[HIGHLIGHT_METHOD]):
+
+    def deconvert(self, json_object) -> Optional[HIGHLIGHT_METHOD]:
+        return highlight_method_name_to_enum(json_object)
+
+    def convert(self, t: HIGHLIGHT_METHOD):
+        return t.value
 
 
 def highlight_method_name_to_enum(name: str) -> Optional[HIGHLIGHT_METHOD]:
