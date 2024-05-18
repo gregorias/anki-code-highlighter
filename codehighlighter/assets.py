@@ -5,12 +5,16 @@ The module is plugin agnostic: it contains generic mechanisms for updating
 relevant assets.
 """
 # Media refers to static JS and CSS files.
+import contextlib
 import os.path
 import pathlib
 import re
 from typing import Callable, List, Optional, Protocol, Tuple
+import typing
 
 from anki.media import MediaManager  # type: ignore
+
+from .serialization import Serializer
 
 # This list contains the intended public API of this module.
 __all__ = [
@@ -215,3 +219,53 @@ def sync_assets(has_newer_version: Callable[[], bool],
     if has_newer_version():
         asset_manager.delete_assets()
         asset_manager.install_assets()
+
+
+@contextlib.contextmanager
+def open_media_asset(media: MediaManager, path: pathlib.Path,
+                     mode: str) -> typing.Generator[typing.IO, None, None]:
+    """Reads an Anki media asset at the provided path.
+
+    Args:
+        path: the relative path to the asset.
+
+    Returns:
+        The asset itself.
+    """
+    with open(anki_media_directory(media) / path, mode) as f:
+        yield f
+
+
+T = typing.TypeVar('T')
+
+
+class State(typing.Generic[T]):
+    """Mutable state object."""
+
+    def __init__(self, initial: T):
+        self.value = initial
+
+    def get(self) -> T:
+        return self.value
+
+    def put(self, val: T) -> None:
+        self.value = val
+
+
+@contextlib.contextmanager
+def AnkiAssetStateManager(
+        media: MediaManager, path: pathlib.Path, serializer: Serializer[T],
+        default: T) -> typing.Generator[State[T], None, None]:
+    try:
+        with open_media_asset(media, path, "r") as f:
+            content = serializer.load(f.read()) or default
+    except Exception:
+        content = default
+
+    state: State[T] = State(content)
+    try:
+        yield state
+    finally:
+        with open_media_asset(media, path, "w") as f:
+            serialized_content = serializer.dump(state.get())
+            f.write(serialized_content)

@@ -14,10 +14,12 @@ import bs4
 sys.path.append(os.path.dirname(__file__))
 
 from .ankieditorextra import transform_selection
-from .assets import AnkiAssetManager, has_newer_version, sync_assets
+from .assets import AnkiAssetManager, AnkiAssetStateManager, has_newer_version, sync_assets
 from .dialog import (DISPLAY_STYLE, HIGHLIGHT_METHOD, ask_for_highlight_method,
                      HljsConfig, HighlighterConfig, HighlighterWizardState,
-                     ask_for_highlighter_config)
+                     ask_for_highlighter_config,
+                     HighlighterWizardStateJSONConverter)
+from .serialization import JSONObjectSerializer
 from . import dialog
 from .format import Clipboard, EmptyClipboard, format_selected_code
 from . import hljs
@@ -93,7 +95,15 @@ def create_anki_asset_manager(css_assets: List[str],
 WIZARD_STATE = HighlighterWizardState()
 
 
-def get_highlighter_config(parent) -> Optional[HighlighterConfig]:
+def WizardStateManager(media):
+    return AnkiAssetStateManager(media=media,
+                                 path=ASSET_PREFIX + "wizard-state.json",
+                                 serializer=JSONObjectSerializer(
+                                     HighlighterWizardStateJSONConverter()),
+                                 default=HighlighterWizardState())
+
+
+def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
     """Gets the highlighter configuration from the user.
 
     - Shows the wizard to the user.
@@ -116,9 +126,10 @@ def get_highlighter_config(parent) -> Optional[HighlighterConfig]:
         else:
             return ask_for_highlight_method(parent, current)
 
-    global WIZARD_STATE
-    highlighter_config, WIZARD_STATE = ask_for_highlighter_config(
-        parent, WIZARD_STATE, get_highlighter=get_highlighter)
+    with WizardStateManager(media) as wizard_state:
+        highlighter_config, new_wizard_state = ask_for_highlighter_config(
+            parent, wizard_state.get(), get_highlighter=get_highlighter)
+        wizard_state.put(new_wizard_state)
     return highlighter_config
 
 
@@ -143,8 +154,12 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
 
     def highlight(code: str) -> Optional[bs4.Tag]:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
+        mw = aqt.mw
+        if not mw:
+            # Should never happen
+            return None
         highlighter_config: Optional[
-            HighlighterConfig] = get_highlighter_config(parent)
+            HighlighterConfig] = get_highlighter_config(parent, mw.col.media)
         if not highlighter_config:
             return None
 
