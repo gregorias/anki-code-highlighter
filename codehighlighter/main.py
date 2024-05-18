@@ -93,6 +93,35 @@ def create_anki_asset_manager(css_assets: List[str],
 WIZARD_STATE = HighlighterWizardState()
 
 
+def get_highlighter_config(parent) -> Optional[HighlighterConfig]:
+    """Gets the highlighter configuration from the user.
+
+    - Shows the wizard to the user.
+    - Handles state management of the wizard.
+    - Respects configuration defaults.
+
+    Args:
+        parent
+
+    Returns:
+        The highlighter configuration if the user accepted it, otherwise None.
+    """
+    config_dict = config()
+    default_highlighter = config_dict and get_default_highlighter(config_dict)
+
+    def get_highlighter(
+            current: Optional[HIGHLIGHT_METHOD]) -> Optional[HIGHLIGHT_METHOD]:
+        if default_highlighter:
+            return default_highlighter
+        else:
+            return ask_for_highlight_method(parent, current)
+
+    global WIZARD_STATE
+    highlighter_config, WIZARD_STATE = ask_for_highlighter_config(
+        parent, WIZARD_STATE, get_highlighter=get_highlighter)
+    return highlighter_config
+
+
 def get_qclipboard_or_empty() -> Clipboard:
     """Returns the QApplication clipboard or an empty clipboard."""
     return QApplication.clipboard() or EmptyClipboard()
@@ -101,7 +130,6 @@ def get_qclipboard_or_empty() -> Clipboard:
 def highlight_action(editor: aqt.editor.Editor) -> None:
     note: Optional[anki.notes.Note] = editor.note
     currentFieldNo = editor.currentField
-    global CACHED_SELECTED_LANGUAGES
     if note is None:
         showWarning(
             "You've run the code highlighter without selecting a note.\n" +
@@ -113,45 +141,27 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             "Select a note field before running the code highlighter.")
         return None
 
-    def show_dialogs() -> Optional[HighlighterConfig]:
-        parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
-
-        config_dict = config()
-        default_highlighter = config_dict and get_default_highlighter(
-            config_dict)
-
-        def get_highlighter(
-                current: Optional[HIGHLIGHT_METHOD]
-        ) -> Optional[HIGHLIGHT_METHOD]:
-            if default_highlighter:
-                return default_highlighter
-            else:
-                return ask_for_highlight_method(parent, current)
-
-        global WIZARD_STATE
-        highlighter_config, WIZARD_STATE = ask_for_highlighter_config(
-            parent, WIZARD_STATE, get_highlighter=get_highlighter)
-        return highlighter_config
-
     def highlight(code: str) -> Optional[bs4.Tag]:
-        args: Optional[HighlighterConfig] = show_dialogs()
-        if not args:
+        parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
+        highlighter_config: Optional[
+            HighlighterConfig] = get_highlighter_config(parent)
+        if not highlighter_config:
             return None
 
         block_style = (get_config("block-style")
                        or "display:flex; justify-content:center;")
-        if isinstance(args, HljsConfig):
+        if isinstance(highlighter_config, HljsConfig):
             return hljs.highlight(code,
-                                  language=args.language,
+                                  language=highlighter_config.language,
                                   block_style=block_style)
         else:
+            display_style = highlighter_config.display_style
             html_style = (pygments_highlighter.create_inline_style()
-                          if args.display_style == DISPLAY_STYLE.INLINE else
+                          if display_style == DISPLAY_STYLE.INLINE else
                           pygments_highlighter.create_block_style(block_style))
 
-            return pygments_highlighter.highlight(code,
-                                                  language=args.language,
-                                                  style=html_style)
+            return pygments_highlighter.highlight(
+                code, language=highlighter_config.language, style=html_style)
 
     def format(code: str) -> Optional[bs4.Tag]:
         return format_selected_code(code,
