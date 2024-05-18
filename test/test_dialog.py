@@ -1,9 +1,8 @@
-from codehighlighter.dialog import (HIGHLIGHT_METHOD,
-                                    HighlightMethodJSONConverter,
-                                    DISPLAY_STYLE, DisplayStyleJSONConverter,
-                                    HljsConfig, HljsConfigJSONConverter,
-                                    PygmentsConfig,
-                                    PygmentsConfigJSONConverter)
+from codehighlighter.dialog import (
+    HIGHLIGHT_METHOD, HighlightMethodJSONConverter, DISPLAY_STYLE,
+    DisplayStyleJSONConverter, HljsConfig, HljsConfigJSONConverter,
+    PygmentsConfig, PygmentsConfigJSONConverter, HighlighterWizardState,
+    HighlighterWizardStateJSONConverter)
 import codehighlighter.hljslangs as hljslangs
 
 import json
@@ -65,5 +64,25 @@ class PygmentsConfigJSONConverterTestCase(unittest.TestCase):
 
     def test_conversion_is_serializable(self):
         config = PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++")
+        conversion = self.converter.convert(config)
+        json.dumps(conversion)
+
+
+class HighlighterWizardStateJSONConverterTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.converter = HighlighterWizardStateJSONConverter()
+
+    def test_keeps_config(self):
+        config = HighlighterWizardState(
+            HIGHLIGHT_METHOD.HLJS, HljsConfig(hljslangs.languages[10]),
+            PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++"))
+        self.assertEqual(
+            self.converter.deconvert(self.converter.convert(config)), config)
+
+    def test_conversion_is_serializable(self):
+        config = HighlighterWizardState(
+            HIGHLIGHT_METHOD.HLJS, HljsConfig(hljslangs.languages[10]),
+            PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++"))
         conversion = self.converter.convert(config)
         json.dumps(conversion)

@@ -267,6 +267,28 @@ class HighlighterWizardState:
         display_style=DISPLAY_STYLE.BLOCK, language="C++")
 
 
+class HighlighterWizardStateJSONConverter(
+        JSONObjectConverter[HighlighterWizardState]):
+
+    def __init__(self):
+        self.hm = HighlightMethodJSONConverter()
+        self.hc = HljsConfigJSONConverter()
+        self.pc = PygmentsConfigJSONConverter()
+
+    def deconvert(self, json_object) -> Optional[HighlighterWizardState]:
+        return HighlighterWizardState(
+            self.hm.deconvert(json_object['highlighter']),
+            self.hc.deconvert(json_object['hljs_config']),
+            self.pc.deconvert(json_object['pygments_config']))
+
+    def convert(self, t: HighlighterWizardState):
+        config_dict = dict()
+        config_dict['highlighter'] = self.hm.convert(t.highlighter)
+        config_dict['hljs_config'] = self.hc.convert(t.hljs_config)
+        config_dict['pygments_config'] = self.pc.convert(t.pygments_config)
+        return config_dict
+
+
 # The highlighter config chosen by the user.
 HighlighterConfig = Union[HljsConfig, PygmentsConfig]
 
