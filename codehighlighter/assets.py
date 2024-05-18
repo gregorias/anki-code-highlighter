@@ -107,6 +107,14 @@ addon_path = os.path.dirname(__file__)
 
 
 def assets_directory() -> pathlib.Path:
+    """Returns the path to the plugin’s assets directory.
+
+    The plugin’s asset directory is the static directory with the assets
+    bundled with this plugin.
+
+    Returns:
+        The asset path.
+    """
     return pathlib.Path(addon_path) / 'assets'
 
 
