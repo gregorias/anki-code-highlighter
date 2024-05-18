@@ -133,6 +133,20 @@ class DISPLAY_STYLE(Enum):
     INLINE = 2
 
 
+class DisplayStyleJSONConverter(JSONObjectConverter[DISPLAY_STYLE]):
+
+    def deconvert(self, json_object) -> Optional[DISPLAY_STYLE]:
+        if json_object == 1:
+            return DISPLAY_STYLE.BLOCK
+        elif json_object == 2:
+            return DISPLAY_STYLE.INLINE
+        else:
+            return None
+
+    def convert(self, t: DISPLAY_STYLE):
+        return t.value
+
+
 def ask_for_display_style(parent,
                           current: DISPLAY_STYLE) -> Optional[DISPLAY_STYLE]:
     """
