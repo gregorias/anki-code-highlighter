@@ -1,9 +1,12 @@
 from codehighlighter.dialog import (HIGHLIGHT_METHOD,
                                     HighlightMethodJSONConverter,
                                     DISPLAY_STYLE, DisplayStyleJSONConverter,
-                                    HljsConfig, HljsConfigJSONConverter)
+                                    HljsConfig, HljsConfigJSONConverter,
+                                    PygmentsConfig,
+                                    PygmentsConfigJSONConverter)
 import codehighlighter.hljslangs as hljslangs
 
+import json
 import unittest
 
 
@@ -48,3 +51,19 @@ class HljsConfigJSONConverterTestCase(unittest.TestCase):
         self.assertEqual(
             self.converter.deconvert(self.converter.convert(hljs_config)),
             hljs_config)
+
+
+class PygmentsConfigJSONConverterTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.converter = PygmentsConfigJSONConverter()
+
+    def test_keeps_config(self):
+        config = PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++")
+        self.assertEqual(
+            self.converter.deconvert(self.converter.convert(config)), config)
+
+    def test_conversion_is_serializable(self):
+        config = PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++")
+        conversion = self.converter.convert(config)
+        json.dumps(conversion)

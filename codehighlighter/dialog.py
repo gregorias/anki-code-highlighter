@@ -210,6 +210,25 @@ class PygmentsConfig:
     language: str
 
 
+class PygmentsConfigJSONConverter(JSONObjectConverter[PygmentsConfig]):
+
+    def __init__(self):
+        self.display_style_converter = DisplayStyleJSONConverter()
+
+    def deconvert(self, json_object) -> Optional[PygmentsConfig]:
+        return PygmentsConfig(
+            self.display_style_converter.deconvert(
+                json_object['display_style']),
+            json_object['language'],
+        )
+
+    def convert(self, t: PygmentsConfig):
+        config_dict = dataclasses.asdict(t)
+        config_dict['display_style'] = self.display_style_converter.convert(
+            config_dict['display_style'])
+        return config_dict
+
+
 def ask_for_pygments_config(
         parent, current: PygmentsConfig) -> Optional[PygmentsConfig]:
     """
