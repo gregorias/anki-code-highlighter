@@ -177,7 +177,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             else:
                 onError(
                     "An unknown transformation error has occurred " +
-                    "(repr(selection_return)). " +
+                    f"({repr(selection_return)}). " +
                     " Report it to the developer at " +
                     "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
@@ -245,6 +245,17 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
         if (!range) return;
         const spanTag = document.createElement('span')
         spanTag['id'] = '{random_id}'
-        range.surroundContents(spanTag);
-        return {{ field: document.activeElement.shadowRoot.innerHTML }};
+        try {{
+            range.surroundContents(spanTag);
+            return {{ field: document.activeElement.shadowRoot.innerHTML }};
+        }} catch (e) {{
+            if (!(e instanceof DOMException)) {{
+                throw e
+            }}
+            // Try an alternative approach.
+            let selectedContent = range.extractContents();
+            spanTag.appendChild(selectedContent);
+            range.insertNode(spanTag);
+            return {{ field: document.activeElement.shadowRoot.innerHTML }};
+        }}
         """, transform_field)
