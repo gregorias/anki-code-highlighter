@@ -9,8 +9,8 @@ from typing import Optional
 
 import bs4
 
-from .bs4extra import create_soup
 from . import hljslangs
+from .bs4extra import create_soup
 from .hljslangs import Language
 
 __all__ = ['highlight']

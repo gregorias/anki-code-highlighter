@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """ Extra functions extending BeautifulSoup."""
-from typing import Optional, Union
+import re
 import warnings
+from typing import Optional, Union
 
 import bs4
 from bs4 import BeautifulSoup
-
-import re
 
 __all__ = [
     'create_soup',

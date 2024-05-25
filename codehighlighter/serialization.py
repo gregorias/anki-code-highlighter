@@ -1,8 +1,8 @@
 """Utilities related to serialization."""
 
 import json
-from typing import Optional, Protocol
 import typing
+from typing import Optional, Protocol
 
 T = typing.TypeVar("T")
 

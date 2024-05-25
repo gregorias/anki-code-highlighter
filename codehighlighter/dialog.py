@@ -9,18 +9,16 @@ minimizing responsibility, serialization of state should also be outside of
 this module.
 """
 import dataclasses
-from dataclasses import dataclass
 import enum
+from dataclasses import dataclass
 from enum import Enum
 from typing import Callable, List, Optional, Tuple, Union
 
 from aqt.qt import QInputDialog
 
+from . import hljs, hljslangs, pygments_highlighter
 from .listextra import index_or
 from .serialization import JSONObjectConverter
-from . import hljs
-from . import hljslangs
-from . import pygments_highlighter
 
 __all__ = [
     "showChoiceDialog",

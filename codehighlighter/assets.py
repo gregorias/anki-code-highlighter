@@ -9,8 +9,8 @@ import contextlib
 import os.path
 import pathlib
 import re
-from typing import Callable, List, Optional, Protocol, Tuple
 import typing
+from typing import Callable, List, Optional, Protocol, Tuple
 
 from anki.media import MediaManager  # type: ignore
 

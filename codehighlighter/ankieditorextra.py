@@ -1,7 +1,7 @@
-from functools import partial
 import random
 import re
 import typing
+from functools import partial
 from typing import Callable, Optional, Union
 
 import anki

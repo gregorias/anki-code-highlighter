@@ -1,31 +1,39 @@
 """The implementation of the code highlighter plugin."""
-from functools import partial
 import os.path
 import sys
+from functools import partial
 from typing import Callable, Dict, List, Optional, Tuple
 
 import aqt
-from aqt import mw
-from aqt import gui_hooks
+import bs4
+from aqt import gui_hooks, mw
 from aqt.qt import QApplication
 from aqt.utils import showWarning
-import bs4
 
 sys.path.append(os.path.dirname(__file__))
 
-from .ankieditorextra import transform_selection
-from .assets import AnkiAssetManager, AnkiAssetStateManager, has_newer_version, sync_assets
-from .dialog import (DISPLAY_STYLE, HIGHLIGHT_METHOD, ask_for_highlight_method,
-                     HljsConfig, HighlighterConfig, HighlighterWizardState,
-                     ask_for_highlighter_config,
-                     HighlighterWizardStateJSONConverter)
-from .serialization import JSONObjectSerializer
-from . import dialog
-from .format import Clipboard, EmptyClipboard, format_selected_code
-from . import hljs
-from . import pygments_highlighter
-
 import anki  # type: ignore
+
+from . import dialog, hljs, pygments_highlighter
+from .ankieditorextra import transform_selection
+from .assets import (
+    AnkiAssetManager,
+    AnkiAssetStateManager,
+    has_newer_version,
+    sync_assets,
+)
+from .dialog import (
+    DISPLAY_STYLE,
+    HIGHLIGHT_METHOD,
+    HighlighterConfig,
+    HighlighterWizardState,
+    HighlighterWizardStateJSONConverter,
+    HljsConfig,
+    ask_for_highlight_method,
+    ask_for_highlighter_config,
+)
+from .format import Clipboard, EmptyClipboard, format_selected_code
+from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
 ASSET_PREFIX = '_ch-'

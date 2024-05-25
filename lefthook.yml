@@ -20,6 +20,10 @@ pre-commit:
       tags: lint
       glob: "*.py"
       run: just ruff
+    ruff-imports:
+      tags: style import
+      glob: "*.py"
+      run: ruff check --select=I001 {staged_files}
     toml-taplo-lint:
       tags: style
       glob: "*.toml"

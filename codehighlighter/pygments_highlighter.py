@@ -2,19 +2,19 @@
 """The Pygments highlighter.
 
 See DEV.md for more information on the highlighter concept."""
-from collections.abc import Iterable
 import functools
 import re
+from collections.abc import Iterable
 from typing import NamedTuple, Optional
 
 import bs4
-
-from .bs4extra import create_soup
 
 import pygments  # type: ignore
 import pygments.formatters  # type: ignore
 import pygments.lexer
 import pygments.lexers  # type: ignore
+
+from .bs4extra import create_soup
 
 LexerName = str
 LexerAlias = str
