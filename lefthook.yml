@@ -32,6 +32,10 @@ pre-commit:
       tags: style
       glob: "*.toml"
       run: taplo fmt --check {staged_files}
+    yaml-prettier:
+      tags: style
+      glob: "*.{yml,yaml}"
+      run: prettier -c {staged_files}
     yapf:
       tags: style
       glob: "*.py"
