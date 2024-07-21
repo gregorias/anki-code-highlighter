@@ -56,6 +56,9 @@ def highlight(code: str, language: LexerName, style: HtmlStyle) -> bs4.Tag:
     :return: A BeautifulSoup tag representing the highlighted code.
     """
     lexer = get_lexer_by_name(language)
+    if lexer is None:
+        # Use the plaintext lexer as a fallback
+        lexer = get_plaintext_lexer()
     htmlf = pygments.formatters.get_formatter_by_name(
         'html', nowrap=True
     ) if style.display_style == "inline" else pygments.formatters.get_formatter_by_name(
@@ -94,7 +97,7 @@ def get_lexer_name_alias_map() -> dict[LexerName, LexerAlias]:
 
 
 @functools.cache
-def get_lexer_by_name(name: LexerName) -> pygments.lexer.Lexer:
+def get_lexer_by_name(name: LexerName) -> Optional[pygments.lexer.Lexer]:
     """Returns a lexer by its name.
 
     pygments.lexers.get_lexer_by_name actually accepts an alias. This function
@@ -105,7 +108,16 @@ def get_lexer_by_name(name: LexerName) -> pygments.lexer.Lexer:
     # This is done to facilitate user manually entering strings like "python"
     # or "cpp".
     alias = name_alias_map.get(name, name)
-    return pygments.lexers.get_lexer_by_name(alias)
+    try:
+        return pygments.lexers.get_lexer_by_name(alias)
+    except pygments.util.ClassNotFound:
+        return None
+
+
+@functools.cache
+def get_plaintext_lexer() -> pygments.lexer.Lexer:
+    # This should never return None. There’s a unit-test validating this.
+    return get_lexer_by_name('output')
 
 
 @functools.cache

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-from os import path
 import pathlib
 import unittest
+from os import path
 
 import pygments.lexer
 import pygments.lexers
-
-from codehighlighter import ankieditorextra
-from codehighlighter import pygments_highlighter
-from codehighlighter.pygments_highlighter import create_inline_style, create_block_style
+from codehighlighter import ankieditorextra, pygments_highlighter
+from codehighlighter.pygments_highlighter import create_block_style, create_inline_style
 
 
 def get_testdata_dir() -> pathlib.Path:
@@ -34,6 +32,23 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
     def test_get_lexer_by_name_also_works_with_aliases(self):
         lexer = pygments_highlighter.get_lexer_by_name('cpp')
         self.assertEqual(lexer.name, 'C++')
+
+    def test_get_lexer_by_name_return_none_on_bogus_name(self):
+        lexer = pygments_highlighter.get_lexer_by_name('doesnotexist')
+        self.assertIsNone(lexer)
+
+    def test_get_plaintext_lexer_returns_a_lexer(self):
+        lexer = pygments_highlighter.get_plaintext_lexer()
+        self.assertEqual(lexer.name, 'Text output')
+
+    def test_highlights_using_plaintext_on_bogus_language_name(self):
+        result = ankieditorextra.highlight_selection(
+            'true', lambda code: pygments_highlighter.highlight(
+                code, 'doesnotexist', create_inline_style()))
+
+        self.assertEqual(
+            result, '<code class="pygments">' +
+            '<span class="go">true</span>' + '</code>')
 
     def test_highlights_inline_code_to_one_line(self):
         result = ankieditorextra.highlight_selection(
