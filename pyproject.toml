@@ -1,5 +1,5 @@
 [project]
-requires-python = "==3.9.19"
+requires-python = ">=3.9, <3.10"
 
 [tool.poetry]
 name = "anki-code-highlighter"
@@ -18,7 +18,7 @@ readme = "README.md"
 Repository = "https://github.com/gregorias/anki-code-highlighter"
 
 [tool.poetry.dependencies]
-python = "==3.9.19"
+python = ">=3.9, <3.10"
 anki = "==24.6.3"
 aqt = "==24.6.3"
 # Use the same version of PyQt6 as Anki:
