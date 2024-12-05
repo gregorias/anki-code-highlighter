@@ -1,4 +1,6 @@
 [project]
+# Use 3.9, because that’s what Anki uses
+# (https://github.com/ankitects/anki/blob/f6a3e98ac3dcb19d54e7fdbba96bf2fa15fc2b3f/docs/development.md?plain=1#L18).
 requires-python = ">=3.9, <3.10"
 
 [tool.poetry]
