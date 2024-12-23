@@ -15,6 +15,9 @@ classifiers = [
 ]
 license = "AGPLv3"
 readme = "README.md"
+# We use Poetry only for the dependency management, not for packaging.
+# This is because Anki plugins are distributed as zipped directories, not as wheels.
+package-mode = false
 
 [tool.poetry.urls]
 Repository = "https://github.com/gregorias/anki-code-highlighter"
