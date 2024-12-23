@@ -9,7 +9,7 @@ import aqt  # type: ignore
 import bs4  # type: ignore
 
 from .bs4extra import create_soup, encode_soup, replace_br_tags_with_newlines
-from .html import HtmlString
+from .html import HtmlString, PlainString
 
 __all__ = [
     'extract_field_from_web_editor',
@@ -102,9 +102,9 @@ def extract_my_span_from_web_editor(web_editor_html: HtmlString,
 # This function returns `str` and not bs4.Tag, because this function will be
 # unit-tested, and I want unit-tests to also test the encoding functionality.
 def highlight_selection(
-        selection: HtmlString,
-        highlighter: Callable[[str],
-                              Optional[bs4.Tag]]) -> Optional[HtmlString]:
+    selection: HtmlString, highlighter: Callable[[PlainString],
+                                                 Optional[bs4.Tag]]
+) -> Optional[HtmlString]:
     """
     Highlights a selection from a field.
 
@@ -117,7 +117,7 @@ def highlight_selection(
     """
     selection = replace_br_tags_with_newlines(selection)
     selection_soup = create_soup(selection)
-    highlighted_selection = highlighter(selection_soup.text)
+    highlighted_selection = highlighter(PlainString(selection_soup.text))
     return encode_soup(
         highlighted_selection) if highlighted_selection else None
 
@@ -129,7 +129,7 @@ def highlight_selection(
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                         currentField: int,
-                        highlight: Callable[[str], Optional[bs4.Tag]],
+                        highlight: Callable[[PlainString], Optional[bs4.Tag]],
                         onError: Callable[[str], typing.Any]) -> None:
     """
     Transforms selected text using `transform`.

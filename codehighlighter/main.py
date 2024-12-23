@@ -33,6 +33,7 @@ from .dialog import (
     ask_for_highlighter_config,
 )
 from .format import Clipboard, EmptyClipboard, format_selected_code
+from .html import PlainString
 from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
@@ -160,7 +161,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             "Select a note field before running the code highlighter.")
         return None
 
-    def highlight(code: str) -> Optional[bs4.Tag]:
+    def highlight(code: PlainString) -> Optional[bs4.Tag]:
         parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
         mw = aqt.mw
         if not mw:
@@ -186,7 +187,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             return pygments_highlighter.highlight(
                 code, language=highlighter_config.language, style=html_style)
 
-    def format(code: str) -> Optional[bs4.Tag]:
+    def format(code: PlainString) -> Optional[bs4.Tag]:
         return format_selected_code(code,
                                     highlight=highlight,
                                     clipboard=get_qclipboard_or_empty())

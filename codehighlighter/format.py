@@ -1,6 +1,8 @@
 """Functionalities related to generic formatting and highlighting."""
 from typing import Callable, Protocol, TypeVar
 
+from .html import PlainString
+
 
 class Clipboard(Protocol):
 
@@ -18,8 +20,8 @@ class EmptyClipboard(Clipboard):
 HighlightedCode = TypeVar('HighlightedCode')
 
 
-def format_selected_code(code: str, highlight: Callable[[str],
-                                                        HighlightedCode],
+def format_selected_code(code: PlainString,
+                         highlight: Callable[[PlainString], HighlightedCode],
                          clipboard: Clipboard) -> HighlightedCode:
     """Formats a code block selected by the user.
 
@@ -31,5 +33,5 @@ def format_selected_code(code: str, highlight: Callable[[str],
     :return: A formatted code block.
     """
     if len(code) == 0:
-        code = clipboard.text()
+        code = PlainString(clipboard.text())
     return highlight(code)

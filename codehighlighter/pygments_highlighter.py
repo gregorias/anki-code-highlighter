@@ -15,6 +15,7 @@ import pygments.lexer
 import pygments.lexers  # type: ignore
 
 from .bs4extra import create_soup
+from .html import PlainString
 
 LexerName = str
 LexerAlias = str
@@ -46,7 +47,8 @@ def remove_spurious_inline_spanw(html: str) -> str:
     return re.sub('<span class="w"></span>', '', html)
 
 
-def highlight(code: str, language: LexerName, style: HtmlStyle) -> bs4.Tag:
+def highlight(code: PlainString, language: LexerName,
+              style: HtmlStyle) -> bs4.Tag:
     """
     Highlights the code snippet with Pygments.
 

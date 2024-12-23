@@ -12,12 +12,13 @@ import bs4
 from . import hljslangs
 from .bs4extra import create_soup
 from .hljslangs import Language
+from .html import PlainString
 
 __all__ = ['highlight']
 
 
 def highlight(
-        code: str,
+        code: PlainString,
         language: Optional[Language],
         block_style: str = "display:flex; justify-content:center;") -> bs4.Tag:
     """
