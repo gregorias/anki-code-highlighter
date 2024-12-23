@@ -21,14 +21,16 @@ Repository = "https://github.com/gregorias/anki-code-highlighter"
 
 [tool.poetry.dependencies]
 python = ">=3.9, <3.10"
-anki = "==24.6.3"
-aqt = "==24.6.3"
+# https://pypi.org/project/anki/
+anki = "==24.11"
+# https://pypi.org/project/aqt/
+aqt = "==24.11"
 # Use the same version of PyQt6 as Anki:
-# https://github.com/ankitects/anki/blob/72e57456ceb1e97a37198d490ea1ca72e38f61f6/python/requirements.qt6_mac.txt#L1
-pyqt6 = "==6.5.2"
-pyqt6-qt6 = "==6.5.2"
-PyQt6-WebEngine = "==6.5.0"
-PyQt6-WebEngine-qt6 = "==6.5.2"
+# https://github.com/ankitects/anki/blob/c985acb9fe36d3651eb83cf4cfe44d046ec7458f/python/requirements.qt6_mac.txt
+pyqt6 = "==6.6.1"
+pyqt6-qt6 = "==6.6.2"
+PyQt6-WebEngine = "==6.6.0"
+PyQt6-WebEngine-qt6 = "==6.6.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "*"
