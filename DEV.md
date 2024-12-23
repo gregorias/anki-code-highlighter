@@ -148,7 +148,7 @@ be fast.
 This package sets up a specific Python version to keep the dev environment in
 sync with what Anki uses. To update this Python version, you need to:
 
-1. If in the Poetry venv, deactive and remove it.
+1. If in the Poetry venv, deactivate it and remove it.
 2. Update Python spec in `.python-version` and `pyproject.toml`.
 3. Install the new Python version with `pyenv install`.
 4. Install the new virtual environment with `poetry install`.
