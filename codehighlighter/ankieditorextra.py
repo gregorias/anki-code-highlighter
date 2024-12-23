@@ -9,6 +9,7 @@ import aqt  # type: ignore
 import bs4  # type: ignore
 
 from .bs4extra import create_soup, encode_soup, replace_br_tags_with_newlines
+from .html import HtmlString
 
 __all__ = [
     'extract_field_from_web_editor',
@@ -18,10 +19,10 @@ __all__ = [
 
 
 # A helper function for `transform_selection` exposed for testing.
-def transform_elements_with_id(html: str, id: str,
-                               replace: Callable[[str],
-                                                 Union[bs4.Tag,
-                                                       bs4.BeautifulSoup]]):
+def transform_elements_with_id(
+        html: HtmlString, id: str,
+        replace: Callable[[str], Union[bs4.Tag,
+                                       bs4.BeautifulSoup]]) -> HtmlString:
     soup = create_soup(html)
     for element in soup.find_all(id=id):
         element.replace_with(replace(element.decode_contents()))
@@ -31,7 +32,8 @@ def transform_elements_with_id(html: str, id: str,
 T = typing.TypeVar('T')
 
 
-def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
+def extract_field_from_web_editor(
+        web_editor_html: HtmlString) -> Optional[HtmlString]:
     """
     Returns HTML of a note field.
 
@@ -43,10 +45,11 @@ def extract_field_from_web_editor(web_editor_html: str) -> Optional[str]:
                        web_editor_html, re.MULTILINE | re.DOTALL)
     if result is None:
         return None
-    return result.group(1)
+    return result.group(1)  # type: ignore
 
 
-def extract_selection_from_field(field_html: str, id: str) -> Optional[str]:
+def extract_selection_from_field(field_html: HtmlString,
+                                 id: str) -> Optional[HtmlString]:
     """
     Returns HTML of a selected text.
 
@@ -87,8 +90,8 @@ def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
         }})();""", callback)
 
 
-def extract_my_span_from_web_editor(web_editor_html: str,
-                                    span_id: str) -> Optional[str]:
+def extract_my_span_from_web_editor(web_editor_html: HtmlString,
+                                    span_id: str) -> Optional[HtmlString]:
     """Returns the HTML of the spanned selection."""
     soup = create_soup(web_editor_html)
     for element in soup.find_all(id=span_id):
@@ -99,8 +102,9 @@ def extract_my_span_from_web_editor(web_editor_html: str,
 # This function returns `str` and not bs4.Tag, because this function will be
 # unit-tested, and I want unit-tests to also test the encoding functionality.
 def highlight_selection(
-        selection: str,
-        highlighter: Callable[[str], Optional[bs4.Tag]]) -> Optional[str]:
+        selection: HtmlString,
+        highlighter: Callable[[str],
+                              Optional[bs4.Tag]]) -> Optional[HtmlString]:
     """
     Highlights a selection from a field.
 
@@ -142,8 +146,10 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
     :rtype None
     """
     random_id = str(random.randint(0, 10000))
-    highlight_html2html: Callable[[str], Optional[str]] = partial(
-        highlight_selection, highlighter=highlight)
+    highlight_html2html: Callable[[HtmlString],
+                                  Optional[HtmlString]] = partial(
+                                      highlight_selection,
+                                      highlighter=highlight)
     failed_to_find_selection = 'Failed to find a selection.'
 
     def transform_field(selection_return: typing.Any) -> None:
