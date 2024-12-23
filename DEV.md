@@ -59,7 +59,7 @@ example:
 ```shell
 cd pydeps/pygments
 git fetch
-git checkout 2.15.1
+git checkout 2.18.0
 ```
 
 ## Generating Pygment stylesheets
@@ -159,5 +159,6 @@ sync with what Anki uses. To update this Python version, you need to:
 [Markdownlint]: https://github.com/igorshubovych/markdownlint-cli
 [Poetry]: https://python-poetry.org
 [Pyenv]: https://github.com/pyenv/pyenv
+[Pygments]: https://github.com/pygments/pygments
 [Ruff]: https://github.com/astral-sh/ruff
 [hljs]: https://highlightjs.org/
