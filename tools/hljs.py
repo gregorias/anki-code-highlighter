@@ -21,7 +21,7 @@ def pushd(new_dir):
         os.chdir(previous_dir)
 
 
-HLJS_VERSION = '11.9.0'
+HLJS_VERSION = '11.11.0'
 HLJS_REPO = 'https://github.com/highlightjs/highlight.js'
 
 
