@@ -11,3 +11,6 @@ ruff-fix:
 
 unittest:
   python -m unittest discover -s test/ -t .
+
+vulture:
+  vulture codehighlighter/

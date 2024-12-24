@@ -2,7 +2,7 @@ import random
 import re
 import typing
 from functools import partial
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 
 import anki
 import aqt  # type: ignore
@@ -16,18 +16,6 @@ __all__ = [
     'extract_selection_from_field',
     'transform_selection',
 ]
-
-
-# A helper function for `transform_selection` exposed for testing.
-def transform_elements_with_id(
-        html: HtmlString, id: str,
-        replace: Callable[[str], Union[bs4.Tag,
-                                       bs4.BeautifulSoup]]) -> HtmlString:
-    soup = create_soup(html)
-    for element in soup.find_all(id=id):
-        element.replace_with(replace(element.decode_contents()))
-    return encode_soup(soup)
-
 
 T = typing.TypeVar('T')
 
@@ -88,15 +76,6 @@ def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
                return {{ error: JSON.stringify(e) }}
            }}
         }})();""", callback)
-
-
-def extract_my_span_from_web_editor(web_editor_html: HtmlString,
-                                    span_id: str) -> Optional[HtmlString]:
-    """Returns the HTML of the spanned selection."""
-    soup = create_soup(web_editor_html)
-    for element in soup.find_all(id=span_id):
-        return element.decode_contents()
-    return None
 
 
 # This function returns `str` and not bs4.Tag, because this function will be

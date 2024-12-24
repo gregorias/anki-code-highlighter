@@ -42,6 +42,8 @@ pre-commit:
       run: yapf -i -r {staged_files} && git add {staged_files}
     test:
       run: just test
+    vulture:
+      run: just vulture
 commit-msg:
   commands:
     commitlint:

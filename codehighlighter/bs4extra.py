@@ -38,28 +38,6 @@ def encode_soup(tag: Union[bs4.Tag, bs4.BeautifulSoup]) -> HtmlString:
     return HtmlString(str(tag.encode(formatter='html5'), 'utf8'))
 
 
-def is_html(text: str) -> bool:
-    """
-    Checks if a string is actually in HTML encoding.
-
-    This check is a best-effort heuristic, and is not 100% accurate.
-    It’s purpose is to avoid running the HTML parser on plain text within the
-    context of the code highlighting plugin, where input may either be copied
-    HTML or copied plain text.
-
-    :param text str: String to be checked
-    :rtype bool
-    """
-    if re.search(r'</?[a-z][\s\S]*>', text):
-        return True
-    elif re.search(r'<[a-z][\s\S]*/?>', text):
-        return True
-    # Check for the standard XML character references.
-    elif re.search(r'&(lt|gt|quot|apos|amp);', text):
-        return True
-    return False
-
-
 def replace_br_tags_with_newlines(html: HtmlString) -> HtmlString:
     """
     Replaces <br> with "\n"

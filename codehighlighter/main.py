@@ -101,9 +101,6 @@ def create_anki_asset_manager(css_assets: List[str],
                             class_name=CLASS_NAME)
 
 
-WIZARD_STATE = HighlighterWizardState()
-
-
 def WizardStateManager(media):
     return AnkiAssetStateManager(media=media,
                                  path=ASSET_PREFIX + "wizard-state.json",
@@ -204,7 +201,7 @@ def get_shortcut() -> str:
     return get_config("shortcut") or "ctrl+'"
 
 
-def on_editor_shortcuts_init(shortcuts: List[Tuple],
+def on_editor_shortcuts_init(_shortcuts: List[Tuple],
                              editor: aqt.editor.Editor) -> None:
     aqt.qt.QShortcut(  # type: ignore
         aqt.qt.QKeySequence(get_shortcut()),  # type: ignore

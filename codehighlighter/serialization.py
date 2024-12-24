@@ -17,16 +17,6 @@ class JSONObjectConverter(Protocol[T]):
         pass
 
 
-class IdentityJSONObjectConverter(JSONObjectConverter[T]):
-    """A converter that does nothing."""
-
-    def deconvert(self, json_object) -> Optional[T]:
-        return json_object
-
-    def convert(self, t: T):
-        return t
-
-
 class Serializer(Protocol[T]):
     """A JSON serialization protocol."""
 
