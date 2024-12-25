@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 """ Extra functions extending BeautifulSoup."""
-import re
 import warnings
 from typing import Optional, Union
 
@@ -36,17 +34,3 @@ def encode_soup(tag: Union[bs4.Tag, bs4.BeautifulSoup]) -> HtmlString:
     :rtype str: HTML5 UTF8 string
     """
     return HtmlString(str(tag.encode(formatter='html5'), 'utf8'))
-
-
-def replace_br_tags_with_newlines(html: HtmlString) -> HtmlString:
-    """
-    Replaces <br> with "\n"
-
-    :param node str: HTML code
-    :rtype str: Reformatted HTML code
-    """
-    soup = create_soup(html)
-    for br in soup.find_all('br'):
-        br.replace_with('\n')
-    new_html = encode_soup(soup)
-    return HtmlString(re.sub('&nbsp;', ' ', new_html))

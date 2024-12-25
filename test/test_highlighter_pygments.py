@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pathlib
 import unittest
 from os import path
@@ -72,18 +71,5 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
         expected = read_file(self.testdata_dir / "out1.html")
         result = ankieditorextra.highlight_selection(
             input, lambda code: pygments_highlighter.highlight(
-                code, 'Python', create_block_style()))
-        self.assertEqual(result, expected)
-
-    def test_removes_html_entities(self):
-        code_snippet = ("def foo():<br>&nbsp; return 0")
-        expected = (
-            '<div class="pygments" style="display:flex; justify-content:center;">\n'
-            +
-            '<pre><code class="nohighlight"><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>\n'
-            + '  <span class="k">return</span> <span class="mi">0</span>\n' +
-            '</code></pre>\n' + '</div>\n')
-        result = ankieditorextra.highlight_selection(
-            code_snippet, lambda code: pygments_highlighter.highlight(
                 code, 'Python', create_block_style()))
         self.assertEqual(result, expected)

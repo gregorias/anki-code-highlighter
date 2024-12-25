@@ -1,54 +1,19 @@
 import random
-import re
 import typing
-from functools import partial
 from typing import Callable, Optional
 
 import anki
 import aqt  # type: ignore
 import bs4  # type: ignore
 
-from .bs4extra import create_soup, encode_soup, replace_br_tags_with_newlines
+from .bs4extra import encode_soup
 from .html import HtmlString, PlainString
 
 __all__ = [
-    'extract_field_from_web_editor',
-    'extract_selection_from_field',
     'transform_selection',
 ]
 
 T = typing.TypeVar('T')
-
-
-def extract_field_from_web_editor(
-        web_editor_html: HtmlString) -> Optional[HtmlString]:
-    """
-    Returns HTML of a note field.
-
-    :param web_editor_html str: The innerHTML of the webview's shadow root
-      containing the editing widget.
-    :rtype Optional[str]: On a failure to find the field, returns None.
-    """
-    result = re.search('<anki-editable[^>]*>(.*)</anki-editable>',
-                       web_editor_html, re.MULTILINE | re.DOTALL)
-    if result is None:
-        return None
-    return result.group(1)  # type: ignore
-
-
-def extract_selection_from_field(field_html: HtmlString,
-                                 id: str) -> Optional[HtmlString]:
-    """
-    Returns HTML of a selected text.
-
-    :param field_html str: The HTML of the note field.
-    :param id str: The ID of the selection.
-    :rtype Optional[str]: On a failure to find the selection, returns None.
-    """
-    soup = create_soup(field_html)
-    for element in soup.find_all(id=id):
-        return element.decode_contents()
-    return None
 
 
 def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
@@ -81,22 +46,19 @@ def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
 # This function returns `str` and not bs4.Tag, because this function will be
 # unit-tested, and I want unit-tests to also test the encoding functionality.
 def highlight_selection(
-    selection: HtmlString, highlighter: Callable[[PlainString],
-                                                 Optional[bs4.Tag]]
+    selection: PlainString, highlighter: Callable[[PlainString],
+                                                  Optional[bs4.Tag]]
 ) -> Optional[HtmlString]:
     """
     Highlights a selection from a field.
 
-    This function sanitizes the input by removing HTML markup. It returns an
-    encoded HTML.
+    It returns an encoded HTML.
 
-    :param selection: An HTML string representing the code.
+    :param selection: A plaintext string representing the code.
     :param highlighter: A function that highlights the code.
     :return: The highlighter HTML tag.
     """
-    selection = replace_br_tags_with_newlines(selection)
-    selection_soup = create_soup(selection)
-    highlighted_selection = highlighter(PlainString(selection_soup.text))
+    highlighted_selection = highlighter(selection)
     return encode_soup(
         highlighted_selection) if highlighted_selection else None
 
@@ -125,10 +87,6 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
     :rtype None
     """
     random_id = str(random.randint(0, 10000))
-    highlight_html2html: Callable[[HtmlString],
-                                  Optional[HtmlString]] = partial(
-                                      highlight_selection,
-                                      highlighter=highlight)
     failed_to_find_selection = 'Failed to find a selection.'
 
     def transform_field(selection_return: typing.Any) -> None:
@@ -138,7 +96,31 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                 return d.get(key)
             return None
 
-        if not safe_get(selection_return, 'field'):
+        def finalize_selection_span(action) -> None:
+            # Replace the selection span directly in the webview.
+            #
+            # This approach is simpler and more robust than replacing the selection
+            # inside Python and flushing the new note to Anki's DB:
+            #
+            # * We avoid having to figure out flush field changes DB and see them
+            #   reflected in the webview.
+            # * The field's representation in webview and the serialized note can
+            #   differ significantly. Mathjax expressions in a webview are a
+            #   complex HTML element, while they get serialized to `\(expr\)`
+            #   inside a note. Not having to reconcile that is good, as we don't
+            #   have to touch non-selection code.
+            eval_js_with_callback(
+                editor.web, f"""
+                let selection = document.activeElement.shadowRoot.getElementById({random_id});
+                // A hack against spurious br-tags that get inserted by the Anki editor.
+                // https://github.com/gregorias/anki-code-highlighter/issues/51
+                if (selection.nextElementSibling?.tagName === "BR" && selection.nextElementSibling.nextSibling === null) {{
+                    selection.nextElementSibling.remove();
+                }}
+                {action}
+                return null;""", lambda _: None)
+
+        if not safe_get(selection_return, 'selectionText'):
             error = safe_get(selection_return, 'error')
             message = safe_get(error, 'message')
             if message == failed_to_find_selection:
@@ -168,51 +150,25 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                 )
             return None
 
-        field = extract_field_from_web_editor(selection_return['field'])
-        if field is None:
+        selection_text = selection_return['selectionText']
+        if selection_text is None:
             onError(
-                "Failed to extract the field from the web editor. " +
+                "Failed to extract the selected text from the web editor. " +
                 f"({repr(selection_return)}). " +
                 "Report it to the developer at " +
-                "https://github.com/gregorias/anki-code-highlighter/issues/new."
-            )
+                "github.com/gregorias/anki-code-highlighter/issues/new")
             return None
 
-        selection = extract_selection_from_field(field, random_id)
-        if selection is None:
-            onError(
-                "Failed to extract the selection from the field. " +
-                f"({repr(selection_return)}, {repr(random_id)}). " +
-                "Report it to the developer at " +
-                "https://github.com/gregorias/anki-code-highlighter/issues/new."
-            )
-            return None
-
-        # On failure, revert back to selection, so that we don't delete user
-        # input during replacement.
-        highlighted_selection = highlight_html2html(selection) or selection
-
-        # Replace the selection span directly in the webview.
-        #
-        # This approach is simpler and more robust than replacing the selection
-        # inside Python and flushing the new note to Anki's DB:
-        # * We avoid having to figure out flush field changes DB and see them
-        #   reflected in the webview.
-        # * The field's representation in webview and the serialized note can
-        #   differ significantly. Mathjax expressions in a webview are a
-        #   complex HTML element, while they get serialized to `\(expr\)`
-        #   inside a note. Not having to reconcile that is good, as we don't
-        #   have to touch non-selection code.
-        eval_js_with_callback(
-            editor.web, f"""
-            let selection = document.activeElement.shadowRoot.getElementById({random_id});
-            // A hack against spurious br-tags that get inserted by the Anki editor.
-            // https://github.com/gregorias/anki-code-highlighter/issues/51
-            if (selection.nextElementSibling?.tagName === "BR" && selection.nextElementSibling.nextSibling === null) {{
-                selection.nextElementSibling.remove();
-            }}
-            selection.outerHTML = {repr(highlighted_selection)};
-            return null;""", lambda _: None)
+        highlighted_selection = highlight_selection(selection_text,
+                                                    highlighter=highlight)
+        if highlighted_selection:
+            finalize_selection_span(
+                f"selection.outerHTML = {repr(highlighted_selection)};")
+        else:
+            # Highlighting failed.
+            # Remove the span tag added by the transform function.
+            finalize_selection_span(
+                "selection.replaceWith(...selection.childNodes);")
 
     # Not using Anki's own `wrap` function uses `document.execCommand`, which
     # is deprecated and doesn't work for inline selections.
@@ -220,9 +176,16 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
     #
     # We need to wrap the selection in a tag, because `transform` may lose
     # focus (e.g., by presenting a modal dialog) and with it, the selection.
+    #
+    # We return the rendered selected text. A previous version of this code
+    # return the inner HTML (`document.activeElement.shadowRoot.innerHTLM`).
+    # The former is more useful: the user usually cares about highlighting the
+    # text they see, not some abstract HTML representation. Having the reparse
+    # HTML was more complex and fragile.
     eval_js_with_callback(
         editor.web, f"""
         let selection = document.activeElement.shadowRoot.getSelection();
+        const selectionText = selection.toString();
         if (selection.rangeCount == 0)
            return {{ error: {{ name: 'InvalidStateError',
                                message: '{failed_to_find_selection}' }} }};
@@ -232,7 +195,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
         spanTag['id'] = '{random_id}'
         try {{
             range.surroundContents(spanTag);
-            return {{ field: document.activeElement.shadowRoot.innerHTML }};
+            return {{ selectionText }};
         }} catch (e) {{
             if (!(e instanceof DOMException)) {{
                 throw e
@@ -241,6 +204,6 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             let selectedContent = range.extractContents();
             spanTag.appendChild(selectedContent);
             range.insertNode(spanTag);
-            return {{ field: document.activeElement.shadowRoot.innerHTML }};
+            return {{ selectionText }};
         }}
         """, transform_field)
