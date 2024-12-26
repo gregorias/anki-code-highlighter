@@ -120,7 +120,7 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
                 {action}
                 return null;""", lambda _: None)
 
-        if not safe_get(selection_return, 'selectionText'):
+        if safe_get(selection_return, 'selectionText') is None:
             error = safe_get(selection_return, 'error')
             message = safe_get(error, 'message')
             if message == failed_to_find_selection:
