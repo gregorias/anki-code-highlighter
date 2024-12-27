@@ -12,5 +12,9 @@ ruff-fix:
 unittest:
   python -m unittest discover -s test/ -t .
 
+coverage:
+  coverage run --source='codehighlighter/' --branch -m unittest discover -s test/ -t . && \
+  coverage html
+
 vulture:
   vulture codehighlighter/

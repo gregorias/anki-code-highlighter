@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-coverage run --source='anki-code-highlighter/' --branch -m unittest discover -s test/ -t . && \
-coverage html
