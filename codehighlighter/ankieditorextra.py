@@ -43,6 +43,51 @@ def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
         }})();""", callback)
 
 
+def wrap_and_get_selection(webview: aqt.editor.EditorWebView, wrap_id: str,
+                           cb):
+    """
+    Wraps a field selection in a span tag and returns the selected text.
+    """
+    failed_to_find_selection = 'Failed to find a selection.'
+    # Not using Anki's own `wrap` function uses `document.execCommand`, which
+    # is deprecated and doesn't work for inline selections.
+    # Using the Range API is better as it doesn't suffer from those drawbacks.
+    #
+    # We need to wrap the selection in a tag, because `transform` may lose
+    # focus (e.g., by presenting a modal dialog) and with it, the selection.
+    #
+    # We return the rendered selected text. A previous version of this code
+    # return the inner HTML (`document.activeElement.shadowRoot.innerHTLM`).
+    # The former is more useful: the user usually cares about highlighting the
+    # text they see, not some abstract HTML representation. Having the reparse
+    # HTML was more complex and fragile.
+    eval_js_with_callback(
+        webview, f"""
+        let selection = document.activeElement.shadowRoot.getSelection();
+        const selectionText = selection.toString();
+        if (selection.rangeCount == 0)
+           return {{ error: {{ name: 'InvalidStateError',
+                               message: '{failed_to_find_selection}' }} }};
+        const range = selection.getRangeAt(selection.rangeCount - 1);
+        if (!range) return;
+        const spanTag = document.createElement('span')
+        spanTag['id'] = '{wrap_id}'
+        try {{
+            range.surroundContents(spanTag);
+            return {{ selectionText }};
+        }} catch (e) {{
+            if (!(e instanceof DOMException)) {{
+                throw e
+            }}
+            // Try an alternative approach.
+            let selectedContent = range.extractContents();
+            spanTag.appendChild(selectedContent);
+            range.insertNode(spanTag);
+            return {{ selectionText }};
+        }}
+        """, cb)
+
+
 # This function returns `str` and not bs4.Tag, because this function will be
 # unit-tested, and I want unit-tests to also test the encoding functionality.
 def highlight_selection(
@@ -170,40 +215,4 @@ def transform_selection(editor: aqt.editor.Editor, note: anki.notes.Note,
             finalize_selection_span(
                 "selection.replaceWith(...selection.childNodes);")
 
-    # Not using Anki's own `wrap` function uses `document.execCommand`, which
-    # is deprecated and doesn't work for inline selections.
-    # Using the Range API is better as it doesn't suffer from those drawbacks.
-    #
-    # We need to wrap the selection in a tag, because `transform` may lose
-    # focus (e.g., by presenting a modal dialog) and with it, the selection.
-    #
-    # We return the rendered selected text. A previous version of this code
-    # return the inner HTML (`document.activeElement.shadowRoot.innerHTLM`).
-    # The former is more useful: the user usually cares about highlighting the
-    # text they see, not some abstract HTML representation. Having the reparse
-    # HTML was more complex and fragile.
-    eval_js_with_callback(
-        editor.web, f"""
-        let selection = document.activeElement.shadowRoot.getSelection();
-        const selectionText = selection.toString();
-        if (selection.rangeCount == 0)
-           return {{ error: {{ name: 'InvalidStateError',
-                               message: '{failed_to_find_selection}' }} }};
-        const range = selection.getRangeAt(selection.rangeCount - 1);
-        if (!range) return;
-        const spanTag = document.createElement('span')
-        spanTag['id'] = '{random_id}'
-        try {{
-            range.surroundContents(spanTag);
-            return {{ selectionText }};
-        }} catch (e) {{
-            if (!(e instanceof DOMException)) {{
-                throw e
-            }}
-            // Try an alternative approach.
-            let selectedContent = range.extractContents();
-            spanTag.appendChild(selectedContent);
-            range.insertNode(spanTag);
-            return {{ selectionText }};
-        }}
-        """, transform_field)
+    wrap_and_get_selection(editor.web, random_id, transform_field)
