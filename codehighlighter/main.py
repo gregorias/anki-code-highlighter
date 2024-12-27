@@ -189,7 +189,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                                     highlight=highlight,
                                     clipboard=get_qclipboard_or_empty())
 
-    transform_selection(editor, note, currentFieldNo, format, showWarning)
+    transform_selection(editor, format, showWarning)
 
 
 def get_shortcut() -> str:
