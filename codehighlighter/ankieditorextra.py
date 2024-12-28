@@ -1,4 +1,3 @@
-import random
 import typing
 from dataclasses import dataclass
 from typing import Callable, Optional, Union
@@ -208,22 +207,52 @@ def highlight_selection(
         highlighted_selection) if highlighted_selection else None
 
 
-def transform_selection(webview: aqt.editor.EditorWebView,
-                        highlight: Callable[[PlainString], Optional[bs4.Tag]],
+class EditorInterface():
+    """A interface for the Anki editor."""
+
+    def wrap_and_get_selection(
+            self, cb: Callable[[Union[SelectedText, SelectionException]],
+                               None]) -> None:
+        pass
+
+    def unwrap_selection(self, action: Union[UnwrapSelection,
+                                             ReplaceWrapSelection],
+                         cb: Callable[[typing.Any], None]) -> None:
+        pass
+
+
+class AnkiEditorInterface(EditorInterface):
+
+    def __init__(self, webview: aqt.editor.EditorWebView, random_id: str):
+        self.webview = webview
+        self.random_id = random_id
+
+    def wrap_and_get_selection(
+            self, cb: Callable[[Union[SelectedText, SelectionException]],
+                               None]) -> None:
+        wrap_and_get_selection(self.webview, self.random_id, cb)
+
+    def unwrap_selection(self, action: Union[UnwrapSelection,
+                                             ReplaceWrapSelection],
+                         cb: Callable[[typing.Any], None]) -> None:
+        unwrap_selection(self.webview, self.random_id, action, cb)
+
+
+def transform_selection(highlight: Callable[[PlainString], Optional[bs4.Tag]],
+                        editor: EditorInterface,
                         onError: Callable[[str], typing.Any]) -> None:
     """
     Transforms selected text using `transform`.
 
-    :param editor aqt.editor.Editor
     :param highlight Callable[[str], bs4.Tag]:
         The highlighting function that receives code snippets and returns HTML
         with highlighting information.
+    :param editor aqt.editor.Editor
     :param onError Callable[[str], typing.Any]:
         The callback function that is called if an unrecoverable error has
         occurred. Provides an error message.
     :rtype None
     """
-    random_id = str(random.randint(0, 10000))
 
     def transform_field(
             selection_return: Union[SelectedText, SelectionException]) -> None:
@@ -264,15 +293,13 @@ def transform_selection(webview: aqt.editor.EditorWebView,
         highlighted_selection = highlight_selection(selection_return.text,
                                                     highlighter=highlight)
         if highlighted_selection:
-            unwrap_selection(
-                webview, random_id,
+            editor.unwrap_selection(
                 ReplaceWrapSelection(
                     contents=HtmlString(repr(highlighted_selection))),
                 lambda _: None)
         else:
             # Highlighting failed.
             # Remove the span tag added by the transform function.
-            unwrap_selection(webview, random_id, UnwrapSelection(),
-                             lambda _: None)
+            editor.unwrap_selection(UnwrapSelection(), lambda _: None)
 
-    wrap_and_get_selection(webview, random_id, transform_field)
+    editor.wrap_and_get_selection(transform_field)

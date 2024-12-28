@@ -1,5 +1,6 @@
 """The implementation of the code highlighter plugin."""
 import os.path
+import random
 import sys
 from functools import partial
 from typing import Callable, Dict, List, Optional, Tuple
@@ -15,7 +16,7 @@ sys.path.append(os.path.dirname(__file__))
 import anki  # type: ignore
 
 from . import dialog, hljs, pygments_highlighter
-from .ankieditorextra import transform_selection
+from .ankieditorextra import AnkiEditorInterface, transform_selection
 from .assets import (
     AnkiAssetManager,
     AnkiAssetStateManager,
@@ -169,14 +170,16 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
     block_style = (get_config("block-style")
                    or "display:flex; justify-content:center;")
 
-    transform_selection(
-        editor.web,
-        highlight=lambda code: highlight_selection(
-            code,
-            lambda: get_highlighter_config(parent, media_manager),
-            block_style,
-            clipboard=get_qclipboard_or_empty()),
-        onError=showWarning)
+    editor_interface = AnkiEditorInterface(editor.web,
+                                           str(random.randint(0, 10000)))
+
+    transform_selection(highlight=lambda code: highlight_selection(
+        code,
+        lambda: get_highlighter_config(parent, media_manager),
+        block_style,
+        clipboard=get_qclipboard_or_empty()),
+                        editor=editor_interface,
+                        onError=showWarning)
 
 
 def highlight_selection(code: PlainString,
