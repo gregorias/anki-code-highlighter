@@ -166,31 +166,46 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         return None
     media_manager: anki.media.MediaManager = mw.col.media
 
-    def highlight(code: PlainString) -> Optional[bs4.Tag]:
-        if len(code) == 0:
-            code = PlainString(get_qclipboard_or_empty().text())
+    block_style = (get_config("block-style")
+                   or "display:flex; justify-content:center;")
 
-        highlighter_config: Optional[
-            HighlighterConfig] = get_highlighter_config(parent, media_manager)
-        if not highlighter_config:
-            return None
+    transform_selection(
+        editor,
+        highlight=lambda code: highlight_selection(
+            code,
+            lambda: get_highlighter_config(parent, media_manager),
+            block_style,
+            clipboard=get_qclipboard_or_empty()),
+        onError=showWarning)
 
-        block_style = (get_config("block-style")
-                       or "display:flex; justify-content:center;")
-        if isinstance(highlighter_config, HljsConfig):
-            return hljs.highlight(code,
-                                  language=highlighter_config.language,
-                                  block_style=block_style)
-        else:
-            display_style = highlighter_config.display_style
-            html_style = (pygments_highlighter.create_inline_style()
-                          if display_style == DISPLAY_STYLE.INLINE else
-                          pygments_highlighter.create_block_style(block_style))
 
-            return pygments_highlighter.highlight(
-                code, language=highlighter_config.language, style=html_style)
+def highlight_selection(code: PlainString,
+                        highlighter_config_factory: Callable[
+                            [], Optional[HighlighterConfig]], block_style: str,
+                        clipboard: Clipboard) -> Optional[bs4.Tag]:
+    """
+    Highlights the selected or copied code snippet with a user configured
+    highlighter.
+    """
+    if len(code) == 0:
+        code = PlainString(clipboard.text())
 
-    transform_selection(editor, highlight, showWarning)
+    highlighter_config = highlighter_config_factory()
+    if not highlighter_config:
+        return None
+
+    if isinstance(highlighter_config, HljsConfig):
+        return hljs.highlight(code,
+                              language=highlighter_config.language,
+                              block_style=block_style)
+    else:
+        display_style = highlighter_config.display_style
+        html_style = (pygments_highlighter.create_inline_style()
+                      if display_style == DISPLAY_STYLE.INLINE else
+                      pygments_highlighter.create_block_style(block_style))
+
+        return pygments_highlighter.highlight(
+            code, language=highlighter_config.language, style=html_style)
 
 
 def get_shortcut() -> str:
@@ -290,7 +305,8 @@ def load_mw_and_sync():
         anki_asset_manager)
 
 
-gui_hooks.profile_did_open.append(load_mw_and_sync)
-gui_hooks.main_window_did_init.append(setup_menu)
-gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)
-gui_hooks.editor_did_init_buttons.append(on_editor_buttons_init)
+def main():
+    gui_hooks.profile_did_open.append(load_mw_and_sync)
+    gui_hooks.main_window_did_init.append(setup_menu)
+    gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)
+    gui_hooks.editor_did_init_buttons.append(on_editor_buttons_init)
