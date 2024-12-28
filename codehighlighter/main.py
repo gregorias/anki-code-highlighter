@@ -16,7 +16,7 @@ sys.path.append(os.path.dirname(__file__))
 import anki  # type: ignore
 
 from . import dialog, hljs, pygments_highlighter
-from .ankieditorextra import AnkiEditorInterface, transform_selection
+from .ankieditorextra import AnkiEditorInterface, EditorInterface, transform_selection
 from .assets import (
     AnkiAssetManager,
     AnkiAssetStateManager,
@@ -173,13 +173,25 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
     editor_interface = AnkiEditorInterface(editor.web,
                                            str(random.randint(0, 10000)))
 
+    highlight(lambda: get_highlighter_config(parent, media_manager),
+              block_style,
+              clipboard=get_qclipboard_or_empty(),
+              editor=editor_interface,
+              on_error=showWarning)
+
+
+# This is the side-effect free part of the highlight action.
+def highlight(highlighter_config_factory: Callable[
+    [], Optional[HighlighterConfig]], block_style: str, clipboard: Clipboard,
+              editor: EditorInterface, on_error) -> None:
+    """
+    Highlights the selected or copied code snippet with a user configured
+    highlighter.
+    """
     transform_selection(highlight=lambda code: highlight_selection(
-        code,
-        lambda: get_highlighter_config(parent, media_manager),
-        block_style,
-        clipboard=get_qclipboard_or_empty()),
-                        editor=editor_interface,
-                        onError=showWarning)
+        code, highlighter_config_factory, block_style, clipboard=clipboard),
+                        editor=editor,
+                        onError=on_error)
 
 
 def highlight_selection(code: PlainString,
@@ -189,6 +201,9 @@ def highlight_selection(code: PlainString,
     """
     Highlights the selected or copied code snippet with a user configured
     highlighter.
+
+    This is like `highlight` but with the code provided upfront without any
+    selection transformation logic.
     """
     if len(code) == 0:
         code = PlainString(clipboard.text())
