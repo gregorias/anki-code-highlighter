@@ -170,7 +170,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
                    or "display:flex; justify-content:center;")
 
     transform_selection(
-        editor,
+        editor.web,
         highlight=lambda code: highlight_selection(
             code,
             lambda: get_highlighter_config(parent, media_manager),

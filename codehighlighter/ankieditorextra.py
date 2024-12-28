@@ -208,7 +208,7 @@ def highlight_selection(
 # date with changes made by the JavaScript.
 # I arrived at the .evalWithCallback approach thanks to:
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
-def transform_selection(editor: aqt.editor.Editor,
+def transform_selection(webview: aqt.editor.EditorWebView,
                         highlight: Callable[[PlainString], Optional[bs4.Tag]],
                         onError: Callable[[str], typing.Any]) -> None:
     """
@@ -265,14 +265,14 @@ def transform_selection(editor: aqt.editor.Editor,
                                                     highlighter=highlight)
         if highlighted_selection:
             unwrap_selection(
-                editor.web, random_id,
+                webview, random_id,
                 ReplaceWrapSelection(
                     contents=HtmlString(repr(highlighted_selection))),
                 lambda _: None)
         else:
             # Highlighting failed.
             # Remove the span tag added by the transform function.
-            unwrap_selection(editor.web, random_id, UnwrapSelection(),
+            unwrap_selection(webview, random_id, UnwrapSelection(),
                              lambda _: None)
 
-    wrap_and_get_selection(editor.web, random_id, transform_field)
+    wrap_and_get_selection(webview, random_id, transform_field)
