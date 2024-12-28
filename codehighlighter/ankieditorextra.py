@@ -65,6 +65,11 @@ class UnknownSelectionException(SelectionException):
     message: str
 
 
+# This function has used `editor.web.eval` previously, but that executed
+# asynchronously, so there was no guarantee that editor.note would be up to
+# date with changes made by the JavaScript.
+# I arrived at the .evalWithCallback approach thanks to:
+# https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def wrap_and_get_selection(
         webview: aqt.editor.EditorWebView, wrap_id: str,
         cb: Callable[[Union[SelectedText, SelectionException]], None]) -> None:
@@ -203,11 +208,6 @@ def highlight_selection(
         highlighted_selection) if highlighted_selection else None
 
 
-# This function has used `editor.web.eval` previously, but that executed
-# asynchronously, so there was no guarantee that editor.note would be up to
-# date with changes made by the JavaScript.
-# I arrived at the .evalWithCallback approach thanks to:
-# https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def transform_selection(webview: aqt.editor.EditorWebView,
                         highlight: Callable[[PlainString], Optional[bs4.Tag]],
                         onError: Callable[[str], typing.Any]) -> None:
