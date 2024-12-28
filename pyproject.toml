@@ -42,3 +42,7 @@ types-beautifulsoup4 = "*"
 webcolors = "*"
 vulture = "^2.14"
 coverage = "*"
+
+[tool.vulture]
+# StubClipboard is useful for testing.
+ignore_names = ["StubClipboard"]

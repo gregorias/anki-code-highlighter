@@ -22,6 +22,7 @@ from .assets import (
     has_newer_version,
     sync_assets,
 )
+from .clipboard import Clipboard, EmptyClipboard
 from .dialog import (
     DISPLAY_STYLE,
     HIGHLIGHT_METHOD,
@@ -32,7 +33,6 @@ from .dialog import (
     ask_for_highlight_method,
     ask_for_highlighter_config,
 )
-from .format import Clipboard, EmptyClipboard, format_selected_code
 from .html import PlainString
 from .serialization import JSONObjectSerializer
 
@@ -146,26 +146,32 @@ def get_qclipboard_or_empty() -> Clipboard:
 
 def highlight_action(editor: aqt.editor.Editor) -> None:
     note: Optional[anki.notes.Note] = editor.note
-    currentFieldNo = editor.currentField
     if note is None:
         showWarning(
             "You've run the code highlighter without selecting a note.\n" +
             "Select a note before running the code highlighter.")
         return None
+
+    currentFieldNo = editor.currentField
     if currentFieldNo is None:
         showWarning(
             "You've run the code highlighter without selecting a field.\n" +
             "Select a note field before running the code highlighter.")
         return None
 
+    parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
+    mw = aqt.mw
+    if not mw:
+        # Should never happen
+        return None
+    media_manager: anki.media.MediaManager = mw.col.media
+
     def highlight(code: PlainString) -> Optional[bs4.Tag]:
-        parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
-        mw = aqt.mw
-        if not mw:
-            # Should never happen
-            return None
+        if len(code) == 0:
+            code = PlainString(get_qclipboard_or_empty().text())
+
         highlighter_config: Optional[
-            HighlighterConfig] = get_highlighter_config(parent, mw.col.media)
+            HighlighterConfig] = get_highlighter_config(parent, media_manager)
         if not highlighter_config:
             return None
 
@@ -184,12 +190,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
             return pygments_highlighter.highlight(
                 code, language=highlighter_config.language, style=html_style)
 
-    def format(code: PlainString) -> Optional[bs4.Tag]:
-        return format_selected_code(code,
-                                    highlight=highlight,
-                                    clipboard=get_qclipboard_or_empty())
-
-    transform_selection(editor, format, showWarning)
+    transform_selection(editor, highlight, showWarning)
 
 
 def get_shortcut() -> str:
