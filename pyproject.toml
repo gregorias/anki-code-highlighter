@@ -5,7 +5,7 @@ requires-python = ">=3.9, <3.10"
 
 [tool.poetry]
 name = "anki-code-highlighter"
-version = "24.12.2"
+version = "25.03.0"
 authors = ["Grzegorz Milka <grzegorzmilka@gmail.com>"]
 description = "Anki plugin for code syntax highlighting"
 classifiers = [
