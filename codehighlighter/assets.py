@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This module manages the plugin's assets (JS, CSS files, and templates).
 
 The module is plugin agnostic: it contains generic mechanisms for updating
@@ -12,7 +11,7 @@ import re
 import typing
 from typing import Callable, List, Optional, Protocol, Tuple
 
-from anki.media import MediaManager  # type: ignore
+from anki.media import MediaManager
 
 from .serialization import Serializer
 
@@ -29,7 +28,7 @@ __all__ = [
 
 
 class AssetManager(Protocol):
-    """An object that can install/delete plugin assets."""
+    """An object that can install and delete an add-on’s assets."""
 
     def install_assets(self) -> None:
         return None
