@@ -24,6 +24,8 @@ pre-commit:
       tags: style import
       glob: "*.py"
       run: ruff check --select=I001 {staged_files}
+    test:
+      run: just test
     toml-taplo-lint:
       tags: style
       glob: "*.toml"
@@ -32,6 +34,8 @@ pre-commit:
       tags: style
       glob: "*.toml"
       run: taplo fmt --check {staged_files}
+    vulture:
+      run: just vulture
     yaml-prettier:
       tags: style
       glob: "*.{yml,yaml}"
@@ -40,10 +44,6 @@ pre-commit:
       tags: style
       glob: "*.py"
       run: yapf -i -r {staged_files} && git add {staged_files}
-    test:
-      run: just test
-    vulture:
-      run: just vulture
 commit-msg:
   commands:
     commitlint:
