@@ -99,8 +99,24 @@ def generate_highlighter_pygments_css() -> cssutils.css.CSSStyleSheet:
     return css_preamble
 
 
+def format_css_sheet(css_sheet: str) -> str:
+    """Formats a CSS sheet using Prettier."""
+    import subprocess
+
+    try:
+        result = subprocess.run(["prettier", "--stdin-filepath", "input.css"],
+                                input=css_sheet,
+                                text=True,
+                                capture_output=True,
+                                check=True)
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Prettier formatting failed: {e.stderr}.")
+
+
 def main():
-    print(generate_highlighter_pygments_css().cssText.decode('utf8'))
+    css_sheet = (generate_highlighter_pygments_css().cssText.decode('utf8'))
+    print(format_css_sheet(css_sheet))
 
 
 if __name__ == '__main__':
