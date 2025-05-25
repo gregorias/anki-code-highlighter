@@ -68,6 +68,17 @@ git fetch
 git checkout 2.18.0
 ```
 
+## Updating Python
+
+This package sets up a specific Python version to keep the dev environment in
+sync with what Anki uses. To update this Python version, you need to:
+
+1. If in a virtual environment, deactivate it and remove it (`rm -r .venv`).
+2. Update the Python spec in `.python-version` and `pyproject.toml`.
+3. Install the new Python version with `pyenv install`.
+4. Install the new virtual environment with `uv venv --python 3.X.Y`.
+5. Install dependencies in the virtual environment: `uv sync --locked`.
+
 ## Generating Pygment stylesheets
 
 In `assets/_ch-pygment-solarized.css` I keep the stylesheet for code formatted
@@ -148,16 +159,6 @@ where I did not properly account for language aliases. I've abandoned this way,
 because I figured that it would way more fool-proof to just use a single
 highlight.js bundle that has all languages. Loading that single file seems to
 be fast.
-
-## Updating Python
-
-This package sets up a specific Python version to keep the dev environment in
-sync with what Anki uses. To update this Python version, you need to:
-
-1. If in a virtual environment, deactivate it and remove it.
-2. Update Python spec in `.python-version` and `pyproject.toml`.
-3. Install the new Python version with `pyenv install`.
-4. Install the new virtual environment with `uv venv`.
 
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
