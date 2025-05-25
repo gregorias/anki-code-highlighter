@@ -1,6 +1,4 @@
 """Useful & informant utilities for working with Pygments."""
-import re
-
 # cssutils doesn't have type annotations.
 import cssutils  # type: ignore
 
@@ -62,18 +60,6 @@ def filter_lines(pred, input: str) -> str:
     return ''.join([line + '\n' for line in filter(pred, input.splitlines())])
 
 
-def replace_inlined_color_with_variable(color: str, variable: str,
-                                        sheet: str) -> str:
-    # Not using CSSOM, because cssutils doesn't support custom properties
-    # (https://github.com/jaraco/cssutils/issues/14).
-    m = re.match(r'#(\d)(\d)(\d)', color)
-    if m:
-        color6 = f'#{m.group(1)}{m.group(1)}{m.group(2)}{m.group(2)}{m.group(3)}{m.group(3)}'
-        sheet = re.sub(color6, f'var({variable})', sheet)
-    sheet = re.sub(color, f'var({variable})', sheet)
-    return sheet
-
-
 def create_pretty_pygments_style() -> str:
     """Creates a pretty pygments-based solarized style for Anki."""
     sl_cvs = create_color_to_variable_map('solarized-light',
@@ -90,14 +76,8 @@ def create_pretty_pygments_style() -> str:
 
     light_stylesheet: str = html_formatter_cls(solarized_light).get_style_defs(
         '.highlight')
-    for c, v in sl_cvs.items():
-        light_stylesheet = replace_inlined_color_with_variable(
-            c, v, light_stylesheet)
     dark_stylesheet: str = html_formatter_cls(solarized_dark).get_style_defs(
         '.night_mode .highlight')
-    for c, v in sd_cvs.items():
-        dark_stylesheet = replace_inlined_color_with_variable(
-            c, v, dark_stylesheet)
     return root_rule + light_stylesheet + dark_stylesheet
 
 
