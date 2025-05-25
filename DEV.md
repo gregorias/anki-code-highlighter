@@ -12,27 +12,33 @@ This project requires the following tools:
 - [Lefthook]
 - [Just]
 - [Markdownlint]
-- [Poetry]
 - [Pyenv]
 - [Ruff]
+- [Uv]
 
 1. Install the required Python version:
 
-    ```shell
-    pyenv install
-    ```
+   ```shell
+   pyenv install
+   ```
 
-1. Set up Poetry:
+1. Set up a local virtual environment:
 
-    ```shell
-    poetry install
-    ```
+   ```shell
+   uv venv
+   ```
+
+1. Install development dependencies:
+
+   ```shell
+   uv pip install --group dev
+   ```
 
 1. Install Lefthook:
 
-    ```shell
-    lefthook install
-    ```
+   ```shell
+   lefthook install
+   ```
 
 ## Updating highlight.js
 
@@ -80,9 +86,9 @@ with pygments plus a few lines for general styles. I generated the style there w
 ## Release & distribution
 
 1. Create a release commit.
-    1. Bump up the package version in `codehighlighter/manifest.json`
-       and `pyproject.toml`.
-    2. Tag the release commit `git tag vx.y.z && git push origin vx.y.z`.
+   1. Bump up the package version in `codehighlighter/manifest.json`
+      and `pyproject.toml`.
+   2. Tag the release commit `git tag vx.y.z && git push origin vx.y.z`.
 1. Use the `dev/bin/package` tool to create `codehighlighter.ankiaddon`.
 1. Create a GitHub release: `gh release create vx.y.z codehighlighter.ankiaddon`.
 1. [Share the package on Anki.](https://addon-docs.ankiweb.net/#/sharing)
@@ -148,17 +154,17 @@ be fast.
 This package sets up a specific Python version to keep the dev environment in
 sync with what Anki uses. To update this Python version, you need to:
 
-1. If in the Poetry venv, deactivate it and remove it.
+1. If in a virtual environment, deactivate it and remove it.
 2. Update Python spec in `.python-version` and `pyproject.toml`.
 3. Install the new Python version with `pyenv install`.
-4. Install the new virtual environment with `poetry install`.
+4. Install the new virtual environment with `uv venv`.
 
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
 [Just]: https://github.com/casey/just
 [Markdownlint]: https://github.com/igorshubovych/markdownlint-cli
-[Poetry]: https://python-poetry.org
 [Pyenv]: https://github.com/pyenv/pyenv
 [Pygments]: https://github.com/pygments/pygments
 [Ruff]: https://github.com/astral-sh/ruff
 [hljs]: https://highlightjs.org/
+[Uv]: https://docs.astral.sh/uv/

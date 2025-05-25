@@ -16,10 +16,6 @@ pre-commit:
       files: git diff --name-only --cached --diff-filter=AM
       glob: "*.md"
       run: markdownlint {files}
-    poetry-check:
-      tags: lint
-      glob: "pyproject.toml"
-      run: poetry check
     ruff:
       tags: lint
       glob: "*.py"
@@ -38,6 +34,10 @@ pre-commit:
       tags: style
       glob: "*.toml"
       run: taplo fmt --check {staged_files}
+    uv-check:
+      tags: lint
+      glob: "{pyproject.toml,uv.lock}"
+      run: uv pip check
     vulture:
       run: just vulture
     yaml-prettier:
