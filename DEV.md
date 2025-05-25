@@ -54,7 +54,7 @@ To update [highlight.js][hljs]:
 
 ## Updating Pygments
 
-Anki code hightlighter comes in bundled with the [Pygments] library, and its
+Anki Code Highlighter comes in bundled with the [Pygments] library, and its
 version is tracked as a [Git
 submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) inside this
 repository.
