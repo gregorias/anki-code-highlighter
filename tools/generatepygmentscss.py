@@ -89,14 +89,12 @@ def generate_highlighter_pygments_css() -> cssutils.css.CSSStyleSheet:
     day_style = pygments.styles.get_style_by_name(DAY_STYLE)
     night_style = pygments.styles.get_style_by_name(NIGHT_STYLE)
 
-    css_preamble = generate_highlighter_pygments_css_preamble(
-        day_style, night_style)
-    css = css_preamble
+    css = generate_highlighter_pygments_css_preamble(day_style, night_style)
     css.cssRules.extend(
         get_pygments_css(day_style, DAY_MODE_SELECTOR).cssRules)
     css.cssRules.extend(
         get_pygments_css(night_style, NIGHT_MODE_SELECTOR).cssRules)
-    return css_preamble
+    return css
 
 
 def format_css_sheet(css_sheet: str) -> str:
