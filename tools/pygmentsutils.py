@@ -5,6 +5,7 @@ import cssutils  # type: ignore
 import pygments
 import pygments.formatter
 import pygments.formatters
+import pygments.formatters.html
 import pygments.style
 import pygments.styles
 
@@ -12,7 +13,7 @@ solarized_light = pygments.styles.get_style_by_name('solarized-light')
 solarized_dark = pygments.styles.get_style_by_name('solarized-dark')
 
 
-def html_formatter_cls(s):
+def html_formatter_cls(s) -> pygments.formatters.html.HtmlFormatter:
     return pygments.formatters.get_formatter_by_name('html', style=s)
 
 
