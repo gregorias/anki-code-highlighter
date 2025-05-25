@@ -1,15 +1,16 @@
-#!/usr/bin/env python
 """Generates the CSS for pygments highlighting."""
 
-import textwrap
 import colorsys
+import textwrap
 
-import cssutils
+import cssutils  # type: ignore
+import webcolors  # type: ignore
+
 import pygments
 import pygments.formatters
+import pygments.formatters.html
 import pygments.style
 import pygments.styles
-import webcolors
 
 DAY_STYLE = 'solarized-light'
 NIGHT_STYLE = 'solarized-dark'
@@ -41,8 +42,8 @@ def get_pygments_css(
         selector: cssutils.css.Selector) -> cssutils.css.CSSStyleSheet:
     """Gets the CSS of a particular Pygments style without the preamble."""
     # In the context of this plugin, only the HTML formatter is used.
-    html_formatter = pygments.formatters.get_formatter_by_name('html',
-                                                               style=style)
+    html_formatter: pygments.formatters.html.HtmlFormatter = (
+        pygments.formatters.get_formatter_by_name('html', style=style))
     pygments_css = cssutils.parseString(
         html_formatter.get_style_defs(selector.selectorText))
     delete_pygments_css_preamble(pygments_css.cssRules, selector)
