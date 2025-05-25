@@ -1,6 +1,6 @@
 [project]
 name = "anki-code-highlighter"
-version = "25.03.0"
+version = "25.05.0"
 description = "Anki plugin for code syntax highlighting"
 authors = [{ name = "Grzegorz Milka", email = "grzegorzmilka@gmail.com" }]
 # Use 3.9, because that’s what Anki uses
