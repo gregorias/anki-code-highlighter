@@ -1,6 +1,6 @@
 /*!
-  Highlight.js v11.11.0 (git: 40883e19c5)
-  (c) 2006-2024 Josh Goebel <hello@joshgoebel.com> and other contributors
+  Highlight.js v11.11.1 (git: 08cb242e7d)
+  (c) 2006-2025 Josh Goebel <hello@joshgoebel.com> and other contributors
   License: BSD-3-Clause
  */
 var hljs=function(){"use strict";function e(t){
@@ -302,7 +302,7 @@ e["before:highlightBlock"](Object.assign({block:t.el},t))
 }),e["after:highlightBlock"]&&!e["after:highlightElement"]&&(e["after:highlightElement"]=t=>{
 e["after:highlightBlock"](Object.assign({block:t.el},t))})})(e),i.push(e)},
 removePlugin:e=>{const t=i.indexOf(e);-1!==t&&i.splice(t,1)}}),a.debugMode=()=>{
-o=!1},a.safeMode=()=>{o=!0},a.versionString="11.11.0",a.regex={concat:u,
+o=!1},a.safeMode=()=>{o=!0},a.versionString="11.11.1",a.regex={concat:u,
 lookahead:d,either:E,optional:p,anyNumberOfTimes:m}
 ;for(const t in M)"object"==typeof M[t]&&e(M[t]);return Object.assign(a,M),a
 },ae=te({});function ne(e){const t=e.regex,a=e.COMMENT("//","$",{contains:[{
@@ -2832,12 +2832,12 @@ begin:t.concat(/\b/,/(?!let|for|while|if|else|match\b)/,r,t.lookahead(/\s*\(/))
 keyword:["abstract","as","async","await","become","box","break","const","continue","crate","do","dyn","else","enum","extern","false","final","fn","for","if","impl","in","let","loop","macro","match","mod","move","mut","override","priv","pub","ref","return","self","Self","static","struct","super","trait","true","try","type","typeof","union","unsafe","unsized","use","virtual","where","while","yield"],
 literal:["true","false","Some","None","Ok","Err"],built_in:s},illegal:"</",
 contains:[e.C_LINE_COMMENT_MODE,e.COMMENT("/\\*","\\*/",{contains:["self"]
-}),e.inherit(e.QUOTE_STRING_MODE,{begin:/b?"/,illegal:null}),{scope:"string",
+}),e.inherit(e.QUOTE_STRING_MODE,{begin:/b?"/,illegal:null}),{
+className:"symbol",begin:/'[a-zA-Z_][a-zA-Z0-9_]*(?!')/},{scope:"string",
 variants:[{begin:/b?r(#*)"(.|\n)*?"\1(?!#)/},{begin:/b?'/,end:/'/,contains:[{
-scope:"char.escape",match:/\\(\w|x\w{2}|u\w{4}|U\w{8})/}]}]},{
-className:"symbol",begin:/'[a-zA-Z_][a-zA-Z0-9_]*/},{className:"number",
-variants:[{begin:"\\b0b([01_]+)"+o},{begin:"\\b0o([0-7_]+)"+o},{
-begin:"\\b0x([A-Fa-f0-9_]+)"+o},{
+scope:"char.escape",match:/\\('|\w|x\w{2}|u\w{4}|U\w{8})/}]}]},{
+className:"number",variants:[{begin:"\\b0b([01_]+)"+o},{begin:"\\b0o([0-7_]+)"+o
+},{begin:"\\b0x([A-Fa-f0-9_]+)"+o},{
 begin:"\\b(\\d[\\d_]*(\\.[0-9_]+)?([eE][+-]?[0-9_]+)?)"+o}],relevance:0},{
 begin:[/fn/,/\s+/,n],className:{1:"keyword",3:"title.function"}},{
 className:"meta",begin:"#!?\\[",end:"\\]",contains:[{className:"string",

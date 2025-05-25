@@ -43,7 +43,7 @@ This project requires the following tools:
 ## Updating highlight.js
 
 Anki code highlighter comes in bundled with the [highlight.js][hljs] JavaScript
-package. The JS package's files are included in `assets`, e.g.,
+package. The JS package’s files are included in `assets`, e.g.,
 `assets/_ch-highlight.js` contains the single-file implementation of
 [highlight.js][hljs].
 
