@@ -1,10 +1,8 @@
 """Generates the CSS for pygments highlighting."""
 
-import colorsys
 import textwrap
 
 import cssutils  # type: ignore
-import webcolors  # type: ignore
 
 import pygments
 import pygments.formatters
@@ -14,6 +12,8 @@ import pygments.styles
 
 DAY_STYLE = 'solarized-light'
 NIGHT_STYLE = 'solarized-dark'
+SOLARIZED_LIGHT_BORDER_COLOR = '#cdbc84'
+SOLARIZED_DARK_BORDER_COLOR = '#052831'
 PYGMENTS_CLASS = 'pygments'
 NIGHT_MODE_CLASS = 'night_mode'
 DAY_MODE_SELECTOR = cssutils.css.Selector(f'.{PYGMENTS_CLASS}')
@@ -50,15 +50,6 @@ def get_pygments_css(
     return pygments_css
 
 
-def brighten_color(hex: str, factor: float) -> str:
-    rp = webcolors.hex_to_rgb(hex)
-    h, l, s = colorsys.rgb_to_hls(rp.red / 255, rp.green / 255, rp.blue / 255)
-    new_rgb_triplet = tuple(
-        int(i * 255) for i in colorsys.hls_to_rgb(h, l * factor, s))
-    return webcolors.rgb_to_hex(
-        webcolors.normalize_integer_triplet(new_rgb_triplet))
-
-
 def generate_highlighter_pygments_css_preamble(
     day_style: pygments.style.Style,
     night_style: pygments.style.Style,
@@ -69,16 +60,14 @@ def generate_highlighter_pygments_css_preamble(
           color: {day_style.styles[pygments.style.Token]};
           border: solid;
           border-width: thick;
-          border-color: {brighten_color(day_style.background_color,
-                                        factor=0.45)};
+          border-color: {SOLARIZED_LIGHT_BORDER_COLOR};
           padding: 3px 5px;
           line-height: 125%;
         }}
         .{NIGHT_MODE_CLASS} .{PYGMENTS_CLASS}>pre {{
           background: {night_style.background_color};
           color: {night_style.styles[pygments.style.Token]};
-          border-color: {brighten_color(night_style.background_color,
-                                        factor=1.5)};
+          border-color: {SOLARIZED_DARK_BORDER_COLOR};
         }}
     """).strip()
     return cssutils.parseString(preamble)
