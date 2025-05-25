@@ -94,6 +94,12 @@
   font-style: italic;
 }
 /* Generic.Emph */
+.pygments .ges {
+  color: #657b83;
+  font-weight: bold;
+  font-style: italic;
+}
+/* Generic.EmphStrong */
 .pygments .gr {
   color: #dc322f;
 }
@@ -416,6 +422,12 @@
   font-style: italic;
 }
 /* Generic.Emph */
+.night_mode .pygments .ges {
+  color: #839496;
+  font-weight: bold;
+  font-style: italic;
+}
+/* Generic.EmphStrong */
 .night_mode .pygments .gr {
   color: #dc322f;
 }

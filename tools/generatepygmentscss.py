@@ -103,7 +103,7 @@ def format_css_sheet(css_sheet: str) -> str:
 
 def main():
     css_sheet = (generate_highlighter_pygments_css().cssText.decode('utf8'))
-    print(format_css_sheet(css_sheet))
+    print(format_css_sheet(css_sheet), end='')
 
 
 if __name__ == '__main__':
