@@ -82,8 +82,8 @@ sync with what Anki uses. To update this Python version, you need to:
 ## Generating Pygment stylesheets
 
 In `assets/_ch-pygment-solarized.css` I keep the stylesheet for code formatted
-with pygments plus a few lines for general styles. I generated the style there with
-`dev/bin/pygutils.py` with some minor adjustments by hand:
+with pygments plus a few lines for general styles. I generated the style there
+with `python -m tools/pygmentsutils` with some minor adjustments by hand:
 
 1. There are some tech debt lines relevant for all `<pre><code>` tags.
 2. I have added some custom styles for borders.

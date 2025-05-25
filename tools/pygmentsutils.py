@@ -1,20 +1,21 @@
-#!/usr/bin/env python
-"""Useful & informant utilities for working with pygments"""
-from collections import defaultdict
+"""Useful & informant utilities for working with Pygments."""
 import re
-import textwrap
 
+# cssutils doesn't have type annotations.
 import cssutils  # type: ignore
 
 import pygments
-import pygments.styles
 import pygments.formatter
 import pygments.formatters
+import pygments.style
+import pygments.styles
 
 solarized_light = pygments.styles.get_style_by_name('solarized-light')
 solarized_dark = pygments.styles.get_style_by_name('solarized-dark')
-html_formatter_cls = lambda s: pygments.formatters.get_formatter_by_name(
-    'html', style=s)
+
+
+def html_formatter_cls(s):
+    return pygments.formatters.get_formatter_by_name('html', style=s)
 
 
 def get_colors_from_stylesheet(
@@ -58,14 +59,14 @@ def create_color_to_variable_map(
 
 
 def filter_lines(pred, input: str) -> str:
-    return ''.join([l + '\n' for l in filter(pred, input.splitlines())])
+    return ''.join([line + '\n' for line in filter(pred, input.splitlines())])
 
 
 def replace_inlined_color_with_variable(color: str, variable: str,
                                         sheet: str) -> str:
     # Not using CSSOM, because cssutils doesn't support custom properties
     # (https://github.com/jaraco/cssutils/issues/14).
-    m = re.match('#(\d)(\d)(\d)', color)
+    m = re.match(r'#(\d)(\d)(\d)', color)
     if m:
         color6 = f'#{m.group(1)}{m.group(1)}{m.group(2)}{m.group(2)}{m.group(3)}{m.group(3)}'
         sheet = re.sub(color6, f'var({variable})', sheet)
