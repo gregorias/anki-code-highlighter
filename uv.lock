@@ -4,7 +4,7 @@ requires-python = "==3.9.*"
 
 [[package]]
 name = "anki"
-version = "25.2"
+version = "25.2.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -15,13 +15,14 @@ dependencies = [
     { name = "protobuf" },
     { name = "psutil", marker = "sys_platform == 'win32'" },
     { name = "requests", extra = ["socks"] },
+    { name = "typing-extensions" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/57/5171d9380be08c0d9321b59002c51c207afeeaffa4769b6f2228c79eee74/anki-25.02-cp39-abi3-macosx_12_0_arm64.whl", hash = "sha256:04acfb601a020fdc9508e7e4fd6cc7201d65eaaf877a4e192fa95a036b749d05", size = 9048457, upload-time = "2025-02-11T10:42:32.457Z" },
-    { url = "https://files.pythonhosted.org/packages/9e/01/f3b868ae857fa74bd565b0040a5d83c692f40cbd1a7bac2cdf58464d23d3/anki-25.02-cp39-abi3-macosx_12_0_x86_64.whl", hash = "sha256:4cff1ab1ad9339c9eabaaf6c4483a831dc20123958488bd9e9b314d4dae88a44", size = 9519307, upload-time = "2025-02-11T10:42:37.585Z" },
-    { url = "https://files.pythonhosted.org/packages/da/36/741cef7b7fce943d187784549fd8de8152986067d9226f384959c07770a7/anki-25.02-cp39-abi3-manylinux_2_35_aarch64.whl", hash = "sha256:f1ae8385c5f6a42cb8f96b851e7c871bdc1b3f4e4ddeb3deaaa5e2439ff1d233", size = 10316108, upload-time = "2025-02-11T10:42:41.25Z" },
-    { url = "https://files.pythonhosted.org/packages/68/9c/7685bd012e597332f8ce379a31b0d58dd4eae960da96ff43e9fcd978c93f/anki-25.02-cp39-abi3-manylinux_2_35_x86_64.whl", hash = "sha256:d0ebef9d8f7308a9728357220170da8f6558aa0dff772fd233740004f0717f41", size = 10699478, upload-time = "2025-02-11T10:42:46.218Z" },
-    { url = "https://files.pythonhosted.org/packages/7b/f5/6ceb8802ead43fa82ce001056d93bda97807451d4088d7c6651c6785340f/anki-25.02-cp39-abi3-win_amd64.whl", hash = "sha256:92c26b3b08dbe3779ea9b206e32f684fc9e3efc1ec438497720129057da5f02f", size = 9314356, upload-time = "2025-02-11T10:42:50.995Z" },
+    { url = "https://files.pythonhosted.org/packages/57/71/e4a472a530249766b370c16ebbd1479c03a9a222a46b90f8523ae5459ca3/anki-25.02.5-cp39-abi3-macosx_12_0_arm64.whl", hash = "sha256:5d420316457717a6fb12e660d2788273ca244d33f94df92a5eda377f04242f4c", size = 9031801, upload-time = "2025-05-15T09:51:39.783Z" },
+    { url = "https://files.pythonhosted.org/packages/af/20/36935d9fe9d47e60475f82e5f103c4dbc6b8ae87e4d358505db405724642/anki-25.02.5-cp39-abi3-macosx_12_0_x86_64.whl", hash = "sha256:2cb4c11f96f5bf20197c12cea1ce42df151123297e73ab8fb8b298688f36127f", size = 9499183, upload-time = "2025-05-15T09:51:45.794Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/9d/6e27cec817c7f0f208e880f78585071eedc1bfd4294ebbae4ac5e49bf98d/anki-25.02.5-cp39-abi3-manylinux_2_35_aarch64.whl", hash = "sha256:6d1e7ea63dadb27efa46d64fbc8ba5a5f59171d15cf1a70efbfe26dede069eaf", size = 10279997, upload-time = "2025-05-15T09:51:50.319Z" },
+    { url = "https://files.pythonhosted.org/packages/32/51/cf365e03f3820f8b8adfd11717c38b3fcc167d08c0e53591dbfc702b2292/anki-25.02.5-cp39-abi3-manylinux_2_35_x86_64.whl", hash = "sha256:65b919ae4ffd8e12818e08fc5c0a4e83b3cd726fff53a71aa825662a2321a046", size = 10654995, upload-time = "2025-05-15T09:51:54.22Z" },
+    { url = "https://files.pythonhosted.org/packages/c3/e8/7cd7c9d0f06ab18f2652b77b77375880b2f1a43ad201eeee79b42fea281f/anki-25.02.5-cp39-abi3-win_amd64.whl", hash = "sha256:ab5be6eac4e52092855522885f8bc4e71c935b2aff994f6318e4cb6f4f5abce8", size = 9292779, upload-time = "2025-05-15T09:51:57.853Z" },
 ]
 
 [[package]]
@@ -49,8 +50,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anki", specifier = "==25.2" },
-    { name = "aqt", specifier = "==25.2" },
+    { name = "anki", specifier = "==25.2.5" },
+    { name = "aqt", specifier = "==25.2.5" },
     { name = "pyqt6", specifier = "==6.6.1" },
     { name = "pyqt6-qt6", specifier = "==6.6.2" },
     { name = "pyqt6-webengine", specifier = "==6.6.0" },
@@ -69,7 +70,7 @@ dev = [
 
 [[package]]
 name = "aqt"
-version = "25.2"
+version = "25.2.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anki" },
@@ -87,7 +88,7 @@ dependencies = [
     { name = "waitress" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2c/bc/763589b97aa5c91acf3d834beaa473c25ca7f335c7b40954fd0d5fd41ddc/aqt-25.02-py3-none-any.whl", hash = "sha256:7d3c715d5ffccca79b1bd39542251b893dd05b5c32eef1ff1c43ad1a57bed483", size = 4204328, upload-time = "2025-02-11T10:42:54.279Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/8b/2651dcd76e3a670bc0ae95e462ad0776c3bcb9cc2b0b19eaa9cb8f92b709/aqt-25.02.5-py3-none-any.whl", hash = "sha256:c66943d74ade173819c963c49575362feb999be078dac6a22677e2a3978a8a25", size = 4206960, upload-time = "2025-05-15T09:52:00.942Z" },
 ]
 
 [[package]]
