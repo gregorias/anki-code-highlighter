@@ -49,8 +49,8 @@ package. The JS package’s files are included in `assets`, e.g.,
 
 To update [highlight.js][hljs]:
 
-1. Set `HLJS_VERSION` in `tools/hljs.py`.
-1. Run `python tools/hljs.py`.
+1. Set `HLJS_VERSION` in `tools/installhljs.py`.
+1. Run `python tools/installhljs.py`.
 
 ## Updating Pygments
 

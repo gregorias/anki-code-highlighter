@@ -1,4 +1,4 @@
-"""A suite of tools for working with highlight.js."""
+"""Install Highlight.js."""
 
 import contextlib
 import json
