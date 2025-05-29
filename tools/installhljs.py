@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import textwrap
 import typing
+from dataclasses import dataclass
 
 
 @contextlib.contextmanager
@@ -33,9 +34,15 @@ def delete_old_hljs_scripts() -> None:
     os.remove('assets/_ch-highlight.js')
 
 
-class HLJSBuild(typing.NamedTuple):
+@dataclass
+class HLJSBuild():
     hljs_file: pathlib.Path
     hljs_min_file: pathlib.Path
+
+    def prepend_path(self, parent: pathlib.Path) -> None:
+        """Prepends the parent path to hljs_file and hljs_min_file."""
+        self.hljs_file = parent / self.hljs_file
+        self.hljs_min_file = parent / self.hljs_min_file
 
 
 def build_hljs() -> HLJSBuild:
@@ -99,22 +106,28 @@ def generate_hljs_languages_python_list(languages: typing.Iterable[Language],
     out.write(']')
 
 
-def update_hljs_main():
-    """Installs HLJS_VERSION of highlight.js."""
+def update_hljs_language_list(hljs_file: pathlib.Path):
+    """Updates the Python list of languages supported by Highlight.js.
+
+    Args:
+        hljs_file: The unminified highlight.js file to extract languages from.
+    """
+    with open('codehighlighter/hljslangs.py', 'w') as hljslangs_py:
+        generate_hljs_languages_python_list(
+            extract_languages_from_highlight_js(hljs_file), hljslangs_py)
+
+
+def install_hljs():
+    """Installs HLJS_VERSION of Highlight.js."""
     with tempfile.TemporaryDirectory() as d:
         with pushd(d):
             hljs_build = build_hljs()
-        hljs_build = HLJSBuild(
-            hljs_file=pathlib.Path(d) / hljs_build.hljs_file,
-            hljs_min_file=pathlib.Path(d) / hljs_build.hljs_min_file)
+        hljs_build.prepend_path(pathlib.Path(d))
         delete_old_hljs_scripts()
         shutil.copy(hljs_build.hljs_min_file, 'assets/_ch-highlight.js')
 
-        with open('codehighlighter/hljslangs.py', 'w') as hljslangs_py:
-            generate_hljs_languages_python_list(
-                extract_languages_from_highlight_js(hljs_build.hljs_file),
-                hljslangs_py)
+        update_hljs_language_list(hljs_build.hljs_file)
 
 
 if __name__ == '__main__':
-    update_hljs_main()
+    install_hljs()
