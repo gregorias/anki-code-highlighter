@@ -24,6 +24,9 @@ def pushd(new_dir):
 
 HLJS_VERSION = '11.11.1'
 HLJS_REPO = 'https://github.com/highlightjs/highlight.js'
+# Version 11.8.0.
+HLJS_RISCV_MIN_JS = "https://raw.githubusercontent.com/highlightjs/highlightjs-riscvasm/fba4769fd2547b1525a9655f82086108ac59a1a9/dist/riscvasm.min.js"
+ASSETS_HLJS = pathlib.Path('assets/_ch-highlight.js')
 
 
 def delete_old_hljs_scripts() -> None:
@@ -34,19 +37,12 @@ def delete_old_hljs_scripts() -> None:
     os.remove('assets/_ch-highlight.js')
 
 
-@dataclass
-class HLJSBuild():
-    hljs_file: pathlib.Path
-    hljs_min_file: pathlib.Path
+def build_hljs() -> pathlib.Path:
+    """Builds highlight.js in the current directory.
 
-    def prepend_path(self, parent: pathlib.Path) -> None:
-        """Prepends the parent path to hljs_file and hljs_min_file."""
-        self.hljs_file = parent / self.hljs_file
-        self.hljs_min_file = parent / self.hljs_min_file
-
-
-def build_hljs() -> HLJSBuild:
-    """Builds highlight.js in the current directory."""
+    Returns:
+        The path to the minified JS.
+    """
     hljs_dir = 'highlight.js'
     subprocess.run(['git', 'clone', HLJS_REPO])
     with pushd(hljs_dir):
@@ -54,10 +50,7 @@ def build_hljs() -> HLJSBuild:
         subprocess.run(['npm', 'install'])
         subprocess.run(['node', 'tools/build.js', '-t', 'browser'])
 
-        hljs_file = 'build/highlight.js'
-    return HLJSBuild(
-        hljs_file=pathlib.Path(f'{hljs_dir}/build/highlight.js'),
-        hljs_min_file=pathlib.Path(f'{hljs_dir}/build/highlight.min.js'))
+    return pathlib.Path(f'{hljs_dir}/build/highlight.min.js')
 
 
 class Language(typing.NamedTuple):
@@ -110,23 +103,46 @@ def update_hljs_language_list(hljs_file: pathlib.Path):
     """Updates the Python list of languages supported by Highlight.js.
 
     Args:
-        hljs_file: The unminified highlight.js file to extract languages from.
+        hljs_file: The Highlight.js file to extract languages from.
     """
     with open('codehighlighter/hljslangs.py', 'w') as hljslangs_py:
         generate_hljs_languages_python_list(
             extract_languages_from_highlight_js(hljs_file), hljslangs_py)
 
 
-def install_hljs():
-    """Installs HLJS_VERSION of Highlight.js."""
+def fetch_and_append_riscv_js(target_file: pathlib.Path):
+    """Fetches the RISC-V JS file and appends it to the target file."""
+    import requests
+
+    try:
+        response = requests.get(HLJS_RISCV_MIN_JS)
+        response.raise_for_status()
+        riscv_js_content = response.text
+
+        with open(target_file, 'a', encoding='utf-8') as highlight_js:
+            highlight_js.write(riscv_js_content)
+    except requests.RequestException as e:
+        raise RuntimeError(f"Failed to fetch RISC-V JS file: {e}.")
+
+
+def install_hljs_script(target_file: pathlib.Path) -> None:
     with tempfile.TemporaryDirectory() as d:
         with pushd(d):
-            hljs_build = build_hljs()
-        hljs_build.prepend_path(pathlib.Path(d))
+            hljs_min = build_hljs()
+        hljs_min = pathlib.Path(d) / hljs_min
         delete_old_hljs_scripts()
-        shutil.copy(hljs_build.hljs_min_file, 'assets/_ch-highlight.js')
+        shutil.copy(hljs_min, target_file)
 
-        update_hljs_language_list(hljs_build.hljs_file)
+        with open(target_file, 'a', encoding='utf-8') as highlight_js:
+            highlight_js.write('\n')
+
+        fetch_and_append_riscv_js(target_file)
+
+
+def install_hljs():
+    """Installs HLJS_VERSION of Highlight.js."""
+    install_hljs_script(target_file=ASSETS_HLJS)
+    update_hljs_language_list(hljs_file=ASSETS_HLJS)
 
 
 if __name__ == '__main__':

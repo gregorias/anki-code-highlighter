@@ -27,7 +27,7 @@ wheels = [
 
 [[package]]
 name = "anki-code-highlighter"
-version = "25.3.0"
+version = "25.5.0"
 source = { virtual = "." }
 dependencies = [
     { name = "anki" },
@@ -43,6 +43,7 @@ dev = [
     { name = "coverage" },
     { name = "cssutils" },
     { name = "mypy" },
+    { name = "requests" },
     { name = "types-beautifulsoup4" },
     { name = "vulture" },
     { name = "webcolors" },
@@ -63,6 +64,7 @@ dev = [
     { name = "coverage" },
     { name = "cssutils" },
     { name = "mypy" },
+    { name = "requests" },
     { name = "types-beautifulsoup4" },
     { name = "vulture", specifier = "~=2.14" },
     { name = "webcolors" },

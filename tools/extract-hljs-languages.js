@@ -5,13 +5,13 @@
 // Example output:
 // {"name":"TypeScript","alias":"typescript"}
 // {"name":"C++","alias":"cpp"}
+const fs = require('fs');
 
 const HIGHLIGHT_JS_PATH = process.argv[2]
 
-// If HIGHLIGHT_JS_PATH is not a relative path, this require might fail,
-// because the relative path needs to be with respect to the script's
-// location.
-hljs = require(HIGHLIGHT_JS_PATH)
+const fileContent = fs.readFileSync(HIGHLIGHT_JS_PATH, 'utf8');
+eval(fileContent);
+
 let languages = hljs.listLanguages()
 
 for (let languageAlias of languages) {

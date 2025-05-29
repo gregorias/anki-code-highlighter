@@ -204,4 +204,5 @@ languages: typing.List[Language] = [
     Language(name='XQuery', alias='xquery'),
     Language(name='YAML', alias='yaml'),
     Language(name='Zephir', alias='zephir'),
+    Language(name='RISC-V Assembly', alias='riscvasm'),
 ]

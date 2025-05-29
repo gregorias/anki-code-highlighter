@@ -33,6 +33,7 @@ Repository = "https://github.com/gregorias/anki-code-highlighter"
 dev = [
   "mypy",
   "cssutils",
+  "requests",
   "types-beautifulsoup4",
   "webcolors",
   "vulture~=2.14",
