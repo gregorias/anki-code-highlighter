@@ -13,8 +13,8 @@ class JSONObjectConverter(Protocol[T]):
     def deconvert(self, json_object) -> Optional[T]:
         return None
 
-    def convert(self, t: T):
-        pass
+    def convert(self, t: T) -> str:
+        ...
 
 
 class Serializer(Protocol[T]):

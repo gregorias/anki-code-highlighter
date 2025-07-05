@@ -1,11 +1,11 @@
 [project]
 name = "anki-code-highlighter"
-version = "25.05.1"
+version = "25.07.0"
 description = "Anki plugin for code syntax highlighting"
 authors = [{ name = "Grzegorz Milka", email = "grzegorzmilka@gmail.com" }]
-# Use 3.9, because that’s what Anki uses
-# (https://github.com/ankitects/anki/blob/f6a3e98ac3dcb19d54e7fdbba96bf2fa15fc2b3f/docs/development.md?plain=1#L18).
-requires-python = ">=3.9, <3.10"
+# Use 3.13, because that’s what Anki uses
+# (https://github.com/ankitects/anki/releases/tag/25.07).
+requires-python = ">=3.13.5, <3.14"
 readme = "README.md"
 license = "AGPLv3"
 classifiers = [
@@ -15,15 +15,15 @@ classifiers = [
 ]
 dependencies = [
   # https://pypi.org/project/anki/
-  "anki==25.2.5",
+  "anki==25.7.1",
   # https://pypi.org/project/aqt/
-  "aqt==25.2.5",
+  "aqt==25.7.1",
   # Use the same version of PyQt6 as Anki:
-  # https://github.com/ankitects/anki/blob/9b5da546be49f37c8d6c286e09c86074b2f0c278/python/requirements.qt6_6.in#L1
-  "pyqt6==6.6.1",
-  "pyqt6-qt6==6.6.2",
-  "PyQt6-WebEngine==6.6.0",
-  "PyQt6-WebEngine-qt6==6.6.2",
+  # https://github.com/ankitects/anki/blob/f927aa5788aef7c5a1595b2dc4879db82725f8c6/qt/pyproject.toml#L47-L53
+  "pyqt6==6.8.0",
+  "pyqt6-qt6==6.8.1",
+  "PyQt6-WebEngine==6.8.0",
+  "PyQt6-WebEngine-qt6==6.8.1",
 ]
 
 [project.urls]
