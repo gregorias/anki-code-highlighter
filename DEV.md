@@ -99,7 +99,8 @@ with `python -m tools.generatepygmentscss` with some minor adjustments by hand.
    2. Tag the release commit `git tag vx.y.z && git push origin vx.y.z`.
 1. Use the `dev/bin/package` tool to create `codehighlighter.ankiaddon`.
 1. Create a GitHub release: `gh release create vx.y.z codehighlighter.ankiaddon`.
-1. [Share the package on Anki.](https://addon-docs.ankiweb.net/#/sharing)
+1. [Share the package on Anki](https://addon-docs.ankiweb.net/#/sharing) using
+   the [asset dashboard](https://ankiweb.net/shared/mine).
 
 ## Design Decisions
 
