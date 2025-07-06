@@ -11,9 +11,9 @@ class JSONObjectConverter(Protocol[T]):
     """A converter to and from JSON serializable objects."""
 
     def deconvert(self, json_object) -> Optional[T]:
-        return None
+        ...
 
-    def convert(self, t: T) -> str:
+    def convert(self, t: T):
         ...
 
 
@@ -21,10 +21,10 @@ class Serializer(Protocol[T]):
     """A JSON serialization protocol."""
 
     def load(self, content: str) -> Optional[T]:
-        return None
+        ...
 
     def dump(self, t: T) -> str:
-        pass
+        ...
 
 
 class JSONObjectSerializer(Serializer[T]):
