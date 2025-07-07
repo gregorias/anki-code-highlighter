@@ -15,7 +15,7 @@ import pygments.lexer
 import pygments.lexers  # type: ignore
 
 from .bs4extra import create_soup
-from .html import PlainString
+from .html import HtmlString, PlainString
 
 LexerName = str
 LexerAlias = str
@@ -66,6 +66,7 @@ def highlight(code: PlainString, language: LexerName,
     ) if style.display_style == "inline" else pygments.formatters.get_formatter_by_name(
         'html')
     highlighted = pygments.highlight(code, lexer, htmlf)
+    assert isinstance(highlighted, str)
     highlighted = remove_spurious_inline_spanw(highlighted)
 
     if style.display_style == "inline":
@@ -83,7 +84,7 @@ def highlight(code: PlainString, language: LexerName,
             f'<div class="pygments"{style_attr}>\n' +
             f'  <pre><code class="nohighlight">{highlighted}</code></pre>\n' +
             '</div>\n')
-    return create_soup(highlighted)
+    return create_soup(HtmlString(highlighted))
 
 
 @functools.cache

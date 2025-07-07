@@ -31,7 +31,7 @@ Repository = "https://github.com/gregorias/anki-code-highlighter"
 
 [dependency-groups]
 dev = [
-  "mypy",
+  "mypy>=1.16",
   "cssutils",
   "requests",
   "types-beautifulsoup4",
