@@ -23,6 +23,7 @@ LexerAlias = str
 
 class HtmlStyle(NamedTuple):
     """The style options for Pygments blocks."""
+
     display_style: str
     block_style: Optional[str]
 
@@ -33,22 +34,22 @@ def create_inline_style() -> HtmlStyle:
 
 
 def create_block_style(
-        block_style="display:flex; justify-content:center;") -> HtmlStyle:
+    block_style="display:flex; justify-content:center;",
+) -> HtmlStyle:
     """Creates the block style options for Pygments code element."""
     return HtmlStyle("block", block_style=block_style)
 
 
 def remove_spurious_inline_newline(html: str) -> str:
-    return re.sub('</span>\n</code>$', '</span></code>', html)
+    return re.sub("</span>\n</code>$", "</span></code>", html)
 
 
 def remove_spurious_inline_spanw(html: str) -> str:
     """Removes the spurious <span class="w"></span> that Pygments inserts."""
-    return re.sub('<span class="w"></span>', '', html)
+    return re.sub('<span class="w"></span>', "", html)
 
 
-def highlight(code: PlainString, language: LexerName,
-              style: HtmlStyle) -> bs4.Tag:
+def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.Tag:
     """
     Highlights the code snippet with Pygments.
 
@@ -61,29 +62,31 @@ def highlight(code: PlainString, language: LexerName,
     if lexer is None:
         # Use the plaintext lexer as a fallback
         lexer = get_plaintext_lexer()
-    htmlf = pygments.formatters.get_formatter_by_name(
-        'html', nowrap=True
-    ) if style.display_style == "inline" else pygments.formatters.get_formatter_by_name(
-        'html')
+    htmlf = (
+        pygments.formatters.get_formatter_by_name("html", nowrap=True)
+        if style.display_style == "inline"
+        else pygments.formatters.get_formatter_by_name("html")
+    )
     highlighted = pygments.highlight(code, lexer, htmlf)
     assert isinstance(highlighted, str)
     highlighted = remove_spurious_inline_spanw(highlighted)
 
     if style.display_style == "inline":
-        highlighted = '<code class="pygments">' + highlighted + '</code>'
+        highlighted = '<code class="pygments">' + highlighted + "</code>"
         highlighted = remove_spurious_inline_newline(highlighted)
     elif style.display_style == "block":
         highlighted = highlighted.strip()
         highlighted = highlighted.removeprefix('<div class="highlight">')
-        highlighted = highlighted.removesuffix('</div>')
-        highlighted = highlighted.removeprefix('<pre>')
-        highlighted = highlighted.removesuffix('</pre>')
-        highlighted = highlighted.removeprefix('<span></span>')
+        highlighted = highlighted.removesuffix("</div>")
+        highlighted = highlighted.removeprefix("<pre>")
+        highlighted = highlighted.removesuffix("</pre>")
+        highlighted = highlighted.removeprefix("<span></span>")
         style_attr = f' style="{style.block_style}"' if style.block_style else ""
         highlighted = (
-            f'<div class="pygments"{style_attr}>\n' +
-            f'  <pre><code class="nohighlight">{highlighted}</code></pre>\n' +
-            '</div>\n')
+            f'<div class="pygments"{style_attr}>\n'
+            + f'  <pre><code class="nohighlight">{highlighted}</code></pre>\n'
+            + "</div>\n"
+        )
     return create_soup(HtmlString(highlighted))
 
 
@@ -93,10 +96,7 @@ def get_lexer_name_alias_map() -> dict[LexerName, LexerAlias]:
     # We need to check if `t[1]` has an element, because not all lexer tuples
     # have this.
     # Deprecated lexers have an empty alias list.
-    return {
-        t[0]: t[1][0]
-        for t in pygments.lexers.get_all_lexers() if len(t[1]) >= 1
-    }
+    return {t[0]: t[1][0] for t in pygments.lexers.get_all_lexers() if len(t[1]) >= 1}
 
 
 @functools.cache
@@ -120,7 +120,7 @@ def get_lexer_by_name(name: LexerName) -> Optional[pygments.lexer.Lexer]:
 @functools.cache
 def get_plaintext_lexer() -> pygments.lexer.Lexer:
     # This should never return None. There’s a unit-test validating this.
-    return get_lexer_by_name('output')
+    return get_lexer_by_name("output")
 
 
 @functools.cache

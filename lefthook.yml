@@ -4,6 +4,10 @@ pre-commit:
     "check-asset-version.py":
       runner: python3
   commands:
+    black:
+      tags: style
+      glob: "*.py"
+      run: black {staged_files} && git add {staged_files}
     check-module-names:
       glob: "*.py"
       run: ./dev/bin/check-module-names {staged_files}
@@ -44,10 +48,6 @@ pre-commit:
       tags: style
       glob: "*.{yml,yaml}"
       run: prettier -c {staged_files}
-    yapf:
-      tags: style
-      glob: "*.py"
-      run: yapf -i -r {staged_files} && git add {staged_files}
 commit-msg:
   commands:
     commitlint:

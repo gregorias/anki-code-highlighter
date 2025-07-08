@@ -1,9 +1,10 @@
 """Extra utilities for lists."""
+
 from typing import List, Optional, TypeVar
 
-__all__ = ['index_or']
+__all__ = ["index_or"]
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 def index_or(ls: List[T], item: T, default: Optional[int]) -> Optional[int]:

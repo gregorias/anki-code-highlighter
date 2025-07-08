@@ -9,14 +9,15 @@ from .bs4extra import encode_soup
 from .html import HtmlString, PlainString
 
 __all__ = [
-    'transform_selection',
+    "transform_selection",
 ]
 
-T = typing.TypeVar('T')
+T = typing.TypeVar("T")
 
 
-def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
-                          callback: Callable[[typing.Any], None]) -> None:
+def eval_js_with_callback(
+    webview: aqt.editor.EditorWebView, js: str, callback: Callable[[typing.Any], None]
+) -> None:
     """
     Evaluates JavaScript in the webview and calls `callback` with the result.
 
@@ -39,7 +40,9 @@ def eval_js_with_callback(webview: aqt.editor.EditorWebView, js: str,
                    return {{ error: {{ name: e.name, message: e.message }} }}
                return {{ error: JSON.stringify(e) }}
            }}
-        }})();""", callback)
+        }})();""",
+        callback,
+    )
 
 
 @dataclass
@@ -70,12 +73,14 @@ class UnknownSelectionException(SelectionException):
 # I arrived at the .evalWithCallback approach thanks to:
 # https://forums.ankiweb.net/t/how-do-i-synchronously-sync-changes-in-ankiwebview-to-the-data-model-in-python/22920
 def wrap_and_get_selection(
-        webview: aqt.editor.EditorWebView, wrap_id: str,
-        cb: Callable[[Union[SelectedText, SelectionException]], None]) -> None:
+    webview: aqt.editor.EditorWebView,
+    wrap_id: str,
+    cb: Callable[[Union[SelectedText, SelectionException]], None],
+) -> None:
     """
     Wraps a field selection in a span tag and returns the selected text.
     """
-    failed_to_find_selection = 'Failed to find a selection.'
+    failed_to_find_selection = "Failed to find a selection."
 
     def handle_result(result):
 
@@ -84,17 +89,19 @@ def wrap_and_get_selection(
                 return d.get(key)
             return None
 
-        selected_text = safe_get(result, 'selectionText')
+        selected_text = safe_get(result, "selectionText")
         if selected_text is not None:
             cb(SelectedText(text=selected_text))
             return None
 
-        error = safe_get(result, 'error')
-        message = safe_get(error, 'message')
+        error = safe_get(result, "error")
+        message = safe_get(error, "message")
         if message == failed_to_find_selection:
             cb(NoSelectionException())
-        elif message == ("Failed to execute 'surroundContents' on 'Range': " +
-                         "The Range has partially selected a non-Text node."):
+        elif message == (
+            "Failed to execute 'surroundContents' on 'Range': "
+            + "The Range has partially selected a non-Text node."
+        ):
             # make sure this error message is clear
             # (https://github.com/gregorias/anki-code-highlighter/issues/60)
             cb(PartialSelectionException())
@@ -116,7 +123,8 @@ def wrap_and_get_selection(
     # text they see, not some abstract HTML representation. Having the reparse
     # HTML was more complex and fragile.
     eval_js_with_callback(
-        webview, f"""
+        webview,
+        f"""
         let selection = document.activeElement.shadowRoot.getSelection();
         const selectionText = selection.toString();
         if (selection.rangeCount == 0)
@@ -139,7 +147,9 @@ def wrap_and_get_selection(
             range.insertNode(spanTag);
             return {{ selectionText }};
         }}
-        """, handle_result)
+        """,
+        handle_result,
+    )
 
 
 @dataclass
@@ -152,11 +162,13 @@ class ReplaceWrapSelection:
     contents: HtmlString
 
 
-def unwrap_selection(webview: aqt.editor.EditorWebView, wrap_id: str,
-                     action: Union[UnwrapSelection,
-                                   ReplaceWrapSelection], cb) -> None:
-    """Unwraps the span tag created by `wrap_and_get_selection`.
-    """
+def unwrap_selection(
+    webview: aqt.editor.EditorWebView,
+    wrap_id: str,
+    action: Union[UnwrapSelection, ReplaceWrapSelection],
+    cb,
+) -> None:
+    """Unwraps the span tag created by `wrap_and_get_selection`."""
 
     if isinstance(action, UnwrapSelection):
         action_js = "selection.replaceWith(...selection.childNodes);"
@@ -176,7 +188,8 @@ def unwrap_selection(webview: aqt.editor.EditorWebView, wrap_id: str,
     #   inside a note. Not having to reconcile that is good, as we don't
     #   have to touch non-selection code.
     eval_js_with_callback(
-        webview, f"""
+        webview,
+        f"""
          let selection = document.activeElement.shadowRoot.getElementById({wrap_id});
          // A hack against spurious br-tags that get inserted by the Anki editor.
          // https://github.com/gregorias/anki-code-highlighter/issues/51
@@ -184,14 +197,15 @@ def unwrap_selection(webview: aqt.editor.EditorWebView, wrap_id: str,
              selection.nextElementSibling.remove();
          }}
          {action_js}
-         return null;""", cb)
+         return null;""",
+        cb,
+    )
 
 
 # This function returns `str` and not bs4.Tag, because this function will be
 # unit-tested, and I want unit-tests to also test the encoding functionality.
 def highlight_selection(
-    selection: PlainString, highlighter: Callable[[PlainString],
-                                                  Optional[bs4.Tag]]
+    selection: PlainString, highlighter: Callable[[PlainString], Optional[bs4.Tag]]
 ) -> Optional[HtmlString]:
     """
     Highlights a selection from a field.
@@ -203,21 +217,22 @@ def highlight_selection(
     :return: The highlighter HTML tag.
     """
     highlighted_selection = highlighter(selection)
-    return encode_soup(
-        highlighted_selection) if highlighted_selection else None
+    return encode_soup(highlighted_selection) if highlighted_selection else None
 
 
-class EditorInterface():
+class EditorInterface:
     """A interface for the Anki editor."""
 
     def wrap_and_get_selection(
-            self, cb: Callable[[Union[SelectedText, SelectionException]],
-                               None]) -> None:
+        self, cb: Callable[[Union[SelectedText, SelectionException]], None]
+    ) -> None:
         pass
 
-    def unwrap_selection(self, action: Union[UnwrapSelection,
-                                             ReplaceWrapSelection],
-                         cb: Callable[[typing.Any], None]) -> None:
+    def unwrap_selection(
+        self,
+        action: Union[UnwrapSelection, ReplaceWrapSelection],
+        cb: Callable[[typing.Any], None],
+    ) -> None:
         pass
 
 
@@ -228,19 +243,23 @@ class AnkiEditorInterface(EditorInterface):
         self.random_id = random_id
 
     def wrap_and_get_selection(
-            self, cb: Callable[[Union[SelectedText, SelectionException]],
-                               None]) -> None:
+        self, cb: Callable[[Union[SelectedText, SelectionException]], None]
+    ) -> None:
         wrap_and_get_selection(self.webview, self.random_id, cb)
 
-    def unwrap_selection(self, action: Union[UnwrapSelection,
-                                             ReplaceWrapSelection],
-                         cb: Callable[[typing.Any], None]) -> None:
+    def unwrap_selection(
+        self,
+        action: Union[UnwrapSelection, ReplaceWrapSelection],
+        cb: Callable[[typing.Any], None],
+    ) -> None:
         unwrap_selection(self.webview, self.random_id, action, cb)
 
 
-def transform_selection(highlight: Callable[[PlainString], Optional[bs4.Tag]],
-                        editor: EditorInterface,
-                        onError: Callable[[str], typing.Any]) -> None:
+def transform_selection(
+    highlight: Callable[[PlainString], Optional[bs4.Tag]],
+    editor: EditorInterface,
+    onError: Callable[[str], typing.Any],
+) -> None:
     """
     Transforms selected text using `transform`.
 
@@ -255,48 +274,53 @@ def transform_selection(highlight: Callable[[PlainString], Optional[bs4.Tag]],
     """
 
     def transform_field(
-            selection_return: Union[SelectedText, SelectionException]) -> None:
+        selection_return: Union[SelectedText, SelectionException],
+    ) -> None:
 
         if isinstance(selection_return, SelectionException):
             if isinstance(selection_return, NoSelectionException):
-                onError("Failed to find a code selection to highlight." +
-                        " You need to select a code snippet or at least a " +
-                        "field before triggerring the highlight action.")
+                onError(
+                    "Failed to find a code selection to highlight."
+                    + " You need to select a code snippet or at least a "
+                    + "field before triggerring the highlight action."
+                )
             elif isinstance(selection_return, PartialSelectionException):
                 # Make sure this error message is clear
                 # (https://github.com/gregorias/anki-code-highlighter/issues/60)
                 onError(
-                    "The selection splits an HTML node, which prevents the " +
-                    "highlighting plugin from proceeding.\n" +
-                    "Make sure that you select entire HTML elements, e.g., " +
-                    "if your code is `<span>hello</span>world`, don’t select" +
-                    " just `ello</span>world`.\n" +
-                    "You can refactor your code snippet in the HTML editor " +
-                    "(https://docs.ankiweb.net/editing.html#editing-features)"
-                    + " before highlighting.")
+                    "The selection splits an HTML node, which prevents the "
+                    + "highlighting plugin from proceeding.\n"
+                    + "Make sure that you select entire HTML elements, e.g., "
+                    + "if your code is `<span>hello</span>world`, don’t select"
+                    + " just `ello</span>world`.\n"
+                    + "You can refactor your code snippet in the HTML editor "
+                    + "(https://docs.ankiweb.net/editing.html#editing-features)"
+                    + " before highlighting."
+                )
             elif isinstance(selection_return, UnknownSelectionException):
                 onError(
-                    "An unknown transformation error has occurred " +
-                    f"({selection_return.message}). " +
-                    " Report it to the developer at " +
-                    "https://github.com/gregorias/anki-code-highlighter/issues/new."
+                    "An unknown transformation error has occurred "
+                    + f"({selection_return.message}). "
+                    + " Report it to the developer at "
+                    + "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
             else:
                 onError(
-                    "An unknown transformation error has occurred " +
-                    f"({str(selection_return)}). " +
-                    " Report it to the developer at " +
-                    "https://github.com/gregorias/anki-code-highlighter/issues/new."
+                    "An unknown transformation error has occurred "
+                    + f"({str(selection_return)}). "
+                    + " Report it to the developer at "
+                    + "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
             return None
 
-        highlighted_selection = highlight_selection(selection_return.text,
-                                                    highlighter=highlight)
+        highlighted_selection = highlight_selection(
+            selection_return.text, highlighter=highlight
+        )
         if highlighted_selection:
             editor.unwrap_selection(
-                ReplaceWrapSelection(
-                    contents=HtmlString(repr(highlighted_selection))),
-                lambda _: None)
+                ReplaceWrapSelection(contents=HtmlString(repr(highlighted_selection))),
+                lambda _: None,
+            )
         else:
             # Highlighting failed.
             # Remove the span tag added by the transform function.

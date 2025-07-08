@@ -8,6 +8,7 @@ This section describes how to setup your development environment.
 
 This project requires the following tools:
 
+- [Black]
 - [Commitlint]
 - [Lefthook]
 - [Just]
@@ -159,6 +160,7 @@ because I figured that it would way more fool-proof to just use a single
 highlight.js bundle that has all languages. Loading that single file seems to
 be fast.
 
+[Black]: https://black.readthedocs.io/en/stable/
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
 [Just]: https://github.com/casey/just

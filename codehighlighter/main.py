@@ -1,4 +1,5 @@
 """The implementation of the code highlighter plugin."""
+
 import os.path
 import random
 import sys
@@ -38,15 +39,15 @@ from .html import PlainString
 from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
-ASSET_PREFIX = '_ch-'
+ASSET_PREFIX = "_ch-"
 DEFAULT_CSS_ASSETS = [
     "_ch-pygments-solarized.css",
     "_ch-hljs-solarized.css",
 ]
 JS_ASSETS = ["_ch-highlight.js", "_ch-my-highlight.js"]
-VERSION_ASSET = '_ch-asset-version.txt'
-GUARD = 'Anki Code Highlighter (Addon 112228974)'
-CLASS_NAME = 'anki-code-highlighter'
+VERSION_ASSET = "_ch-asset-version.txt"
+GUARD = "Anki Code Highlighter (Addon 112228974)"
+CLASS_NAME = "anki-code-highlighter"
 
 Config = Dict[str, str]
 
@@ -77,37 +78,42 @@ def css_files() -> List[str]:
 
     :rtype List[str]
     """
-    config_css_files = get_config('css-files') or DEFAULT_CSS_ASSETS
+    config_css_files = get_config("css-files") or DEFAULT_CSS_ASSETS
     print(repr(config_css_files))
 
-    if not (isinstance(config_css_files, list)
-            and all([isinstance(e, str) for e in config_css_files])):
+    if not (
+        isinstance(config_css_files, list)
+        and all([isinstance(e, str) for e in config_css_files])
+    ):
         showWarning(
-            "The configured css-files for the code highlighter plugin " +
-            f"should be a list of CSS files but got {repr(config_css_files)}.\n"
-            + "Fix the plugin's configuration.")
+            "The configured css-files for the code highlighter plugin "
+            + f"should be a list of CSS files but got {repr(config_css_files)}.\n"
+            + "Fix the plugin's configuration."
+        )
         return DEFAULT_CSS_ASSETS
 
     return config_css_files
 
 
-def create_anki_asset_manager(css_assets: List[str],
-                              col: anki.collection.Collection):
-    return AnkiAssetManager(partial(transform_templates, col.models),
-                            col.media,
-                            ASSET_PREFIX,
-                            css_assets,
-                            JS_ASSETS,
-                            guard=GUARD,
-                            class_name=CLASS_NAME)
+def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collection):
+    return AnkiAssetManager(
+        partial(transform_templates, col.models),
+        col.media,
+        ASSET_PREFIX,
+        css_assets,
+        JS_ASSETS,
+        guard=GUARD,
+        class_name=CLASS_NAME,
+    )
 
 
 def WizardStateManager(media):
-    return AnkiAssetStateManager(media=media,
-                                 path=ASSET_PREFIX + "wizard-state.json",
-                                 serializer=JSONObjectSerializer(
-                                     HighlighterWizardStateJSONConverter()),
-                                 default=HighlighterWizardState())
+    return AnkiAssetStateManager(
+        media=media,
+        path=ASSET_PREFIX + "wizard-state.json",
+        serializer=JSONObjectSerializer(HighlighterWizardStateJSONConverter()),
+        default=HighlighterWizardState(),
+    )
 
 
 def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
@@ -127,7 +133,8 @@ def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
     default_highlighter = config_dict and get_default_highlighter(config_dict)
 
     def get_highlighter(
-            current: Optional[HIGHLIGHT_METHOD]) -> Optional[HIGHLIGHT_METHOD]:
+        current: Optional[HIGHLIGHT_METHOD],
+    ) -> Optional[HIGHLIGHT_METHOD]:
         if default_highlighter:
             return default_highlighter
         else:
@@ -135,7 +142,8 @@ def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
 
     with WizardStateManager(media) as wizard_state:
         highlighter_config, new_wizard_state = ask_for_highlighter_config(
-            parent, wizard_state.get(), get_highlighter=get_highlighter)
+            parent, wizard_state.get(), get_highlighter=get_highlighter
+        )
         wizard_state.put(new_wizard_state)
     return highlighter_config
 
@@ -149,15 +157,17 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
     note: Optional[anki.notes.Note] = editor.note
     if note is None:
         showWarning(
-            "You've run the code highlighter without selecting a note.\n" +
-            "Select a note before running the code highlighter.")
+            "You've run the code highlighter without selecting a note.\n"
+            + "Select a note before running the code highlighter."
+        )
         return None
 
     currentFieldNo = editor.currentField
     if currentFieldNo is None:
         showWarning(
-            "You've run the code highlighter without selecting a field.\n" +
-            "Select a note field before running the code highlighter.")
+            "You've run the code highlighter without selecting a field.\n"
+            + "Select a note field before running the code highlighter."
+        )
         return None
 
     parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
@@ -167,37 +177,46 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         return None
     media_manager: anki.media.MediaManager = mw.col.media
 
-    block_style = (get_config("block-style")
-                   or "display:flex; justify-content:center;")
+    block_style = get_config("block-style") or "display:flex; justify-content:center;"
 
-    editor_interface = AnkiEditorInterface(editor.web,
-                                           str(random.randint(0, 10000)))
+    editor_interface = AnkiEditorInterface(editor.web, str(random.randint(0, 10000)))
 
-    highlight(lambda: get_highlighter_config(parent, media_manager),
-              block_style,
-              clipboard=get_qclipboard_or_empty(),
-              editor=editor_interface,
-              on_error=showWarning)
+    highlight(
+        lambda: get_highlighter_config(parent, media_manager),
+        block_style,
+        clipboard=get_qclipboard_or_empty(),
+        editor=editor_interface,
+        on_error=showWarning,
+    )
 
 
 # This is the side-effect free part of the highlight action.
-def highlight(highlighter_config_factory: Callable[
-    [], Optional[HighlighterConfig]], block_style: str, clipboard: Clipboard,
-              editor: EditorInterface, on_error) -> None:
+def highlight(
+    highlighter_config_factory: Callable[[], Optional[HighlighterConfig]],
+    block_style: str,
+    clipboard: Clipboard,
+    editor: EditorInterface,
+    on_error,
+) -> None:
     """
     Highlights the selected or copied code snippet with a user configured
     highlighter.
     """
-    transform_selection(highlight=lambda code: highlight_selection(
-        code, highlighter_config_factory, block_style, clipboard=clipboard),
-                        editor=editor,
-                        onError=on_error)
+    transform_selection(
+        highlight=lambda code: highlight_selection(
+            code, highlighter_config_factory, block_style, clipboard=clipboard
+        ),
+        editor=editor,
+        onError=on_error,
+    )
 
 
-def highlight_selection(code: PlainString,
-                        highlighter_config_factory: Callable[
-                            [], Optional[HighlighterConfig]], block_style: str,
-                        clipboard: Clipboard) -> Optional[bs4.Tag]:
+def highlight_selection(
+    code: PlainString,
+    highlighter_config_factory: Callable[[], Optional[HighlighterConfig]],
+    block_style: str,
+    clipboard: Clipboard,
+) -> Optional[bs4.Tag]:
     """
     Highlights the selected or copied code snippet with a user configured
     highlighter.
@@ -213,17 +232,20 @@ def highlight_selection(code: PlainString,
         return None
 
     if isinstance(highlighter_config, HljsConfig):
-        return hljs.highlight(code,
-                              language=highlighter_config.language,
-                              block_style=block_style)
+        return hljs.highlight(
+            code, language=highlighter_config.language, block_style=block_style
+        )
     else:
         display_style = highlighter_config.display_style
-        html_style = (pygments_highlighter.create_inline_style()
-                      if display_style == DISPLAY_STYLE.INLINE else
-                      pygments_highlighter.create_block_style(block_style))
+        html_style = (
+            pygments_highlighter.create_inline_style()
+            if display_style == DISPLAY_STYLE.INLINE
+            else pygments_highlighter.create_block_style(block_style)
+        )
 
         return pygments_highlighter.highlight(
-            code, language=highlighter_config.language, style=html_style)
+            code, language=highlighter_config.language, style=html_style
+        )
 
 
 def get_shortcut() -> str:
@@ -235,12 +257,14 @@ def get_shortcut() -> str:
     return get_config("shortcut") or "ctrl+'"
 
 
-def on_editor_shortcuts_init(_shortcuts: List[Tuple],
-                             editor: aqt.editor.Editor) -> None:
+def on_editor_shortcuts_init(
+    _shortcuts: List[Tuple], editor: aqt.editor.Editor
+) -> None:
     aqt.qt.QShortcut(  # type: ignore
         aqt.qt.QKeySequence(get_shortcut()),  # type: ignore
         editor.widget,
-        activated=lambda: highlight_action(editor))
+        activated=lambda: highlight_action(editor),
+    )
 
 
 def on_editor_buttons_init(buttons: List, editor: aqt.editor.Editor) -> None:
@@ -254,13 +278,12 @@ def on_editor_buttons_init(buttons: List, editor: aqt.editor.Editor) -> None:
     buttons.append(action_button)
 
 
-def transform_templates(models: anki.models.ModelManager,
-                        modify: Callable[[str], str]):
+def transform_templates(models: anki.models.ModelManager, modify: Callable[[str], str]):
     """Transforms all card templates with modify."""
     for model in models.all():
-        for tmpl in model['tmpls']:
-            tmpl['afmt'] = modify(tmpl['afmt'])
-            tmpl['qfmt'] = modify(tmpl['qfmt'])
+        for tmpl in model["tmpls"]:
+            tmpl["afmt"] = modify(tmpl["afmt"])
+            tmpl["qfmt"] = modify(tmpl["qfmt"])
         models.save(model)
 
 
@@ -269,10 +292,11 @@ def setup_menu() -> None:
         # For some reason the main window is not initialized yet. Let's print
         # an error message.
         showWarning(
-            "Code Highlighter plugin tried to initialize, " +
-            "but couldn't find the main window.\n" +
-            "Please report it to the author at " +
-            "https://github.com/gregorias/anki-code-highlighter/issues/new.")
+            "Code Highlighter plugin tried to initialize, "
+            + "but couldn't find the main window.\n"
+            + "Please report it to the author at "
+            + "https://github.com/gregorias/anki-code-highlighter/issues/new."
+        )
         return None
     main_window = mw
     main_window.form.menuTools.addSection("Code Highlighter")
@@ -284,25 +308,23 @@ def setup_menu() -> None:
         #    profile load
         #    (https://github.com/gregorias/anki-code-highlighter/issues/22).
         # 2. create_anki_asset_manager requires a profile to be loaded.
-        anki_asset_manager = create_anki_asset_manager(css_files(),
-                                                       main_window.col)
+        anki_asset_manager = create_anki_asset_manager(css_files(), main_window.col)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
-        anki_asset_manager = create_anki_asset_manager(css_files(),
-                                                       main_window.col)
+        anki_asset_manager = create_anki_asset_manager(css_files(), main_window.col)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
     main_window.form.menuTools.addAction(
-        aqt.qt.QAction("Refresh Code Highlighter Assets",
-                       main_window,
-                       triggered=refresh))  # type: ignore
+        aqt.qt.QAction(
+            "Refresh Code Highlighter Assets", main_window, triggered=refresh
+        )  # type: ignore
+    )  # type: ignore
     main_window.form.menuTools.addAction(
-        aqt.qt.QAction("Delete Code Highlighter Assets",
-                       main_window,
-                       triggered=delete))  # type: ignore
+        aqt.qt.QAction("Delete Code Highlighter Assets", main_window, triggered=delete)  # type: ignore
+    )  # type: ignore
 
 
 def load_mw_and_sync():
@@ -311,16 +333,17 @@ def load_mw_and_sync():
         # For some reason the main window is not initialized yet. Let's print
         # an error message.
         showWarning(
-            "Code Highlighter plugin tried to initialize, " +
-            "but couldn't find the main window.\n" +
-            "Please report it to the author at " +
-            "https://github.com/gregorias/anki-code-highlighter/issues/new.")
+            "Code Highlighter plugin tried to initialize, "
+            + "but couldn't find the main window.\n"
+            + "Please report it to the author at "
+            + "https://github.com/gregorias/anki-code-highlighter/issues/new."
+        )
         return None
-    anki_asset_manager = create_anki_asset_manager(css_files(),
-                                                   main_window.col)
+    anki_asset_manager = create_anki_asset_manager(css_files(), main_window.col)
     sync_assets(
         partial(has_newer_version, main_window.col.media, VERSION_ASSET),
-        anki_asset_manager)
+        anki_asset_manager,
+    )
 
 
 def main():

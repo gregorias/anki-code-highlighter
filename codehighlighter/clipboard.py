@@ -1,4 +1,5 @@
 """Functionalities related to handling a clipboard."""
+
 from typing import Protocol
 
 

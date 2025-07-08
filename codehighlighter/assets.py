@@ -3,6 +3,7 @@
 The module is plugin agnostic: it contains generic mechanisms for updating
 relevant assets.
 """
+
 # Media refers to static JS and CSS files.
 import contextlib
 import os.path
@@ -17,13 +18,13 @@ from .serialization import Serializer
 
 # This list contains the intended public API of this module.
 __all__ = [
-    'AssetManager',
-    'AnkiAssetManager',
-    'has_newer_version',
-    'list_plugin_media_files',
-    'sync_assets',
-    'append_import_statements',
-    'delete_import_statements',
+    "AssetManager",
+    "AnkiAssetManager",
+    "has_newer_version",
+    "list_plugin_media_files",
+    "sync_assets",
+    "append_import_statements",
+    "delete_import_statements",
 ]
 
 
@@ -46,8 +47,7 @@ def has_newer_version(media: MediaManager, version_asset: str) -> bool:
     :rtype bool Whether the plugin has newer asset version.
     """
     new_version = read_asset_version(assets_directory() / version_asset)
-    old_version = read_asset_version(
-        anki_media_directory(media) / version_asset)
+    old_version = read_asset_version(anki_media_directory(media) / version_asset)
     if new_version is None:
         return False
     elif old_version is None or new_version > old_version:
@@ -59,7 +59,7 @@ def has_newer_version(media: MediaManager, version_asset: str) -> bool:
 def read_asset_version(asset_version_path: pathlib.Path) -> Optional[int]:
     """Reads the integer representing the asset version from the file."""
     try:
-        with open(asset_version_path, 'r') as f:
+        with open(asset_version_path, "r") as f:
             return int(f.read())
     except Exception:
         return None
@@ -67,10 +67,16 @@ def read_asset_version(asset_version_path: pathlib.Path) -> Optional[int]:
 
 class AnkiAssetManager:
 
-    def __init__(self, modify_templates: Callable[[Callable[[str], str]],
-                                                  None], media: MediaManager,
-                 asset_prefix: str, css_assets: List[str],
-                 js_assets: List[str], guard: str, class_name: str):
+    def __init__(
+        self,
+        modify_templates: Callable[[Callable[[str], str]], None],
+        media: MediaManager,
+        asset_prefix: str,
+        css_assets: List[str],
+        js_assets: List[str],
+        guard: str,
+        class_name: str,
+    ):
         """
         :param modify_templates Callable[[Callable[[str], str]],
                                                           None]:
@@ -94,15 +100,21 @@ class AnkiAssetManager:
     def install_assets(self) -> None:
         install_media_assets(self.asset_prefix, self.media)
         self.modify_templates(
-            lambda tmpl: append_import_statements(css_assets=self.css_assets,
-                                                  js_assets=self.js_assets,
-                                                  guard=self.guard,
-                                                  class_name=self.class_name,
-                                                  tmpl=tmpl))
+            lambda tmpl: append_import_statements(
+                css_assets=self.css_assets,
+                js_assets=self.js_assets,
+                guard=self.guard,
+                class_name=self.class_name,
+                tmpl=tmpl,
+            )
+        )
 
     def delete_assets(self) -> None:
-        self.modify_templates(lambda tmpl: delete_import_statements(
-            guard=self.guard, class_name=self.class_name, tmpl=tmpl))
+        self.modify_templates(
+            lambda tmpl: delete_import_statements(
+                guard=self.guard, class_name=self.class_name, tmpl=tmpl
+            )
+        )
         delete_media_assets(self.asset_prefix, self.media)
 
 
@@ -118,7 +130,7 @@ def assets_directory() -> pathlib.Path:
     Returns:
         The asset path.
     """
-    return pathlib.Path(addon_path) / 'assets'
+    return pathlib.Path(addon_path) / "assets"
 
 
 def anki_media_directory(media: MediaManager) -> pathlib.Path:
@@ -129,8 +141,7 @@ def list_files_with_prefix(dir: pathlib.Path, asset_prefix: str) -> List[str]:
     return [f for f in os.listdir(dir) if f.startswith(asset_prefix)]
 
 
-def list_plugin_media_files(media: MediaManager,
-                            plugin_asset_prefix: str) -> List[str]:
+def list_plugin_media_files(media: MediaManager, plugin_asset_prefix: str) -> List[str]:
     """
     Return's the plugin's media files.
 
@@ -141,8 +152,7 @@ def list_plugin_media_files(media: MediaManager,
       ('_ch').
     :rtype List[str]: The plugin's media files.
     """
-    return list_files_with_prefix(anki_media_directory(media),
-                                  plugin_asset_prefix)
+    return list_files_with_prefix(anki_media_directory(media), plugin_asset_prefix)
 
 
 def install_media_assets(asset_prefix: str, media: MediaManager) -> None:
@@ -154,8 +164,7 @@ def install_media_assets(asset_prefix: str, media: MediaManager) -> None:
 
 def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
     """Deletes all media assets whose filenames starts with `asset_prefix`"""
-    my_assets = list_files_with_prefix(anki_media_directory(media),
-                                       asset_prefix)
+    my_assets = list_files_with_prefix(anki_media_directory(media), asset_prefix)
     media.trash_files(my_assets)
 
 
@@ -166,11 +175,12 @@ def guards(guard: str) -> Tuple[str, str]:
     :param guard str A guard string used for HTML comments wrapping the imports.
     :rtype Tuple[str, str]
     """
-    return (f'<!-- {guard} BEGIN -->\n', f'<!-- {guard} END -->\n')
+    return (f"<!-- {guard} BEGIN -->\n", f"<!-- {guard} END -->\n")
 
 
-def append_import_statements(css_assets: List[str], js_assets: List[str],
-                             guard: str, class_name: str, tmpl: str) -> str:
+def append_import_statements(
+    css_assets: List[str], js_assets: List[str], guard: str, class_name: str, tmpl: str
+) -> str:
     """
     Appends import statements to a card template.
 
@@ -181,17 +191,20 @@ def append_import_statements(css_assets: List[str], js_assets: List[str],
     :param tmpl str
     :rtype str: A template with added import statements.
     """
-    IMPORT_STATEMENTS = (''.join([
-        f'<link rel="stylesheet" href="{css_asset}" class="{class_name}">\n'
-        for css_asset in css_assets
-    ] + [
-        f'<script src="{js_asset}" class="{class_name}"></script>\n'
-        for js_asset in js_assets
-    ]))
+    IMPORT_STATEMENTS = "".join(
+        [
+            f'<link rel="stylesheet" href="{css_asset}" class="{class_name}">\n'
+            for css_asset in css_assets
+        ]
+        + [
+            f'<script src="{js_asset}" class="{class_name}"></script>\n'
+            for js_asset in js_assets
+        ]
+    )
 
     GUARD_BEGIN, GUARD_END = guards(guard)
 
-    gap = '\n' if tmpl.endswith('\n') else '\n\n'
+    gap = "\n" if tmpl.endswith("\n") else "\n\n"
 
     return tmpl + gap + GUARD_BEGIN + IMPORT_STATEMENTS + GUARD_END
 
@@ -206,14 +219,17 @@ def delete_import_statements(guard: str, class_name: str, tmpl: str) -> str:
     :rtype str: A template with deleted import statements.
     """
     GUARD_BEGIN, GUARD_END = guards(guard)
-    return re.sub(f'\n{re.escape(GUARD_BEGIN)}.*{re.escape(GUARD_END)}',
-                  '',
-                  tmpl,
-                  flags=re.MULTILINE | re.DOTALL)
+    return re.sub(
+        f"\n{re.escape(GUARD_BEGIN)}.*{re.escape(GUARD_END)}",
+        "",
+        tmpl,
+        flags=re.MULTILINE | re.DOTALL,
+    )
 
 
-def sync_assets(has_newer_version: Callable[[], bool],
-                asset_manager: AssetManager) -> None:
+def sync_assets(
+    has_newer_version: Callable[[], bool], asset_manager: AssetManager
+) -> None:
     """Checks if assets need updating and updates them."""
     if has_newer_version():
         asset_manager.delete_assets()
@@ -221,8 +237,9 @@ def sync_assets(has_newer_version: Callable[[], bool],
 
 
 @contextlib.contextmanager
-def open_media_asset(media: MediaManager, path: pathlib.Path,
-                     mode: str) -> typing.Generator[typing.IO, None, None]:
+def open_media_asset(
+    media: MediaManager, path: pathlib.Path, mode: str
+) -> typing.Generator[typing.IO, None, None]:
     """Reads an Anki media asset at the provided path.
 
     Args:
@@ -235,7 +252,7 @@ def open_media_asset(media: MediaManager, path: pathlib.Path,
         yield f
 
 
-T = typing.TypeVar('T')
+T = typing.TypeVar("T")
 
 
 class State(typing.Generic[T]):
@@ -253,8 +270,8 @@ class State(typing.Generic[T]):
 
 @contextlib.contextmanager
 def AnkiAssetStateManager(
-        media: MediaManager, path: pathlib.Path, serializer: Serializer[T],
-        default: T) -> typing.Generator[State[T], None, None]:
+    media: MediaManager, path: pathlib.Path, serializer: Serializer[T], default: T
+) -> typing.Generator[State[T], None, None]:
     try:
         with open_media_asset(media, path, "r") as f:
             content = serializer.load(f.read()) or default
