@@ -274,7 +274,7 @@ def AnkiAssetStateManager(
 ) -> typing.Generator[State[T], None, None]:
     try:
         with open_media_asset(media, path, "r") as f:
-            content = serializer.load(f.read()) or default
+            content = serializer.loads(f.read()) or default
     except Exception:
         content = default
 
@@ -283,5 +283,5 @@ def AnkiAssetStateManager(
         yield state
     finally:
         with open_media_asset(media, path, "w") as f:
-            serialized_content = serializer.dump(state.get())
+            serialized_content = serializer.dumps(state.get())
             f.write(serialized_content)

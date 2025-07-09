@@ -1,21 +1,19 @@
 import unittest
-from typing import Optional, TypeVar
+from typing import Any
 
 from codehighlighter.serialization import (
     JSONObjectConverter,
     JSONObjectSerializer,
 )
 
-T = TypeVar("T")
 
-
-class IdentityJSONObjectConverter(JSONObjectConverter[T]):
+class IdentityJSONObjectConverter[T](JSONObjectConverter[T]):
     """A converter that does nothing."""
 
-    def deconvert(self, json_object) -> Optional[T]:
+    def deconvert(self, json_object) -> T | None:
         return json_object
 
-    def convert(self, t: T):
+    def convert(self, t: T) -> Any:
         return t
 
 
@@ -25,9 +23,9 @@ class SerializationTestCase(unittest.TestCase):
         foo = {"foo": "bar"}
         foo_serializer = JSONObjectSerializer(IdentityJSONObjectConverter())
 
-        self.assertEqual(foo_serializer.dump(foo), "{\"foo\": \"bar\"}")
-        self.assertEqual(foo_serializer.load("{\"foo\": \"bar\"}"), foo)
+        self.assertEqual(foo_serializer.dumps(foo), '{"foo": "bar"}')
+        self.assertEqual(foo_serializer.loads('{"foo": "bar"}'), foo)
 
     def test_dict_load_handles_errors(self):
         foo_serializer = JSONObjectSerializer(IdentityJSONObjectConverter())
-        self.assertIsNone(foo_serializer.load("foo"))
+        self.assertIsNone(foo_serializer.loads("foo"))

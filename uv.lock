@@ -61,7 +61,11 @@ requires-dist = [
 dev = [
     { name = "coverage" },
     { name = "cssutils" },
+<<<<<<< Updated upstream
     { name = "mypy", specifier = ">=1.16" },
+=======
+    { name = "mypy", specifier = ">1.16" },
+>>>>>>> Stashed changes
     { name = "requests" },
     { name = "types-beautifulsoup4" },
     { name = "vulture", specifier = "~=2.14" },
