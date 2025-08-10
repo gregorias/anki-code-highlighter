@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Checks that changes in assets/ are reflected in the asset-version file."""
+
 import subprocess
 import sys
 
@@ -9,12 +9,12 @@ def is_asset(path: str) -> bool:
 
 
 def get_changed_assets() -> list[str]:
-    p = subprocess.run(['git', 'diff', '--name-only', '--cached'],
-                       capture_output=True,
-                       check=True)
+    p = subprocess.run(
+        ["git", "diff", "--name-only", "--cached"], capture_output=True, check=True
+    )
     if p.stderr:
         raise Exception("Git diff has failed.")
-    return [line for line in p.stdout.decode('utf8').splitlines()]
+    return [line for line in p.stdout.decode("utf8").splitlines()]
 
 
 def has_changed_assets():
@@ -22,8 +22,7 @@ def has_changed_assets():
 
 
 def has_updated_asset_version():
-    return any(file == "assets/_ch-asset-version.txt"
-               for file in get_changed_assets())
+    return any(file == "assets/_ch-asset-version.txt" for file in get_changed_assets())
 
 
 def main():
