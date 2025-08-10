@@ -1,5 +1,8 @@
 test: mypy unittest
 
+bump:
+  ./dev/bin/bump
+
 mypy:
   mypy --config-file=mypy.ini codehighlighter/ test
 

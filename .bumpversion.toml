@@ -1,0 +1,30 @@
+[tool.bumpversion]
+current_version = "25.08.0"
+parse = """(?x)
+    (?P<release>
+        (?:[0-9]{2})\\.
+        (?:1[0-2]|0[1-9])
+    )
+    (?:\\.(?P<patch>\\d+))
+"""
+serialize = ["{release}.{patch}"]
+
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+ignore_missing_files = false
+tag = false
+tag_name = "v{new_version}"
+allow_dirty = false
+commit = false
+message = "chore: bump {current_version} → {new_version}"
+
+[tool.bumpversion.parts.release]
+calver_format = "{YY}.{0M}"
+
+[[tool.bumpversion.files]]
+filename = "codehighlighter/manifest.json"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
