@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Checks that project versions in pyproject.toml and manifest.json agree."""
+
+import json
+import sys
+import tomllib
+
+
+def get_pyproject_version() -> str:
+    """Reads the version from pyproject.toml."""
+    with open("pyproject.toml", "rb") as f:
+        data = tomllib.load(f)
+        return data["project"]["version"]
+
+
+def get_manifest_version() -> str:
+    """Reads the version from manifest.json."""
+    with open("codehighlighter/manifest.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+        return data["version"]
+
+
+def main() -> int:
+    """Compares versions and exits with a status code."""
+    pyproject_version = get_pyproject_version()
+    manifest_version = get_manifest_version()
+
+    if pyproject_version != manifest_version:
+        print(
+            f"Version mismatch! pyproject.toml has '{pyproject_version}', "
+            f"manifest.json has '{manifest_version}'.",
+            file=sys.stderr,
+        )
+        return 1
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

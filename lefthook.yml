@@ -11,6 +11,11 @@ pre-commit:
     check-module-names:
       glob: "*.py"
       run: ./dev/bin/check-module-names {staged_files}
+    check-version-sync:
+      glob:
+        - "codehighlighter/manifest.json"
+        - "pyproject.toml"
+      run: ./dev/bin/check-version-sync {staged_files}
     css-prettier:
       tags: style
       glob: "*.css"
