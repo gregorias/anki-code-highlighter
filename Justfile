@@ -1,7 +1,16 @@
 test: mypy unittest
 
+# Bumps version numbers, commits, tags, and pushes.
 bump:
   ./dev/bin/bump
+
+# Builds .ankiaddon package.
+package:
+  ./dev/bin/package
+
+# Creates a package and releases to GitHub.
+release: package
+  ./dev/bin/release
 
 mypy:
   mypy --config-file=mypy.ini codehighlighter/ test

@@ -95,9 +95,8 @@ with `python -m tools.generatepygmentscss` with some minor adjustments by hand.
 
 ## Release & distribution
 
-1. Bump the version and release the commit & tag with `just bump`.
-1. Use the `dev/bin/package` tool to create `codehighlighter.ankiaddon`.
-1. Create a GitHub release: `gh release create vx.y.z codehighlighter.ankiaddon`.
+1. Bump the version and release the commit & tag: `just bump`.
+1. Create `codehighlighter.ankiaddon` and a GitHub release: `just release`.
 1. [Share the package on Anki](https://addon-docs.ankiweb.net/#/sharing) using
    the [asset dashboard](https://ankiweb.net/shared/mine).
 

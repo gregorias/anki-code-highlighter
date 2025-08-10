@@ -1,0 +1,14 @@
+#!/bin/bash
+# Releases codehighlighter.ankiaddon to GitHub.
+
+set -euo pipefail
+
+current_version=$(bump-my-version show current_version)
+echo "Releasing v${current_version}…"
+gh release create v${current_version} \
+  --title "v${current_version}" \
+  --notes "" \
+  codehighlighter.ankiaddon
+
+echo "✅ Release ${current_version} pushed successfully."
+
