@@ -11,6 +11,7 @@ this module.
 
 import dataclasses
 import enum
+import typing
 from dataclasses import dataclass
 from enum import Enum
 from typing import Callable, List, Optional, Tuple, Union
@@ -220,11 +221,15 @@ class PygmentsConfigJSONConverter(JSONObjectConverter[PygmentsConfig]):
     def __init__(self):
         self.display_style_converter = DisplayStyleJSONConverter()
 
-    def deconvert(self, json_object) -> Optional[PygmentsConfig]:
-        return PygmentsConfig(
-            self.display_style_converter.deconvert(json_object["display_style"]),
-            json_object["language"],
+    def deconvert(self, json_object: typing.Any) -> Optional[PygmentsConfig]:
+        display_style = self.display_style_converter.deconvert(
+            json_object["display_style"]
         )
+
+        if display_style is None:
+            return None
+
+        return PygmentsConfig(display_style, json_object["language"])
 
     def convert(self, t: PygmentsConfig):
         config_dict = dataclasses.asdict(t)
@@ -283,11 +288,13 @@ class HighlighterWizardStateJSONConverter(JSONObjectConverter[HighlighterWizardS
         self.pc = PygmentsConfigJSONConverter()
 
     def deconvert(self, json_object) -> Optional[HighlighterWizardState]:
-        return HighlighterWizardState(
-            self.hm.deconvert(json_object["highlighter"]),
-            self.hc.deconvert(json_object["hljs_config"]),
-            self.pc.deconvert(json_object["pygments_config"]),
-        )
+        hm = self.hm.deconvert(json_object["highlighter"])
+        hc = self.hc.deconvert(json_object["hljs_config"])
+        pc = self.pc.deconvert(json_object["pygments_config"])
+        if hm is None or hc is None or pc is None:
+            return None
+
+        return HighlighterWizardState(hm, hc, pc)
 
     def convert(self, t: HighlighterWizardState):
         config_dict = dict()
