@@ -67,6 +67,8 @@ def read_asset_version(asset_version_path: pathlib.Path) -> int | None:
 
 
 class AnkiAssetManager:
+    # We used to load JS files in script elements but that was causing a
+    # flicker (https://github.com/gregorias/anki-code-highlighter/issues/94).
 
     def __init__(
         self,
@@ -74,7 +76,7 @@ class AnkiAssetManager:
         media: MediaManager,
         asset_prefix: str,
         css_assets: list[str],
-        js_assets: list[str],
+        script_elements: list[str],
         guard: str,
         class_name: str,
     ):
@@ -84,7 +86,7 @@ class AnkiAssetManager:
         :param media The active Anki media manager.
         :param asset_prefix The prefix used for this plugin's assets.
         :param css_assets All CSS files used by this plugin.
-        :param js_assets All JS files to be imported by this plugin.
+        :param script_elements JS scripts to run.
         :param guard A guard string used for HTML comments wrapping the imports.
         :param class_name The unique HTML class name that this manager can use
             to identify its HTML elements.
@@ -93,7 +95,7 @@ class AnkiAssetManager:
         self.media = media
         self.asset_prefix = asset_prefix
         self.css_assets = css_assets
-        self.js_assets = js_assets
+        self.script_elements = script_elements
         self.guard = guard
         self.class_name = class_name
 
@@ -102,7 +104,7 @@ class AnkiAssetManager:
         self.modify_templates(
             lambda tmpl: append_import_statements(
                 css_assets=self.css_assets,
-                js_assets=self.js_assets,
+                script_elements=self.script_elements,
                 guard=self.guard,
                 class_name=self.class_name,
                 tmpl=tmpl,
@@ -176,13 +178,17 @@ def guards(guard: str) -> tuple[str, str]:
 
 
 def append_import_statements(
-    css_assets: list[str], js_assets: list[str], guard: str, class_name: str, tmpl: str
+    css_assets: list[str],
+    script_elements: list[str],
+    guard: str,
+    class_name: str,
+    tmpl: str,
 ) -> str:
     """
     Appends import statements to a card template.
 
     :param css_assets
-    :param js_assets
+    :param script_elements
     :param guard A guard string used for HTML comments wrapping the imports.
     :param class_name A class name that identifies this plugin.
     :param tmpl
@@ -194,8 +200,8 @@ def append_import_statements(
             for css_asset in css_assets
         ]
         + [
-            f'<script src="{js_asset}" class="{class_name}"></script>\n'
-            for js_asset in js_assets
+            f'<script class="{class_name}">{script}</script>\n'
+            for script in script_elements
         ]
     )
 

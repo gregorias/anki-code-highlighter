@@ -3481,10 +3481,4 @@ begin:"^\\s*[A-Za-z._?][A-Za-z0-9_$#@~.?]*(:|\\s+label)"},{
 begin:"^\\s*%%[A-Za-z0-9_$#@~.?]*:"},{begin:"^\\s*[0-9]+:"},{
 begin:"[0-9]+[bf](?!\\w)"}],relevance:0}]})})()
 ;hljs.registerLanguage("riscvasm",s)})();
-// Only highlight code blocks with the class `language-*`.
-// `language-*` is a classes added by this plugin’s markup.
-// See https://github.com/gregorias/anki-code-highlighter/issues/76.
-hljs.configure({
-  cssSelector: 'pre code[class^="language-"]:not([data-highlighted="yes"])',
-});
-hljs.highlightAll();
+export { hljs };

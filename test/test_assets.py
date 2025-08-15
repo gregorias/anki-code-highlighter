@@ -55,7 +55,7 @@ class AssetsTestCase(unittest.TestCase):
         CLASS_NAME = "anki-ch"
 
         new_tmpl = append_import_statements(
-            ["c.css"], ["j.js"], GUARD, CLASS_NAME, tmpl
+            ["c.css"], ["console.log('foo')"], GUARD, CLASS_NAME, tmpl
         )
         self.assertEqual(delete_import_statements(GUARD, new_tmpl), tmpl + "\n")
 
@@ -63,7 +63,7 @@ class AssetsTestCase(unittest.TestCase):
         self.assertEqual(
             append_import_statements(
                 ["c.css"],
-                ["j.js"],
+                ["console.log('foo')"],
                 "Anki Code Highlighter (Addon 112228974)",
                 "plugin",
                 "{{Cloze}}",
@@ -74,7 +74,7 @@ class AssetsTestCase(unittest.TestCase):
 
             <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
             <link rel="stylesheet" href="c.css" class="plugin">
-            <script src="j.js" class="plugin"></script>
+            <script class="plugin">console.log('foo')</script>
             <!-- Anki Code Highlighter (Addon 112228974) END -->
             """
             ),
@@ -86,7 +86,7 @@ class AssetsTestCase(unittest.TestCase):
         self.assertEqual(
             append_import_statements(
                 ["c.css"],
-                ["j.js"],
+                ["console.log('foo')"],
                 "Anki Code Highlighter (Addon 112228974)",
                 "plugin",
                 "{{Cloze}}\n",
@@ -97,7 +97,7 @@ class AssetsTestCase(unittest.TestCase):
 
             <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
             <link rel="stylesheet" href="c.css" class="plugin">
-            <script src="j.js" class="plugin"></script>
+            <script class="plugin">console.log('foo')</script>
             <!-- Anki Code Highlighter (Addon 112228974) END -->
             """
             ),
