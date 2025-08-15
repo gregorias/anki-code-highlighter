@@ -137,7 +137,10 @@ def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
         The highlighter configuration if the user accepted it, otherwise None.
     """
     config_dict = config()
-    default_highlighter = config_dict and get_default_highlighter(config_dict)
+    if config_dict is None:
+        default_highlighter = None
+    else:
+        default_highlighter = get_default_highlighter(config_dict)
 
     def get_highlighter(
         current: Optional[HIGHLIGHT_METHOD],
