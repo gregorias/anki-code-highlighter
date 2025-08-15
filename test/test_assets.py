@@ -1,5 +1,6 @@
 import tempfile
 import unittest
+from pathlib import Path
 from textwrap import dedent
 
 from codehighlighter import assets
@@ -32,13 +33,13 @@ class AssetsTestCase(unittest.TestCase):
         self.assertEqual(manager.local_version, 2)
 
     def test_read_asset_version_returns_none_on_nonexistant_file(self):
-        self.assertEqual(assets.read_asset_version("./foo/bar"), None)
+        self.assertEqual(assets.read_asset_version(Path("./foo/bar")), None)
 
     def test_read_asset_version_returns_version(self):
         with tempfile.NamedTemporaryFile() as version_f:
             version_f.writelines([b"42"])
             version_f.flush()
-            self.assertEqual(assets.read_asset_version(version_f.name), 42)
+            self.assertEqual(assets.read_asset_version(Path(version_f.name)), 42)
 
     def test_append_and_clear_import_statements_do_nothing(self):
         tmpl = """{{FrontSide}}

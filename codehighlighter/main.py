@@ -4,9 +4,12 @@ import os.path
 import random
 import sys
 from functools import partial
+from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
 import aqt
+import aqt.editor
+import aqt.qt
 import bs4
 from aqt import gui_hooks, mw
 from aqt.qt import QApplication
@@ -15,6 +18,10 @@ from aqt.utils import showWarning
 sys.path.append(os.path.dirname(__file__))
 
 import anki  # type: ignore
+import anki.collection
+import anki.media
+import anki.models
+import anki.notes
 
 from . import dialog, hljs, pygments_highlighter
 from .ankieditorextra import AnkiEditorInterface, EditorInterface, transform_selection
@@ -110,7 +117,7 @@ def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collec
 def WizardStateManager(media):
     return AnkiAssetStateManager(
         media=media,
-        path=ASSET_PREFIX + "wizard-state.json",
+        path=Path(ASSET_PREFIX + "wizard-state.json"),
         serializer=JSONObjectSerializer(HighlighterWizardStateJSONConverter()),
         default=HighlighterWizardState(),
     )
@@ -172,7 +179,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
 
     parent = (aqt.mw and aqt.mw.app.activeWindow()) or aqt.mw
     mw = aqt.mw
-    if not mw:
+    if not mw or not mw.col:
         # Should never happen
         return None
     media_manager: anki.media.MediaManager = mw.col.media
@@ -288,7 +295,9 @@ def transform_templates(models: anki.models.ModelManager, modify: Callable[[str]
 
 
 def setup_menu() -> None:
-    if not mw:
+    main_window = mw
+
+    if not main_window or not main_window.col:
         # For some reason the main window is not initialized yet. Let's print
         # an error message.
         showWarning(
@@ -298,7 +307,9 @@ def setup_menu() -> None:
             + "https://github.com/gregorias/anki-code-highlighter/issues/new."
         )
         return None
-    main_window = mw
+
+    col = main_window.col
+
     main_window.form.menuTools.addSection("Code Highlighter")
 
     def refresh() -> None:
@@ -308,12 +319,12 @@ def setup_menu() -> None:
         #    profile load
         #    (https://github.com/gregorias/anki-code-highlighter/issues/22).
         # 2. create_anki_asset_manager requires a profile to be loaded.
-        anki_asset_manager = create_anki_asset_manager(css_files(), main_window.col)
+        anki_asset_manager = create_anki_asset_manager(css_files(), col)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
-        anki_asset_manager = create_anki_asset_manager(css_files(), main_window.col)
+        anki_asset_manager = create_anki_asset_manager(css_files(), col)
         anki_asset_manager.delete_assets()
 
     # I'm getting type errors below but the code works, so let's ignore.
@@ -329,7 +340,7 @@ def setup_menu() -> None:
 
 def load_mw_and_sync():
     main_window = mw
-    if not main_window:
+    if not main_window or not main_window.col:
         # For some reason the main window is not initialized yet. Let's print
         # an error message.
         showWarning(
@@ -339,6 +350,7 @@ def load_mw_and_sync():
             + "https://github.com/gregorias/anki-code-highlighter/issues/new."
         )
         return None
+
     anki_asset_manager = create_anki_asset_manager(css_files(), main_window.col)
     sync_assets(
         partial(has_newer_version, main_window.col.media, VERSION_ASSET),
