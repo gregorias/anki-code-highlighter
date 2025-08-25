@@ -14,11 +14,11 @@ import enum
 import typing
 from dataclasses import dataclass
 from enum import Enum
-from typing import Callable, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from aqt.qt import QInputDialog
 
-from . import hljs, hljslangs, pygments_highlighter
+from . import pygments_highlighter
 from .listextra import index_or
 from .serialization import JSONObjectConverter
 
@@ -27,7 +27,6 @@ __all__ = [
     "HIGHLIGHT_METHOD",
     "highlight_method_name_to_enum",
     "DISPLAY_STYLE",
-    "HljsConfig",
     "ask_for_highlight_method",
     "ask_for_display_style",
     "ask_for_language",
@@ -76,7 +75,6 @@ def showChoiceDialog(
 
 @enum.unique
 class HIGHLIGHT_METHOD(Enum):
-    HLJS = "highlight.js"
     PYGMENTS = "pygments"
 
 
@@ -171,46 +169,6 @@ def ask_for_display_style(parent, current: DISPLAY_STYLE) -> Optional[DISPLAY_ST
 
 
 @dataclass(frozen=True)
-class HljsConfig:
-    language: Optional[hljslangs.Language]
-
-
-class HljsConfigJSONConverter(JSONObjectConverter[HljsConfig]):
-
-    def deconvert(self, json_object) -> Optional[HljsConfig]:
-        if json_object is None:
-            return HljsConfig(None)
-
-        for lang in hljslangs.languages:
-            if lang.alias == json_object:
-                return HljsConfig(lang)
-        return None
-
-    def convert(self, t: HljsConfig):
-        return t.language and t.language.alias
-
-
-def ask_for_hljs_config(parent, current: HljsConfig) -> Optional[HljsConfig]:
-    """
-    Shows a wizard that configures hljs.
-
-    :param parent
-    :param current HljsConfig: The default configuration.
-    :return Optional[HljsConfig]
-    """
-    language_dict = hljs.get_available_languages_as_dict()
-    language_names = list(sorted(language_dict.keys()))
-    language_name = ask_for_language(
-        parent=parent,
-        languages=language_names,
-        current=current.language and current.language.name,
-    )
-    if not language_name:
-        return None
-    return HljsConfig(language_dict.get(language_name, None))
-
-
-@dataclass(frozen=True)
 class PygmentsConfig:
     display_style: DISPLAY_STYLE
     language: str
@@ -243,7 +201,7 @@ def ask_for_pygments_config(
     parent, current: PygmentsConfig
 ) -> Optional[PygmentsConfig]:
     """
-    Shows a wizard that configures hljs.
+    Shows a wizard that configures Pygments.
 
     :param parent
     :param current PygmentsConfig: The default configuration.
@@ -271,10 +229,7 @@ class HighlighterWizardState:
     It provides useful defaults to preselect.
     """
 
-    highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.HLJS
-    hljs_config: HljsConfig = HljsConfig(
-        hljs.get_available_languages_as_dict().get("C++", None)
-    )
+    highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.PYGMENTS
     pygments_config: PygmentsConfig = PygmentsConfig(
         display_style=DISPLAY_STYLE.BLOCK, language="C++"
     )
@@ -284,34 +239,30 @@ class HighlighterWizardStateJSONConverter(JSONObjectConverter[HighlighterWizardS
 
     def __init__(self):
         self.hm = HighlightMethodJSONConverter()
-        self.hc = HljsConfigJSONConverter()
         self.pc = PygmentsConfigJSONConverter()
 
     def deconvert(self, json_object) -> Optional[HighlighterWizardState]:
         hm = self.hm.deconvert(json_object["highlighter"])
-        hc = self.hc.deconvert(json_object["hljs_config"])
         pc = self.pc.deconvert(json_object["pygments_config"])
-        if hm is None or hc is None or pc is None:
+        if hm is None or pc is None:
             return None
 
-        return HighlighterWizardState(hm, hc, pc)
+        return HighlighterWizardState(hm, pc)
 
     def convert(self, t: HighlighterWizardState):
         config_dict = dict()
         config_dict["highlighter"] = self.hm.convert(t.highlighter)
-        config_dict["hljs_config"] = self.hc.convert(t.hljs_config)
         config_dict["pygments_config"] = self.pc.convert(t.pygments_config)
         return config_dict
 
 
 # The highlighter config chosen by the user.
-HighlighterConfig = Union[HljsConfig, PygmentsConfig]
+HighlighterConfig = PygmentsConfig
 
 
 def ask_for_highlighter_config(
     parent,
     state: HighlighterWizardState,
-    get_highlighter: Callable[[HIGHLIGHT_METHOD], Optional[HIGHLIGHT_METHOD]],
 ) -> Tuple[Optional[HighlighterConfig], HighlighterWizardState]:
     """
     Shows a wizard that configures a highlighter.
@@ -320,21 +271,13 @@ def ask_for_highlighter_config(
 
     :param parent
     :param state HighlighterWizardState: The state of the wizard to use.
-    :param get_highlighter: A function that fetches the selected highlight method given a preselected default.
     :return: The selected config and a new state.
     """
-    highlighter = get_highlighter(state.highlighter)
-
-    if highlighter is None:
-        return (None, state)
+    highlighter = HIGHLIGHT_METHOD.PYGMENTS
 
     state = dataclasses.replace(state, highlighter=highlighter)
 
-    if highlighter == HIGHLIGHT_METHOD.HLJS:
-        hljs_config = ask_for_hljs_config(parent, state.hljs_config)
-        if hljs_config is not None:
-            return (hljs_config, dataclasses.replace(state, hljs_config=hljs_config))
-    elif highlighter == HIGHLIGHT_METHOD.PYGMENTS:
+    if highlighter == HIGHLIGHT_METHOD.PYGMENTS:
         pygments_config = ask_for_pygments_config(parent, state.pygments_config)
         if pygments_config is not None:
             return (

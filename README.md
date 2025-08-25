@@ -43,9 +43,6 @@ code already present in a card field.
 3. Press `CTRL+'` (on macOS, `⌘+'`) or click this add-on's button in the
    editor's button bar.
 
-For the list of supported languages and their corresponding codes, see
-`assets/_ch-hljs-lang-*.min.js` files in this repository.
-
 The plugin works on untagged code blocks. Do not add your own HTML tags like
 `<code>` or `<pre><code>` to the snippet you want to highlight. If you have run
 into issues with preannotated code snippets, see [this
@@ -54,11 +51,10 @@ for how to fix this.
 
 ### Supported highlighters
 
-* [highlight.js](https://highlightjs.org/) — This highlighter highlights during
-  card display. It supports only code blocks.
-* [pygments](https://pygments.org/) — This highlighter creates highlighting
-  tags when you run this plugin. This is useful for creating cloze cards.
-  It supports both inline code and code blocks.
+This add-on uses [Pygments](https://pygments.org/).
+It creates highlighting tags when you run this plugin.
+This is useful for creating cloze cards.
+It supports both inline code and code blocks.
 
 ### Configuration
 
@@ -71,8 +67,6 @@ The plugin accepts the following configuration options:
   styles to use.
 * `shortcut` (e.g. `ctrl+;`) — this sets the shortcut that triggers this
   plugin.
-* `default-highlighter` (`highlight.js`, `pygments`, ``) — this sets the
-  default highlighting mechanism.
 
 ### Known limitations
 
