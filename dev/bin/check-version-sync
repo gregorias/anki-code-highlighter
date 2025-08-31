@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
-"""Checks that project versions in pyproject.toml, .bumpversion.toml, and manifest.json agree."""
+"""Checks that project versions in pyproject.toml and manifest.json agree."""
 
 import json
 import sys
 import tomllib
-
-
-def get_bumpversion_version() -> str:
-    """Reads the version from .bumpversion.toml."""
-    with open(".bumpversion.toml", "rb") as f:
-        data = tomllib.load(f)
-        return data["tool"]["bumpversion"]["current_version"]
 
 
 def get_pyproject_version() -> str:
@@ -31,16 +24,13 @@ def main() -> int:
     """Compares versions and exits with a status code."""
     pyproject_version = get_pyproject_version()
     manifest_version = get_manifest_version()
-    bumpversion_version = get_bumpversion_version()
 
     if (
         pyproject_version != manifest_version
-        or pyproject_version != bumpversion_version
     ):
         print(
             f"Version mismatch! pyproject.toml has '{pyproject_version}', "
-            f"manifest.json has '{manifest_version}', "
-            f".bumpversion.toml has '{bumpversion_version}'.",
+            f"manifest.json has '{manifest_version}'.",
             file=sys.stderr,
         )
         return 1

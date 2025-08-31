@@ -1,9 +1,5 @@
 test: mypy unittest
 
-# Bumps version numbers, commits, tags, and pushes.
-bump:
-  ./dev/bin/bump
-
 # Builds .ankiaddon package.
 package:
   ./dev/bin/package

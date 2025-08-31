@@ -1,7 +1,7 @@
 {
-  "name": "Code Highlighter",
+  "name": "Greg’s Code Highlighter v1",
   "package": "codehighlighter",
   "author": "gregorias",
-  "version": "25.08.3",
+  "version": "1.20.0",
   "homepage": "https://github.com/gregorias/anki-code-highlighter"
 }
