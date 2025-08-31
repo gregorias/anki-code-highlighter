@@ -23,7 +23,7 @@ import anki.media
 import anki.models
 import anki.notes
 
-from . import pygments_highlighter
+from . import dialog, hljs, pygments_highlighter
 from .ankieditorextra import AnkiEditorInterface, EditorInterface, transform_selection
 from .assets import (
     AnkiAssetManager,
@@ -34,9 +34,12 @@ from .assets import (
 from .clipboard import Clipboard, EmptyClipboard
 from .dialog import (
     DISPLAY_STYLE,
+    HIGHLIGHT_METHOD,
     HighlighterConfig,
     HighlighterWizardState,
     HighlighterWizardStateJSONConverter,
+    HljsConfig,
+    ask_for_highlight_method,
     ask_for_highlighter_config,
 )
 from .html import PlainString
@@ -93,6 +96,13 @@ def get_config(key: str) -> Optional[str]:
     if not config_snapshot:
         return None
     return config_snapshot.get(key)
+
+
+def get_default_highlighter(config: Config) -> Optional[HIGHLIGHT_METHOD]:
+    default_highlighter = config.get("default-highlighter")
+    if default_highlighter is None:
+        return None
+    return dialog.highlight_method_name_to_enum(default_highlighter)
 
 
 def css_files() -> List[str]:
@@ -152,9 +162,23 @@ def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
     Returns:
         The highlighter configuration if the user accepted it, otherwise None.
     """
+    config_dict = config()
+    if config_dict is None:
+        default_highlighter = None
+    else:
+        default_highlighter = get_default_highlighter(config_dict)
+
+    def get_highlighter(
+        current: Optional[HIGHLIGHT_METHOD],
+    ) -> Optional[HIGHLIGHT_METHOD]:
+        if default_highlighter:
+            return default_highlighter
+        else:
+            return ask_for_highlight_method(parent, current)
+
     with WizardStateManager(media) as wizard_state:
         highlighter_config, new_wizard_state = ask_for_highlighter_config(
-            parent, wizard_state.get()
+            parent, wizard_state.get(), get_highlighter=get_highlighter
         )
         wizard_state.put(new_wizard_state)
     return highlighter_config
@@ -243,16 +267,21 @@ def highlight_selection(
     if not highlighter_config:
         return None
 
-    display_style = highlighter_config.display_style
-    html_style = (
-        pygments_highlighter.create_inline_style()
-        if display_style == DISPLAY_STYLE.INLINE
-        else pygments_highlighter.create_block_style(block_style)
-    )
+    if isinstance(highlighter_config, HljsConfig):
+        return hljs.highlight(
+            code, language=highlighter_config.language, block_style=block_style
+        )
+    else:
+        display_style = highlighter_config.display_style
+        html_style = (
+            pygments_highlighter.create_inline_style()
+            if display_style == DISPLAY_STYLE.INLINE
+            else pygments_highlighter.create_block_style(block_style)
+        )
 
-    return pygments_highlighter.highlight(
-        code, language=highlighter_config.language, style=html_style
-    )
+        return pygments_highlighter.highlight(
+            code, language=highlighter_config.language, style=html_style
+        )
 
 
 def get_shortcut() -> str:

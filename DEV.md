@@ -1,6 +1,6 @@
 # 🛠️ Developer documentation
 
-This is a documentation file for Code Highlighter’s developers.
+This is a documentation file for Code Highlighter's developers.
 
 ## Dev environment setup
 
@@ -40,6 +40,18 @@ This project requires the following tools:
    ```shell
    lefthook install
    ```
+
+## Updating highlight.js
+
+Anki code highlighter comes in bundled with the [highlight.js][hljs] JavaScript
+package. The JS package’s files are included in `assets`, e.g.,
+`assets/_ch-highlight.js` contains the single-file implementation of
+[highlight.js][hljs].
+
+To update [highlight.js][hljs]:
+
+1. Set `HLJS_VERSION` in `tools/installhljs.py`.
+1. Run `python tools/installhljs.py`.
 
 ## Updating Pygments
 
@@ -103,7 +115,7 @@ snippet given the following:
 - Additional styling options.
 
 For code clarity and modularity, I keep such pure highlighters in separate
-modules (`pygments`). A highlighter does not implement any logic
+modules (`hljs` and `pygments`). A highlighter does not implement any logic
 related to Anki including sanitising input from HTML markup.
 
 ### Using `assets/_ch*` files for CSS and JS
@@ -144,21 +156,6 @@ because I figured that it would way more fool-proof to just use a single
 highlight.js bundle that has all languages. Loading that single file seems to
 be fast.
 
-### Dropping Highlight.js
-
-I decided to drop Highlight.js, because it caused significant problems:
-
-- Running the scripts causes flickering (flash of unstyled content) on mobile.
-- It requires CSS and JS files to be imported. Modifying templates is frown
-  upon by users.
-  It also makes code more complicated.
-- You can’t create clozes with it.
-
-The only benefit of Highlight.js is that it doesn’t spoil a card’s HTML with
-tags.
-This is not much of a benefit in practice in practice.
-I’ve never relied on it much.
-
 [Black]: https://black.readthedocs.io/en/stable/
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
@@ -167,4 +164,5 @@ I’ve never relied on it much.
 [Pyenv]: https://github.com/pyenv/pyenv
 [Pygments]: https://github.com/pygments/pygments
 [Ruff]: https://github.com/astral-sh/ruff
+[hljs]: https://highlightjs.org/
 [Uv]: https://docs.astral.sh/uv/
