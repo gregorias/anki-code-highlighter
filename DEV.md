@@ -2,6 +2,9 @@
 
 This is a documentation file for Code Highlighter's developers.
 
+There’s a v1 branch that contains the original major version of ACH with
+Highlight.js and class-based Pygments.
+
 ## Dev environment setup
 
 This section describes how to setup your development environment.
