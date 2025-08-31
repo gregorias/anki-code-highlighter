@@ -2,6 +2,9 @@
 
 This is a documentation file for Code Highlighter’s developers.
 
+There’s a v1 branch that contains the original major version of ACH with
+Highlight.js and class-based Pygments.
+
 ## Dev environment setup
 
 This section describes how to setup your development environment.
@@ -149,10 +152,12 @@ be fast.
 I decided to drop Highlight.js, because it caused significant problems:
 
 - Running the scripts causes flickering (flash of unstyled content) on mobile.
-- It requires CSS and JS files to be imported. Modifying templates is frown
+- It requires CSS and JS files to be imported. Modifying templates is frowned
   upon by users.
   It also makes code more complicated.
 - You can’t create clozes with it.
+- It makes the add-on more complicated to use as you have an additional
+  dialog to go through.
 
 The only benefit of Highlight.js is that it doesn’t spoil a card’s HTML with
 tags.
