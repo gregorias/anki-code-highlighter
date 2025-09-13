@@ -356,15 +356,12 @@ def setup_menu() -> None:
         anki_asset_manager = create_anki_asset_manager(css_files(), col)
         anki_asset_manager.delete_assets()
 
-    # I'm getting type errors below but the code works, so let's ignore.
-    main_window.form.menuTools.addAction(
-        aqt.qt.QAction(
-            "Refresh Code Highlighter Assets", main_window, triggered=refresh
-        )  # type: ignore
-    )  # type: ignore
-    main_window.form.menuTools.addAction(
-        aqt.qt.QAction("Delete Code Highlighter Assets", main_window, triggered=delete)  # type: ignore
-    )  # type: ignore
+    a = aqt.qt.QAction("Refresh Code Highlighter Assets", main_window)  # type: ignore
+    a.triggered.connect(refresh)
+    main_window.form.menuTools.addAction(a)
+    a = aqt.qt.QAction("Delete Code Highlighter Assets", main_window, triggered=delete)  # type: ignore
+    a.triggered.connect(delete)
+    main_window.form.menuTools.addAction(a)
 
 
 def load_mw_and_sync():
