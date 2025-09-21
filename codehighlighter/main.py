@@ -12,8 +12,8 @@ import aqt.editor
 import aqt.qt
 import bs4
 from aqt import gui_hooks, mw
-from aqt.qt import QApplication
-from aqt.utils import showWarning
+from aqt.qt import QApplication, QMessageBox
+from aqt.utils import showInfo, showWarning
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -356,11 +356,28 @@ def setup_menu() -> None:
         anki_asset_manager = create_anki_asset_manager(css_files(), col)
         anki_asset_manager.delete_assets()
 
-    a = aqt.qt.QAction("Refresh Code Highlighter Assets", main_window)  # type: ignore
+    def migrate() -> None:
+        result = showInfo(
+            "<p class='text-left'>This will reformat your notes from Highlight.js to Pygments (class-based).</p>"
+            + "<p class='text-left'>Back up your collection just in case.</p>",
+            customBtns=[
+                QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Ok,
+            ],
+        )
+        if result != QMessageBox.StandardButton.Ok:
+            return None
+
+        return None
+
+    a = aqt.qt.QAction("Refresh Code Highlighter Assets", main_window)
     a.triggered.connect(refresh)
     main_window.form.menuTools.addAction(a)
-    a = aqt.qt.QAction("Delete Code Highlighter Assets", main_window, triggered=delete)  # type: ignore
+    a = aqt.qt.QAction("Delete Code Highlighter Assets", main_window)
     a.triggered.connect(delete)
+    main_window.form.menuTools.addAction(a)
+    a = aqt.qt.QAction("Migrate Highlight.js to Pygments (class-based)", main_window)
+    a.triggered.connect(migrate)
     main_window.form.menuTools.addAction(a)
 
 
