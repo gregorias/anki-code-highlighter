@@ -124,6 +124,15 @@ def get_lexer_by_name(name: LexerName) -> Optional[pygments.lexer.Lexer]:
 
 
 @functools.cache
+def get_lexer_name_by_alias(alias: LexerAlias) -> LexerName | None:
+    """Returns a lexer name by its alias."""
+    for t in pygments.lexers.get_all_lexers():
+        if alias in t[1]:
+            return t[0]
+    return None
+
+
+@functools.cache
 def get_plaintext_lexer() -> pygments.lexer.Lexer:
     # This should never return None. There’s a unit-test validating this.
     return get_lexer_by_name("output")
