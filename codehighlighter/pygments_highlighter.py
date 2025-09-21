@@ -1,7 +1,7 @@
-# -*- coding: utf-8 -*-
 """The Pygments highlighter.
 
 See DEV.md for more information on the highlighter concept."""
+
 import functools
 import re
 from collections.abc import Iterable
