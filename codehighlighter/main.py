@@ -12,8 +12,8 @@ import aqt.editor
 import aqt.qt
 import bs4
 from aqt import gui_hooks, mw
-from aqt.qt import QApplication
-from aqt.utils import showWarning
+from aqt.qt import QApplication, QMessageBox
+from aqt.utils import showInfo, showWarning
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -43,6 +43,7 @@ from .dialog import (
     ask_for_highlighter_config,
 )
 from .html import PlainString
+from .migratev2 import migrate_notes
 from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
@@ -356,11 +357,34 @@ def setup_menu() -> None:
         anki_asset_manager = create_anki_asset_manager(css_files(), col)
         anki_asset_manager.delete_assets()
 
-    a = aqt.qt.QAction("Refresh Code Highlighter Assets", main_window)  # type: ignore
+    def migrate() -> None:
+        result = showInfo(
+            "<p class='text-left'>This will reformat your notes from Highlight.js to Pygments.</p>"
+            + "<p class='text-left'>Back up your collection just in case.</p>",
+            customBtns=[
+                QMessageBox.StandardButton.Cancel,
+                QMessageBox.StandardButton.Ok,
+            ],
+        )
+        if result != QMessageBox.StandardButton.Ok:
+            return None
+        all_successful = migrate_notes(col)
+        if not all_successful:
+            showInfo(
+                "<p class='text-left'>Some notes could not be migrated. Most likely due to a language not recognized by Pygments. The failing notes got annotated with \"acherror\" tag.</p>"
+                + "<p class='text-left'>Consider migrating the failing languages to \"plaintext\" or just staying with the v1 add-on.</p>",
+            )
+
+        return None
+
+    a = aqt.qt.QAction("Refresh Code Highlighter Assets", main_window)
     a.triggered.connect(refresh)
     main_window.form.menuTools.addAction(a)
-    a = aqt.qt.QAction("Delete Code Highlighter Assets", main_window, triggered=delete)  # type: ignore
+    a = aqt.qt.QAction("Delete Code Highlighter Assets", main_window)
     a.triggered.connect(delete)
+    main_window.form.menuTools.addAction(a)
+    a = aqt.qt.QAction("Migrate Highlight.js to Pygments", main_window)
+    a.triggered.connect(migrate)
     main_window.form.menuTools.addAction(a)
 
 
