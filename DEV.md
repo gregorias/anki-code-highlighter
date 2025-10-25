@@ -2,9 +2,6 @@
 
 This is a documentation file for Code Highlighter's developers.
 
-There’s a v1 branch that contains the original major version of ACH with
-Highlight.js and class-based Pygments.
-
 ## Dev environment setup
 
 This section describes how to setup your development environment.
@@ -44,6 +41,17 @@ This project requires the following tools:
    lefthook install
    ```
 
+## Repository structure
+
+Branches:
+
+- `v1` contains the original major version of ACH with Highlight.js and
+  class-based Pygments.
+  It is no longer actively maintained.
+- `migrate-hljs` builds on top of `v1` and contains a prototype for migrating
+  cards to `v2` (away from Highlight.js, maybe more).
+  It will be merged into `v1` once done.
+
 ## Updating highlight.js
 
 Anki code highlighter comes in bundled with the [highlight.js][hljs] JavaScript
@@ -78,7 +86,8 @@ This package sets up a specific Python version to keep the dev environment in
 sync with what Anki uses. To update this Python version, you need to:
 
 1. If in a virtual environment, deactivate it and remove it (`rm -r .venv`).
-2. Update the Python spec in `.python-version`, `mypy.ini`, and `pyproject.toml`.
+2. Update the Python spec in `.python-version`, `mypy.ini`,
+   and `pyproject.toml`.
 3. Delete the Mypy cache: `rm -r .mypy_cache`.
 4. Install the new Python version with `pyenv install`.
 5. Install the new virtual environment with `uv venv --python 3.X.Y`.
@@ -103,7 +112,7 @@ with `python -m tools.generatepygmentscss` with some minor adjustments by hand.
 1. [Share the package on Anki](https://addon-docs.ankiweb.net/#/sharing) using
    the [asset dashboard](https://ankiweb.net/shared/mine).
 
-## Design Decisions
+## Design decisions
 
 This section discuss some design decisions made for this plugin.
 
@@ -123,8 +132,8 @@ related to Anki including sanitising input from HTML markup.
 
 ### Using `assets/_ch*` files for CSS and JS
 
-The asset files start with an underscore, because then Anki ignores them
-([source](https://anki.tenderapp.com/discussions/ankidesktop/39510-anki-is-completely-ignoring-media-files-starting-with-underscores-when-cleaning-up)).
+The asset files start with an underscore,
+because then Anki ignores them ([source][anki-media-ignore]).
 
 This plugin saves its assets directly in the global `assets` directory.
 
@@ -169,3 +178,4 @@ be fast.
 [Ruff]: https://github.com/astral-sh/ruff
 [hljs]: https://highlightjs.org/
 [Uv]: https://docs.astral.sh/uv/
+[anki-media-ignore]: https://anki.tenderapp.com/discussions/ankidesktop/39510-anki-is-completely-ignoring-media-files-starting-with-underscores-when-cleaning-up
