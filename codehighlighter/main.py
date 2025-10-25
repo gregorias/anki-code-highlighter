@@ -43,6 +43,7 @@ from .dialog import (
     ask_for_highlighter_config,
 )
 from .html import PlainString
+from .migratev2 import migrate_notes
 from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
@@ -367,6 +368,7 @@ def setup_menu() -> None:
         )
         if result != QMessageBox.StandardButton.Ok:
             return None
+        migrate_notes(col)
 
         return None
 
