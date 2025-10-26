@@ -1,4 +1,4 @@
-"""The implementation of the code highlighter plugin."""
+"""The implementation of the code highlighter add-on."""
 
 import os.path
 import random
