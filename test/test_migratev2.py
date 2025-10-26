@@ -15,10 +15,10 @@ def assertHtmlTagEqual(test_case: unittest.TestCase, a: Tag, b: Tag, msg=None):
     if a == b:
         return None
 
-    a_string = a.encode(formatter="html5").decode()
-    b_string = b.encode(formatter="html5").decode()
+    def format_tag(t: Tag) -> str:
+        return t.encode(formatter="html5").decode()
 
-    test_case.assertMultiLineEqual(a_string, b_string, msg)
+    test_case.assertMultiLineEqual(format_tag(a), format_tag(b), msg)
 
 
 def extract_pre_from_soup(soup: BeautifulSoup) -> Tag:
