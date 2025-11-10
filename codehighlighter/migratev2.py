@@ -71,7 +71,6 @@ def migrate_notes(col: Collection) -> bool:
     return all_successful
 
 
-# TODO: handle possible exceptions in callers including a catch-all.
 def migrate_field(field: bs4.BeautifulSoup) -> bs4.BeautifulSoup:
     """
     Migrates HLJS elements to Pygments.
@@ -99,8 +98,33 @@ def find_hljs_in_field(field: bs4.BeautifulSoup) -> list[bs4.Tag]:
     return hljs_pres
 
 
+class UnknownLanguageError(Exception):
+    """Encountered an unknown HLJS language."""
+
+    def __init__(self, language):
+        super().__init__()
+        self.language = language
+
+    def __str__(self):
+        return f"Unknown language: {self.language}."
+
+    def __eq__(self, other):
+        if not isinstance(other, UnknownLanguageError):
+            return False
+
+        return self.language == other.language
+
+    def __hash__(self):
+        return hash(("UnknownLanguageError", self.language))
+
+
+# TODO: handle possible exceptions in callers including a catch-all.
 def migrate_hljs_tag(hljs_pre: bs4.Tag) -> bs4.Tag:
-    """Migrates a Highlight.js pre-element to Pygments (class-based, external CSS)."""
+    """Migrates a Highlight.js pre-element to Pygments (class-based, external CSS).
+
+    Raises:
+      UnknownLanguageError: if an unknown language was encountered.
+    """
 
     def get_code_tag(hljs_pre: bs4.Tag) -> bs4.Tag:
         code_tag = list(hljs_pre.children)[0]
@@ -111,10 +135,13 @@ def migrate_hljs_tag(hljs_pre: bs4.Tag) -> bs4.Tag:
     def get_hljs_language(hljs_code: bs4.Tag) -> str:
         classes = hljs_code.attrs["class"]
         language_prefix = "language-"
-        for c in classes:
-            if c.startswith(language_prefix):
-                return c.removeprefix(language_prefix)
-        raise ValueError("Could not find the language class in the tag.")
+        languages = [
+            c.removeprefix(language_prefix)
+            for c in classes
+            if c.startswith(language_prefix)
+        ]
+        assert len(languages) > 0
+        return languages[0]
 
     def get_code_content(hljs_code: bs4.Tag) -> PlainString:
         return PlainString(hljs_code.get_text())
@@ -123,10 +150,8 @@ def migrate_hljs_tag(hljs_pre: bs4.Tag) -> bs4.Tag:
     hljs_language: str = get_hljs_language(hljs_code)
     pygments_lexer_name: LexerName | None = hljs_to_pygments_lang(hljs_language)
 
-    # TODO: If a proper replacement language could not be found.
-    # Fall back to an UI for selecting it.
     if pygments_lexer_name is None:
-        raise ValueError(f"Could not a proper Pygments lexer for {hljs_language}.")
+        raise UnknownLanguageError(hljs_language)
 
     code_content = get_code_content(hljs_code)
 
