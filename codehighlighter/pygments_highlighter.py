@@ -16,6 +16,7 @@ import pygments.lexers  # type: ignore
 
 from .bs4extra import create_soup
 from .html import HtmlString, PlainString
+from .pygmentsarm import ArmLexer
 
 LexerName = str
 LexerAlias = str
@@ -96,7 +97,9 @@ def get_lexer_name_alias_map() -> dict[LexerName, LexerAlias]:
     # We need to check if `t[1]` has an element, because not all lexer tuples
     # have this.
     # Deprecated lexers have an empty alias list.
-    return {t[0]: t[1][0] for t in pygments.lexers.get_all_lexers() if len(t[1]) >= 1}
+    lexers = {t[0]: t[1][0] for t in pygments.lexers.get_all_lexers() if len(t[1]) >= 1}
+    lexers[ArmLexer.name] = ArmLexer.aliases[0]
+    return lexers
 
 
 @functools.cache
@@ -106,11 +109,14 @@ def get_lexer_by_name(name: LexerName) -> Optional[pygments.lexer.Lexer]:
     pygments.lexers.get_lexer_by_name actually accepts an alias. This function
     corrects this conceptual mismatch.
     """
+
     name_alias_map = get_lexer_name_alias_map()
     # Treat the name itself as an alias if it is not in the map.
     # This is done to facilitate user manually entering strings like "python"
     # or "cpp".
     alias = name_alias_map.get(name, name)
+    if alias == "arm":
+        return ArmLexer()
     try:
         return pygments.lexers.get_lexer_by_name(alias)
     except pygments.util.ClassNotFound:
