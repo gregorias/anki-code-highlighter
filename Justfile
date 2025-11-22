@@ -29,4 +29,4 @@ coverage:
   coverage html
 
 vulture:
-  vulture codehighlighter/
+  vulture codehighlighter/ vulture_whitelist.py
