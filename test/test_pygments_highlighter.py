@@ -1,10 +1,19 @@
 import unittest
 
 from codehighlighter.html import PlainString
-from codehighlighter.pygments_highlighter import create_inline_style, highlight
+from codehighlighter.pygments_highlighter import (
+    SUPPORTED_LEXERS,
+    create_inline_style,
+    get_lexer_name_alias_map,
+    highlight,
+)
 
 
 class PygmentsHighlighterTestCase(unittest.TestCase):
+    def test_supported_lexers_are_subset_of_all_lexers(self):
+        all_lexers = set(get_lexer_name_alias_map().keys())
+        supported_lexers = set(SUPPORTED_LEXERS)
+        self.assertTrue(supported_lexers.issubset(all_lexers))
 
     def test_arm_lexer(self):
         # Test that the ARM lexer works and is correctly picked up by

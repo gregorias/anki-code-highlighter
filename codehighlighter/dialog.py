@@ -211,7 +211,7 @@ def ask_for_pygments_config(
     if display_style is None:
         return None
 
-    available_languages = list(sorted(pygments_highlighter.get_available_languages()))
+    available_languages = list(pygments_highlighter.get_available_languages())
     language = ask_for_language(
         parent=parent, languages=available_languages, current=current.language
     )
