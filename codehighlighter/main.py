@@ -20,7 +20,6 @@ sys.path.append(os.path.dirname(__file__))
 import anki  # type: ignore
 import anki.collection
 import anki.media
-import anki.models
 import anki.notes
 
 from . import pygments_highlighter
