@@ -18,6 +18,7 @@ pre-commit:
       run: ./dev/bin/check-version-sync {staged_files}
     css-prettier:
       tags: style
+      files: git diff --name-only --cached --diff-filter=AM
       glob: "*.css"
       run: prettier -c {staged_files}
     markdownlint:

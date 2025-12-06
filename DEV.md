@@ -142,7 +142,7 @@ The plugin instruments all card templates by default, because that's what most
 people will want. It requires zero-effort from a user to get to what they want,
 which is being able to highlight code. It's non-intrusive, the added styles
 should not interfere with users' preexisting settings as they are namespaced by
-a class (`hljs` or `pygments`).
+a class (`pygments`).
 
 ### Alternative methods of using highlight.js
 

@@ -46,35 +46,7 @@ addon_path = os.path.dirname(__file__)
 ASSET_PREFIX = "_ch-"
 DEFAULT_CSS_ASSETS = [
     "_ch-pygments-solarized.css",
-    "_ch-hljs-solarized.css",
 ]
-# We can’t just load with <script src="foo.js">, because it causes flicker
-# (https://github.com/gregorias/anki-code-highlighter/issues/94).
-#
-# However, dynamic import makes the flicker worse on mobile.
-HLJS_SCRIPT = """
-var hljs;
-if (document.currentScript.closest('.mobile')) {
-  const script = document.createElement('script');
-  script.src = '_ch-highlight.js';
-  script.type = 'text/javascript';
-  document.head.appendChild(script);
-} else if (!hljs) {
-  import("/_ch-highlight-export.js").then(moduleObj => {
-    globalThis.hljs = moduleObj.hljs;
-    globalThis.hljs.configure({
-      cssSelector: 'pre code[class^="language-"]:not([data-highlighted="yes"])',
-    });
-    globalThis.hljs.highlightAll();
-
-  });
-} else {
-  globalThis.hljs.configure({
-    cssSelector: 'pre code[class^="language-"]:not([data-highlighted="yes"])',
-  });
-  globalThis.hljs.highlightAll();
-}
-"""
 VERSION_ASSET = "_ch-asset-version.txt"
 GUARD = "Anki Code Highlighter (Addon 112228974)"
 CLASS_NAME = "anki-code-highlighter"
@@ -124,7 +96,7 @@ def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collec
         col.media,
         ASSET_PREFIX,
         css_assets,
-        script_elements=[HLJS_SCRIPT],
+        script_elements=[],
         guard=GUARD,
         class_name=CLASS_NAME,
     )

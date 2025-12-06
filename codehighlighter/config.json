@@ -2,7 +2,6 @@
   "block-style": "display:flex; justify-content:center;",
   "css-files": [
     "_ch-pygments-solarized.css",
-    "_ch-hljs-solarized.css"
   ],
   "shortcut": "ctrl+'"
 }
