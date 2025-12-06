@@ -13,6 +13,7 @@ import pygments  # type: ignore
 import pygments.formatters  # type: ignore
 import pygments.lexer
 import pygments.lexers  # type: ignore
+import pygments.util
 
 from .bs4extra import create_soup
 from .html import HtmlString, PlainString
@@ -242,7 +243,7 @@ def get_lexer_by_name(name: LexerName) -> Optional[pygments.lexer.Lexer]:
 @functools.cache
 def get_plaintext_lexer() -> pygments.lexer.Lexer:
     # This should never return None. There’s a unit-test validating this.
-    return get_lexer_by_name("output")
+    return get_lexer_by_name("output")  # type: ignore
 
 
 @functools.cache
