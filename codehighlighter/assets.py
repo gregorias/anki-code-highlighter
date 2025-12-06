@@ -8,13 +8,13 @@ relevant assets.
 import contextlib
 import os.path
 import pathlib
-import re
 import typing
 from collections.abc import Callable
 from typing import Protocol
 
 from anki.media import MediaManager
 
+from .guard import append_guarded_snippet, delete_guarded_snippet, guard_html_comments
 from .serialization import Serializer
 
 # This list contains the intended public API of this module.
@@ -168,15 +168,6 @@ def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
     media.trash_files(my_assets)
 
 
-def guards(guard: str) -> tuple[str, str]:
-    """
-    Creates HTML comments bracketing import statements.
-
-    :param guard str A guard string used for HTML comments wrapping the imports.
-    """
-    return (f"<!-- {guard} BEGIN -->\n", f"<!-- {guard} END -->\n")
-
-
 def append_import_statements(
     css_assets: list[str],
     script_elements: list[str],
@@ -205,11 +196,9 @@ def append_import_statements(
         ]
     )
 
-    GUARD_BEGIN, GUARD_END = guards(guard)
-
-    gap = "\n" if tmpl.endswith("\n") else "\n\n"
-
-    return tmpl + gap + GUARD_BEGIN + IMPORT_STATEMENTS + GUARD_END
+    return append_guarded_snippet(
+        tmpl, IMPORT_STATEMENTS, guards=guard_html_comments(guard)
+    )
 
 
 def delete_import_statements(guard: str, tmpl: str) -> str:
@@ -220,13 +209,7 @@ def delete_import_statements(guard: str, tmpl: str) -> str:
     :param tmpl
     :rtype template with deleted import statements.
     """
-    GUARD_BEGIN, GUARD_END = guards(guard)
-    return re.sub(
-        f"\n{re.escape(GUARD_BEGIN)}.*{re.escape(GUARD_END)}",
-        "",
-        tmpl,
-        flags=re.MULTILINE | re.DOTALL,
-    )
+    return delete_guarded_snippet(tmpl, guard_html_comments(guard))
 
 
 def sync_assets(
