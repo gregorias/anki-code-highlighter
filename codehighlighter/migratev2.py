@@ -42,6 +42,8 @@ def hljs_to_pygments_lang(hljs_lang: str) -> LexerName | None:
         return "WebAssembly"
     elif hljs_lang == "gradle":
         return "Groovy"
+    elif hljs_lang == "python-repl":
+        return "Python console session"
     return get_lexer_name_by_alias(hljs_lang)
 
 

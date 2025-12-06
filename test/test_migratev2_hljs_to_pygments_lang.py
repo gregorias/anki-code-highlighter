@@ -413,7 +413,7 @@ class TestHljsToPygmentsLang(unittest.TestCase):
         self.assertEqual(hljs_to_pygments_lang("python"), "Python")
 
     def test_hljs_to_pygments_lang_for_python_repl(self):
-        self.assertEqual(hljs_to_pygments_lang("python-repl"), None)
+        self.assertEqual(hljs_to_pygments_lang("python-repl"), "Python console session")
 
     def test_hljs_to_pygments_lang_for_q(self):
         self.assertEqual(hljs_to_pygments_lang("q"), "Q")
