@@ -40,6 +40,7 @@ from .dialog import (
     ask_for_highlighter_config,
 )
 from .html import PlainString
+from .model import AnkiModelModifier
 from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
@@ -92,7 +93,7 @@ def css_files() -> List[str]:
 
 def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collection):
     return AnkiAssetManager(
-        partial(transform_templates, col.models),
+        AnkiModelModifier(col.models),
         col.media,
         ASSET_PREFIX,
         css_assets,
@@ -255,15 +256,6 @@ def on_editor_buttons_init(buttons: List, editor: aqt.editor.Editor) -> None:
         # Skip label, because we already provide an icon.
     )
     buttons.append(action_button)
-
-
-def transform_templates(models: anki.models.ModelManager, modify: Callable[[str], str]):
-    """Transforms all card templates with modify."""
-    for model in models.all():
-        for tmpl in model["tmpls"]:
-            tmpl["afmt"] = modify(tmpl["afmt"])
-            tmpl["qfmt"] = modify(tmpl["qfmt"])
-        models.save(model)
 
 
 def setup_menu() -> None:

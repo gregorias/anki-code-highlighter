@@ -15,6 +15,7 @@ from typing import Protocol
 from anki.media import MediaManager
 
 from .guard import append_guarded_snippet, delete_guarded_snippet, guard_html_comments
+from .model import ModelModifier
 from .serialization import Serializer
 
 # This list contains the intended public API of this module.
@@ -72,7 +73,7 @@ class AnkiAssetManager:
 
     def __init__(
         self,
-        modify_templates: Callable[[Callable[[str], str]], None],
+        model_modifier: ModelModifier,
         media: MediaManager,
         asset_prefix: str,
         css_assets: list[str],
@@ -81,8 +82,7 @@ class AnkiAssetManager:
         class_name: str,
     ):
         """
-        :param modify_templates
-            A function that can modify card templates.
+        :param model_modifier
         :param media The active Anki media manager.
         :param asset_prefix The prefix used for this plugin's assets.
         :param css_assets All CSS files used by this plugin.
@@ -91,7 +91,7 @@ class AnkiAssetManager:
         :param class_name The unique HTML class name that this manager can use
             to identify its HTML elements.
         """
-        self.modify_templates = modify_templates
+        self.model_modifier = model_modifier
         self.media = media
         self.asset_prefix = asset_prefix
         self.css_assets = css_assets
@@ -101,7 +101,7 @@ class AnkiAssetManager:
 
     def install_assets(self) -> None:
         install_media_assets(self.asset_prefix, self.media)
-        self.modify_templates(
+        self.model_modifier.modify_templates(
             lambda tmpl: append_import_statements(
                 css_assets=self.css_assets,
                 script_elements=self.script_elements,
@@ -112,7 +112,7 @@ class AnkiAssetManager:
         )
 
     def delete_assets(self) -> None:
-        self.modify_templates(
+        self.model_modifier.modify_templates(
             lambda tmpl: delete_import_statements(guard=self.guard, tmpl=tmpl)
         )
         delete_media_assets(self.asset_prefix, self.media)
