@@ -15,7 +15,13 @@ from typing import Protocol
 from anki.media import MediaManager
 
 from .guard import append_guarded_snippet, delete_guarded_snippet, guard_html_comments
+from .media import (
+    anki_media_directory,
+    delete_media_assets,
+    open_media_asset,
+)
 from .model import ModelModifier
+from .osextra import list_files_with_prefix
 from .serialization import Serializer
 
 # This list contains the intended public API of this module.
@@ -23,7 +29,6 @@ __all__ = [
     "AssetManager",
     "AnkiAssetManager",
     "has_newer_version",
-    "list_plugin_media_files",
     "sync_assets",
     "append_import_statements",
     "delete_import_statements",
@@ -133,41 +138,6 @@ def assets_directory() -> pathlib.Path:
     return pathlib.Path(addon_path) / "assets"
 
 
-def anki_media_directory(media: MediaManager) -> pathlib.Path:
-    return pathlib.Path(media.dir())
-
-
-def list_files_with_prefix(dir: pathlib.Path, asset_prefix: str) -> list[str]:
-    return [f for f in os.listdir(dir) if f.startswith(asset_prefix)]
-
-
-def list_plugin_media_files(media: MediaManager, plugin_asset_prefix: str) -> list[str]:
-    """
-    Return's the plugin's media files.
-
-    Media files are files (assets) installed in Anki.
-
-    :param media MediaManager
-    :param plugin_asset_prefix str: The plugin's identifying prefix, e.g.,
-      ('_ch').
-    :rtype list[str]: The plugin's media files.
-    """
-    return list_files_with_prefix(anki_media_directory(media), plugin_asset_prefix)
-
-
-def install_media_assets(asset_prefix: str, media: MediaManager) -> None:
-    assets_dir = assets_directory()
-    my_assets = list_files_with_prefix(assets_dir, asset_prefix)
-    for asset in my_assets:
-        media.add_file(str(assets_dir / asset))
-
-
-def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
-    """Deletes all media assets whose filenames starts with `asset_prefix`"""
-    my_assets = list_files_with_prefix(anki_media_directory(media), asset_prefix)
-    media.trash_files(my_assets)
-
-
 def append_import_statements(
     css_assets: list[str],
     script_elements: list[str],
@@ -221,20 +191,11 @@ def sync_assets(
         asset_manager.install_assets()
 
 
-@contextlib.contextmanager
-def open_media_asset(
-    media: MediaManager, path: pathlib.Path, mode: str
-) -> typing.Generator[typing.IO, None, None]:
-    """Reads an Anki media asset at the provided path.
-
-    Args:
-        path: the relative path to the asset.
-
-    Returns:
-        The asset itself.
-    """
-    with open(anki_media_directory(media) / path, mode) as f:
-        yield f
+def install_media_assets(asset_prefix: str, media: MediaManager) -> None:
+    assets_dir = assets_directory()
+    my_assets = list_files_with_prefix(assets_dir, asset_prefix)
+    for asset in my_assets:
+        media.add_file(str(assets_dir / asset))
 
 
 T = typing.TypeVar("T")
