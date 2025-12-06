@@ -144,6 +144,10 @@ which is being able to highlight code. It's non-intrusive, the added styles
 should not interfere with users' preexisting settings as they are namespaced by
 a class (`pygments`).
 
+### No inline styles
+
+The add-on uses classes, not inline styles, to support day and night modes.
+
 ### Alternative methods of using highlight.js
 
 I've added each highlight.js language as a separate script to assets/, and then
@@ -170,7 +174,7 @@ I decided to drop Highlight.js, because it caused significant problems:
 
 The only benefit of Highlight.js is that it doesn’t spoil a card’s HTML with
 tags.
-This is not much of a benefit in practice in practice.
+This is not much of a benefit in practice.
 I’ve never relied on it much.
 
 [Black]: https://black.readthedocs.io/en/stable/
