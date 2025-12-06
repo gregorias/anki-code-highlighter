@@ -201,7 +201,7 @@ def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.T
         style_attr = f' style="{style.block_style}"' if style.block_style else ""
         highlighted = (
             f'<div class="pygments"{style_attr}>\n'
-            + f'  <pre><code class="nohighlight">{highlighted}</code></pre>\n'
+            + f"  <pre><code>{highlighted}</code></pre>\n"
             + "</div>\n"
         )
     return create_soup(HtmlString(highlighted))
