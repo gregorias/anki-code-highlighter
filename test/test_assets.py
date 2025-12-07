@@ -61,16 +61,13 @@ class AssetsTestCase(unittest.TestCase):
         GUARD = "PLUGIN (Addon 123)"
         CLASS_NAME = "anki-ch"
 
-        new_tmpl = append_import_statements(
-            ["c.css"], ["console.log('foo')"], GUARD, CLASS_NAME, tmpl
-        )
+        new_tmpl = append_import_statements(["c.css"], GUARD, CLASS_NAME, tmpl)
         self.assertEqual(delete_import_statements(GUARD, new_tmpl), tmpl + "\n")
 
     def test_append_import_statements_adds_them_with_a_gap(self):
         self.assertEqual(
             append_import_statements(
                 ["c.css"],
-                ["console.log('foo')"],
                 "Anki Code Highlighter (Addon 112228974)",
                 "plugin",
                 "{{Cloze}}",
@@ -81,7 +78,6 @@ class AssetsTestCase(unittest.TestCase):
 
             <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
             <link rel="stylesheet" href="c.css" class="plugin">
-            <script class="plugin">console.log('foo')</script>
             <!-- Anki Code Highlighter (Addon 112228974) END -->
             """
             ),
@@ -93,7 +89,6 @@ class AssetsTestCase(unittest.TestCase):
         self.assertEqual(
             append_import_statements(
                 ["c.css"],
-                ["console.log('foo')"],
                 "Anki Code Highlighter (Addon 112228974)",
                 "plugin",
                 "{{Cloze}}\n",
@@ -104,7 +99,6 @@ class AssetsTestCase(unittest.TestCase):
 
             <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
             <link rel="stylesheet" href="c.css" class="plugin">
-            <script class="plugin">console.log('foo')</script>
             <!-- Anki Code Highlighter (Addon 112228974) END -->
             """
             ),
@@ -148,7 +142,6 @@ class AssetsManagerTestCase(unittest.TestCase):
             model_modifier,
             media_installer,
             css_assets=["_ch-foo.css"],
-            script_elements=[],
             guard="ACH add-on",
             class_name="ach",
         )

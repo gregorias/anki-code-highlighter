@@ -97,7 +97,6 @@ def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collec
         AnkiModelModifier(col.models),
         AnkiMediaInstaller(ASSET_PREFIX, get_addon_assets(ASSET_PREFIX), col.media),
         css_assets,
-        script_elements=[],
         guard=GUARD,
         class_name=CLASS_NAME,
     )

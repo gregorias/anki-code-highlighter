@@ -81,7 +81,6 @@ class AnkiAssetManager:
         model_modifier: ModelModifier,
         media_installer: MediaInstaller,
         css_assets: list[str],
-        script_elements: list[str],
         guard: str,
         class_name: str,
     ):
@@ -89,7 +88,6 @@ class AnkiAssetManager:
         :param model_modifier
         :param media_installer
         :param css_assets All CSS files used by this plugin.
-        :param script_elements JS scripts to run.
         :param guard A guard string used for HTML comments wrapping the imports.
         :param class_name The unique HTML class name that this manager can use
             to identify its HTML elements.
@@ -97,7 +95,6 @@ class AnkiAssetManager:
         self.model_modifier = model_modifier
         self.media_installer = media_installer
         self.css_assets = css_assets
-        self.script_elements = script_elements
         self.guard = guard
         self.class_name = class_name
 
@@ -106,7 +103,6 @@ class AnkiAssetManager:
         self.model_modifier.modify_templates(
             lambda tmpl: append_import_statements(
                 css_assets=self.css_assets,
-                script_elements=self.script_elements,
                 guard=self.guard,
                 class_name=self.class_name,
                 tmpl=tmpl,
@@ -137,7 +133,6 @@ def assets_directory() -> pathlib.Path:
 
 def append_import_statements(
     css_assets: list[str],
-    script_elements: list[str],
     guard: str,
     class_name: str,
     tmpl: str,
@@ -146,7 +141,6 @@ def append_import_statements(
     Appends import statements to a card template.
 
     :param css_assets
-    :param script_elements
     :param guard A guard string used for HTML comments wrapping the imports.
     :param class_name A class name that identifies this plugin.
     :param tmpl
@@ -156,10 +150,6 @@ def append_import_statements(
         [
             f'<link rel="stylesheet" href="{css_asset}" class="{class_name}">\n'
             for css_asset in css_assets
-        ]
-        + [
-            f'<script class="{class_name}">{script}</script>\n'
-            for script in script_elements
         ]
     )
 
