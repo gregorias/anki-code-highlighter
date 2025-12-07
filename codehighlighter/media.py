@@ -1,17 +1,50 @@
 """This module handles Anki media files."""
 
 import contextlib
-import pathlib
 import typing
+from abc import ABC, abstractmethod
 from collections.abc import Iterator
+from pathlib import Path
 
 from anki.media import MediaManager
 
 from .osextra import list_files_with_prefix
 
 
-def anki_media_directory(media: MediaManager) -> pathlib.Path:
-    return pathlib.Path(media.dir())
+class MediaInstaller(ABC):
+    @abstractmethod
+    def install_media_assets(self) -> None:
+        """Installs all add-on's media."""
+        pass
+
+    @abstractmethod
+    def delete_media_assets(self) -> None:
+        """Deletes all add-on's media."""
+        pass
+
+
+class AnkiMediaInstaller(MediaInstaller):
+    def __init__(
+        self, addon_prefix: str, addon_assets: list[Path], media_manager: MediaManager
+    ):
+        self.addon_prefix = addon_prefix
+        self.addon_assets = addon_assets
+        self.media = media_manager
+
+    def install_media_assets(self) -> None:
+        install_media_assets(self.addon_assets, self.media)
+
+    def delete_media_assets(self):
+        delete_media_assets(self.addon_prefix, self.media)
+
+
+def anki_media_directory(media: MediaManager) -> Path:
+    return Path(media.dir())
+
+
+def install_media_assets(assets: list[Path], media: MediaManager) -> None:
+    for asset in assets:
+        media.add_file(str(asset))
 
 
 def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
@@ -21,9 +54,7 @@ def delete_media_assets(asset_prefix: str, media: MediaManager) -> None:
 
 
 @contextlib.contextmanager
-def open_media_asset(
-    media: MediaManager, path: pathlib.Path, mode: str
-) -> Iterator[typing.IO]:
+def open_media_asset(media: MediaManager, path: Path, mode: str) -> Iterator[typing.IO]:
     """Reads an Anki media asset at the provided path.
 
     Args:

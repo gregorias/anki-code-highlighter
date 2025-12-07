@@ -27,6 +27,7 @@ from .ankieditorextra import AnkiEditorInterface, EditorInterface, transform_sel
 from .assets import (
     AnkiAssetManager,
     AnkiAssetStateManager,
+    get_addon_assets,
     has_newer_version,
     sync_assets,
 )
@@ -39,6 +40,7 @@ from .dialog import (
     ask_for_highlighter_config,
 )
 from .html import PlainString
+from .media import AnkiMediaInstaller
 from .model import AnkiModelModifier
 from .serialization import JSONObjectSerializer
 
@@ -93,8 +95,7 @@ def css_files() -> List[str]:
 def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collection):
     return AnkiAssetManager(
         AnkiModelModifier(col.models),
-        col.media,
-        ASSET_PREFIX,
+        AnkiMediaInstaller(ASSET_PREFIX, get_addon_assets(ASSET_PREFIX), col.media),
         css_assets,
         script_elements=[],
         guard=GUARD,

@@ -4,7 +4,14 @@ from pathlib import Path
 from textwrap import dedent
 
 from codehighlighter import assets
-from codehighlighter.assets import append_import_statements, delete_import_statements
+from codehighlighter.assets import (
+    AnkiAssetManager,
+    append_import_statements,
+    delete_import_statements,
+)
+
+from .media import FakeMediaInstaller
+from .model import FakeModelModifier
 
 
 class FakeAssetManager:
@@ -118,3 +125,42 @@ class AssetsTestCase(unittest.TestCase):
             delete_import_statements("Anki Code Highlighter (Addon 112228974)", TMPL),
             "{{Cloze}}\n",
         )
+
+
+class AssetsManagerTestCase(unittest.TestCase):
+
+    def test_delete_assets(self):
+        model_modifier = FakeModelModifier(
+            [
+                dedent(
+                    """\
+           {{Front}}
+
+           <!-- ACH add-on BEGIN -->
+           <link rel="stylesheet" href="_ch-pygments-solarized.css" class="anki-code-highlighter">
+           <!-- ACH add-on END -->
+           """
+                )
+            ]
+        )
+        media_installer = FakeMediaInstaller(["_ch-foo.css", "foo.png"])
+        manager = AnkiAssetManager(
+            model_modifier,
+            media_installer,
+            css_assets=["_ch-foo.css"],
+            script_elements=[],
+            guard="ACH add-on",
+            class_name="ach",
+        )
+
+        manager.delete_assets()
+
+        self.assertEqual(
+            model_modifier.templates[0],
+            dedent(
+                """\
+               {{Front}}
+               """
+            ),
+        )
+        self.assertListEqual(media_installer.files, ["foo.png"])

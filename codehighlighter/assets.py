@@ -4,20 +4,20 @@ The module is plugin agnostic: it contains generic mechanisms for updating
 relevant assets.
 """
 
-# Media refers to static JS and CSS files.
 import contextlib
 import os.path
 import pathlib
 import typing
 from collections.abc import Callable
+from pathlib import Path
 from typing import Protocol
 
 from anki.media import MediaManager
 
 from .guard import append_guarded_snippet, delete_guarded_snippet, guard_html_comments
 from .media import (
+    MediaInstaller,
     anki_media_directory,
-    delete_media_assets,
     open_media_asset,
 )
 from .model import ModelModifier
@@ -79,8 +79,7 @@ class AnkiAssetManager:
     def __init__(
         self,
         model_modifier: ModelModifier,
-        media: MediaManager,
-        asset_prefix: str,
+        media_installer: MediaInstaller,
         css_assets: list[str],
         script_elements: list[str],
         guard: str,
@@ -88,8 +87,7 @@ class AnkiAssetManager:
     ):
         """
         :param model_modifier
-        :param media The active Anki media manager.
-        :param asset_prefix The prefix used for this plugin's assets.
+        :param media_installer
         :param css_assets All CSS files used by this plugin.
         :param script_elements JS scripts to run.
         :param guard A guard string used for HTML comments wrapping the imports.
@@ -97,15 +95,14 @@ class AnkiAssetManager:
             to identify its HTML elements.
         """
         self.model_modifier = model_modifier
-        self.media = media
-        self.asset_prefix = asset_prefix
+        self.media_installer = media_installer
         self.css_assets = css_assets
         self.script_elements = script_elements
         self.guard = guard
         self.class_name = class_name
 
     def install_assets(self) -> None:
-        install_media_assets(self.asset_prefix, self.media)
+        self.media_installer.install_media_assets()
         self.model_modifier.modify_templates(
             lambda tmpl: append_import_statements(
                 css_assets=self.css_assets,
@@ -120,7 +117,7 @@ class AnkiAssetManager:
         self.model_modifier.modify_templates(
             lambda tmpl: delete_import_statements(guard=self.guard, tmpl=tmpl)
         )
-        delete_media_assets(self.asset_prefix, self.media)
+        self.media_installer.delete_media_assets()
 
 
 addon_path = os.path.dirname(__file__)
@@ -191,11 +188,10 @@ def sync_assets(
         asset_manager.install_assets()
 
 
-def install_media_assets(asset_prefix: str, media: MediaManager) -> None:
+def get_addon_assets(asset_prefix: str) -> list[Path]:
     assets_dir = assets_directory()
     my_assets = list_files_with_prefix(assets_dir, asset_prefix)
-    for asset in my_assets:
-        media.add_file(str(assets_dir / asset))
+    return [assets_dir / a for a in my_assets]
 
 
 T = typing.TypeVar("T")
