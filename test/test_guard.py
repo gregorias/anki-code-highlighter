@@ -71,3 +71,41 @@ class AssetsGuardTestCase(unittest.TestCase):
             ),
             "{{Cloze}}\n",
         )
+
+    def test_delete_deletes_all_surrounding_newlines(self):
+        TMPL = dedent(
+            """\
+           {{Cloze}}
+
+           <!-- Foo BEGIN -->
+           <link rel="stylesheet" href="c.css" class="plugin">
+           <script src="j.js" class="plugin"></script>
+           <!-- Foo END -->
+
+           {{Foo}}
+           """
+        )
+        self.assertEqual(
+            delete_guarded_snippet(
+                TMPL, ("<!-- Foo BEGIN -->\n", "<!-- Foo END -->\n")
+            ),
+            "{{Cloze}}\n{{Foo}}\n",
+        )
+
+    def test_delete_deletes_prefix_newlines(self):
+        TMPL = dedent(
+            """\
+               <!-- Foo BEGIN -->
+               <link rel="stylesheet" href="c.css" class="plugin">
+               <script src="j.js" class="plugin"></script>
+               <!-- Foo END -->
+
+               {{Foo}}
+               """
+        )
+        self.assertEqual(
+            delete_guarded_snippet(
+                TMPL, ("<!-- Foo BEGIN -->\n", "<!-- Foo END -->\n")
+            ),
+            "{{Foo}}\n",
+        )

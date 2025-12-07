@@ -63,9 +63,10 @@ def delete_guarded_snippet(tmpl: str, guards: Guards) -> str:
     Returns:
         The modified string.
     """
-    return re.sub(
-        f"(\n)*{re.escape(guards[0])}.*{re.escape(guards[1])}",
+    nonguard_tmpl = re.sub(
+        f"(\n)*{re.escape(guards[0])}.*{re.escape(guards[1])}(\n)*",
         "\n",
         tmpl,
         flags=re.MULTILINE | re.DOTALL,
     )
+    return nonguard_tmpl.lstrip()
