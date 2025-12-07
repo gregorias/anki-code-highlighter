@@ -4,11 +4,7 @@ from pathlib import Path
 from textwrap import dedent
 
 from codehighlighter import assets
-from codehighlighter.assets import (
-    AnkiAssetManager,
-    append_import_statements,
-    delete_import_statements,
-)
+from codehighlighter.assets import AnkiAssetManager
 
 from .media import FakeMediaInstaller
 from .model import FakeModelModifier
@@ -48,80 +44,67 @@ class AssetsTestCase(unittest.TestCase):
             version_f.flush()
             self.assertEqual(assets.read_asset_version(Path(version_f.name)), 42)
 
-    def test_append_and_clear_import_statements_do_nothing(self):
-        tmpl = """{{FrontSide}}
-                    <hr id=answer>
-                    {{Back}}
-
-                    {{#Notes}}
-                    <div id=notes>
-                    <h4>Notes</h4>
-                    {{Notes}}"""
-
-        GUARD = "PLUGIN (Addon 123)"
-        CLASS_NAME = "anki-ch"
-
-        new_tmpl = append_import_statements(["c.css"], GUARD, CLASS_NAME, tmpl)
-        self.assertEqual(delete_import_statements(GUARD, new_tmpl), tmpl + "\n")
-
-    def test_append_import_statements_adds_them_with_a_gap(self):
-        self.assertEqual(
-            append_import_statements(
-                ["c.css"],
-                "Anki Code Highlighter (Addon 112228974)",
-                "plugin",
-                "{{Cloze}}",
-            ),
-            dedent(
-                """\
-            {{Cloze}}
-
-            <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
-            <link rel="stylesheet" href="c.css" class="plugin">
-            <!-- Anki Code Highlighter (Addon 112228974) END -->
-            """
-            ),
-        )
-
-    def test_append_import_statements_adds_them_with_a_gap_and_minds_a_newline_in_template(
-        self,
-    ):
-        self.assertEqual(
-            append_import_statements(
-                ["c.css"],
-                "Anki Code Highlighter (Addon 112228974)",
-                "plugin",
-                "{{Cloze}}\n",
-            ),
-            dedent(
-                """\
-            {{Cloze}}
-
-            <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
-            <link rel="stylesheet" href="c.css" class="plugin">
-            <!-- Anki Code Highlighter (Addon 112228974) END -->
-            """
-            ),
-        )
-
-    def test_delete_import_statements_deletes_new_style_imports(self):
-        TMPL = dedent(
-            """\
-            {{Cloze}}
-
-            <!-- Anki Code Highlighter (Addon 112228974) BEGIN -->
-            <link rel="stylesheet" href="c.css" class="plugin">
-            <script src="j.js" class="plugin"></script>
-            <!-- Anki Code Highlighter (Addon 112228974) END -->
-            """
-        )
-        self.assertEqual(
-            delete_import_statements("Anki Code Highlighter (Addon 112228974)", TMPL),
-            "{{Cloze}}\n",
-        )
-
 
 class AssetsManagerTestCase(unittest.TestCase):
+    def test_install_updates_css_and_media(self):
+        initial_template = "{{FrontSide}}\n"
+        initial_css = "body { background-color: white; }"
+        initial_media_files = ["foo.png"]
+        addon_assets = ["_ch-pygments-solarized.css"]
+
+        model_modifier = FakeModelModifier([initial_template], [initial_css])
+        media_installer = FakeMediaInstaller(
+            initial_media_files, addon_assets=addon_assets
+        )
+
+        manager = AnkiAssetManager(
+            model_modifier,
+            media_installer,
+            css_assets=["_ch-pygments-solarized.css"],
+            guard="ACH add-on",
+            class_name="anki-code-highlighter",
+        )
+
+        manager.install_assets()
+
+        self.assertEqual(model_modifier.templates[0], initial_template)
+        self.assertEqual(
+            model_modifier.csss[0],
+            "/* ACH add-on BEGIN */\n"
+            + '@import "_ch-pygments-solarized.css";\n'
+            + "/* ACH add-on END */\n"
+            + "\n"
+            + initial_css,
+        )
+        self.assertSetEqual(
+            set(media_installer.files), set(initial_media_files + addon_assets)
+        )
+
+    def test_install_and_delete_do_nothing(self):
+        initial_template = "{{FrontSide}}\n"
+        initial_css = "body { background-color: white; }"
+        initial_media_files = ["foo.png"]
+        addon_assets = ["_ch-pygments-solarized.css"]
+
+        model_modifier = FakeModelModifier([initial_template], [initial_css])
+        media_installer = FakeMediaInstaller(
+            initial_media_files, addon_assets=addon_assets
+        )
+
+        manager = AnkiAssetManager(
+            model_modifier,
+            media_installer,
+            css_assets=["_ch-pygments-solarized.css"],
+            guard="ACH add-on",
+            class_name="anki-code-highlighter",
+        )
+
+        manager.install_assets()
+        manager.delete_assets()
+
+        self.assertEqual(model_modifier.templates[0], initial_template)
+        self.assertEqual(model_modifier.csss[0], initial_css)
+        self.assertListEqual(media_installer.files, initial_media_files)
 
     def test_delete_assets(self):
         model_modifier = FakeModelModifier(
@@ -132,10 +115,18 @@ class AssetsManagerTestCase(unittest.TestCase):
 
            <!-- ACH add-on BEGIN -->
            <link rel="stylesheet" href="_ch-pygments-solarized.css" class="anki-code-highlighter">
+           <script src="j.js" class="plugin"></script>
            <!-- ACH add-on END -->
            """
                 )
-            ]
+            ],
+            [
+                "/* ACH add-on BEGIN */\n"
+                + 'import "_ch-foo.css"\n'
+                + "/* ACH add-on END */\n"
+                + "\n"
+                + "body {}\n"
+            ],
         )
         media_installer = FakeMediaInstaller(["_ch-foo.css", "foo.png"])
         manager = AnkiAssetManager(
@@ -148,12 +139,6 @@ class AssetsManagerTestCase(unittest.TestCase):
 
         manager.delete_assets()
 
-        self.assertEqual(
-            model_modifier.templates[0],
-            dedent(
-                """\
-               {{Front}}
-               """
-            ),
-        )
+        self.assertEqual(model_modifier.templates[0], "{{Front}}\n")
+        self.assertEqual(model_modifier.csss[0], "body {}\n")
         self.assertListEqual(media_installer.files, ["foo.png"])

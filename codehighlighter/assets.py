@@ -14,7 +14,12 @@ from typing import Protocol
 
 from anki.media import MediaManager
 
-from .guard import append_guarded_snippet, delete_guarded_snippet, guard_html_comments
+from .guard import (
+    delete_guarded_snippet,
+    guard_css_comments,
+    guard_html_comments,
+    prepend_guarded_snippet,
+)
 from .media import (
     MediaInstaller,
     anki_media_directory,
@@ -30,8 +35,6 @@ __all__ = [
     "AnkiAssetManager",
     "has_newer_version",
     "sync_assets",
-    "append_import_statements",
-    "delete_import_statements",
 ]
 
 
@@ -100,18 +103,20 @@ class AnkiAssetManager:
 
     def install_assets(self) -> None:
         self.media_installer.install_media_assets()
-        self.model_modifier.modify_templates(
-            lambda tmpl: append_import_statements(
+        self.model_modifier.modify_stylings(
+            lambda tmpl: prepend_import_statements(
                 css_assets=self.css_assets,
                 guard=self.guard,
-                class_name=self.class_name,
                 tmpl=tmpl,
             )
         )
 
     def delete_assets(self) -> None:
         self.model_modifier.modify_templates(
-            lambda tmpl: delete_import_statements(guard=self.guard, tmpl=tmpl)
+            lambda tmpl: _delete_import_statements(guard=self.guard, tmpl=tmpl)
+        )
+        self.model_modifier.modify_stylings(
+            lambda tmpl: delete_guarded_snippet(tmpl, guard_css_comments(self.guard))
         )
         self.media_installer.delete_media_assets()
 
@@ -131,34 +136,29 @@ def assets_directory() -> pathlib.Path:
     return pathlib.Path(addon_path) / "assets"
 
 
-def append_import_statements(
+def prepend_import_statements(
     css_assets: list[str],
     guard: str,
-    class_name: str,
     tmpl: str,
 ) -> str:
     """
-    Appends import statements to a card template.
+    Appends import statements to a note type's css.
 
     :param css_assets
-    :param guard A guard string used for HTML comments wrapping the imports.
-    :param class_name A class name that identifies this plugin.
+    :param guard A guard string used for CSS comments wrapping the imports.
     :param tmpl
     :rtype A template with added import statements.
     """
     IMPORT_STATEMENTS = "".join(
-        [
-            f'<link rel="stylesheet" href="{css_asset}" class="{class_name}">\n'
-            for css_asset in css_assets
-        ]
+        [f'@import "{css_asset}";\n' for css_asset in css_assets]
     )
 
-    return append_guarded_snippet(
-        tmpl, IMPORT_STATEMENTS, guards=guard_html_comments(guard)
+    return prepend_guarded_snippet(
+        tmpl, IMPORT_STATEMENTS, guards=guard_css_comments(guard)
     )
 
 
-def delete_import_statements(guard: str, tmpl: str) -> str:
+def _delete_import_statements(guard: str, tmpl: str) -> str:
     """
     Deletes import statements from a card template.
 

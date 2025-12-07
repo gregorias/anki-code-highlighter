@@ -2,9 +2,9 @@ import unittest
 from textwrap import dedent
 
 from codehighlighter.guard import (
-    append_guarded_snippet,
     delete_guarded_snippet,
     guard_comments,
+    prepend_guarded_snippet,
 )
 
 
@@ -16,22 +16,19 @@ class AssetsGuardTestCase(unittest.TestCase):
             ("/* Add-on BEGIN */\n", "/* Add-on END */\n"),
         )
 
-    def test_append_appends_with_gap(self):
+    def test_prepend_prepends_with_gap(self):
         self.assertEqual(
-            append_guarded_snippet(
-                "{{Cloze}}",
-                "Foo\nBar\n",
-                ("<!-- Foo BEGIN -->\n", "<!-- Foo END -->\n"),
+            prepend_guarded_snippet(
+                "body {}", "Foo\nBar\n", ("<!-- Foo BEGIN -->\n", "<!-- Foo END -->\n")
             ),
             dedent(
                 """\
-            {{Cloze}}
-
             <!-- Foo BEGIN -->
             Foo
             Bar
             <!-- Foo END -->
-            """
+
+            body {}"""
             ),
         )
 

@@ -22,6 +22,19 @@ def guard_comments(guard: str, comment_markup: Tuple[str, str]) -> Guards:
     )
 
 
+def guard_css_comments(guard: str) -> Guards:
+    """
+    Creates CSS comments bracketing import statements.
+
+    Args:
+        guard: A guard string used for CSS comments wrapping the imports.
+
+    Returns:
+        The comment brackets.
+    """
+    return guard_comments(guard, ("/*", "*/"))
+
+
 def guard_html_comments(guard: str) -> Guards:
     """
     Creates HTML comments bracketing import statements.
@@ -35,9 +48,9 @@ def guard_html_comments(guard: str) -> Guards:
     return guard_comments(guard, ("<!--", "-->"))
 
 
-def append_guarded_snippet(tmpl: str, snippet: str, guards: Guards) -> str:
+def prepend_guarded_snippet(tmpl: str, snippet: str, guards: Guards) -> str:
     """
-    Appends a guarded snippet to a string.
+    Prepends a guarded snippet to a string.
 
     Args:
         tmpl: The string to modify.
@@ -48,8 +61,8 @@ def append_guarded_snippet(tmpl: str, snippet: str, guards: Guards) -> str:
         The modified string.
     """
     GUARD_BEGIN, GUARD_END = guards
-    gap = "\n" if tmpl.endswith("\n") else "\n\n"
-    return tmpl + gap + GUARD_BEGIN + snippet + GUARD_END
+    gap = "\n" if tmpl != "" else ""
+    return GUARD_BEGIN + snippet + GUARD_END + gap + tmpl
 
 
 def delete_guarded_snippet(tmpl: str, guards: Guards) -> str:
