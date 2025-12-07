@@ -1,16 +1,17 @@
 """This module handles Anki models."""
 
+from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Protocol
 
 from anki.models import ModelManager
 
 StringTransformer = Callable[[str], str]
 
 
-class ModelModifier(Protocol):
+class ModelModifier(ABC):
     """The streamlined interface for Anki models (note types)."""
 
+    @abstractmethod
     def modify_templates(self, f: StringTransformer) -> None:
         """Modifies all model HTML templates."""
         pass
