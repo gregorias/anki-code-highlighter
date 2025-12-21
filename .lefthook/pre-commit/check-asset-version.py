@@ -22,7 +22,7 @@ def has_changed_assets():
 
 
 def has_updated_asset_version():
-    return any(file == "assets/_ch-asset-version.txt" for file in get_changed_assets())
+    return any(file == "assets/_gch-asset-version.txt" for file in get_changed_assets())
 
 
 def main():

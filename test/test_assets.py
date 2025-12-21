@@ -50,7 +50,7 @@ class AssetsManagerTestCase(unittest.TestCase):
         initial_template = "{{FrontSide}}\n"
         initial_css = "body { background-color: white; }"
         initial_media_files = ["foo.png"]
-        addon_assets = ["_ch-pygments-solarized.css"]
+        addon_assets = ["_gch-pygments-solarized.css"]
 
         model_modifier = FakeModelModifier([initial_template], [initial_css])
         media_installer = FakeMediaInstaller(
@@ -60,7 +60,7 @@ class AssetsManagerTestCase(unittest.TestCase):
         manager = AnkiAssetManager(
             model_modifier,
             media_installer,
-            css_assets=["_ch-pygments-solarized.css"],
+            css_assets=["_gch-pygments-solarized.css"],
             guard="ACH add-on",
             class_name="anki-code-highlighter",
         )
@@ -71,7 +71,7 @@ class AssetsManagerTestCase(unittest.TestCase):
         self.assertEqual(
             model_modifier.csss[0],
             "/* ACH add-on BEGIN */\n"
-            + '@import "_ch-pygments-solarized.css";\n'
+            + '@import "_gch-pygments-solarized.css";\n'
             + "/* ACH add-on END */\n"
             + "\n"
             + initial_css,
@@ -84,7 +84,7 @@ class AssetsManagerTestCase(unittest.TestCase):
         initial_template = "{{FrontSide}}\n"
         initial_css = "body { background-color: white; }"
         initial_media_files = ["foo.png"]
-        addon_assets = ["_ch-pygments-solarized.css"]
+        addon_assets = ["_gch-pygments-solarized.css"]
 
         model_modifier = FakeModelModifier([initial_template], [initial_css])
         media_installer = FakeMediaInstaller(
@@ -94,7 +94,7 @@ class AssetsManagerTestCase(unittest.TestCase):
         manager = AnkiAssetManager(
             model_modifier,
             media_installer,
-            css_assets=["_ch-pygments-solarized.css"],
+            css_assets=["_gch-pygments-solarized.css"],
             guard="ACH add-on",
             class_name="anki-code-highlighter",
         )
@@ -114,7 +114,7 @@ class AssetsManagerTestCase(unittest.TestCase):
            {{Front}}
 
            <!-- ACH add-on BEGIN -->
-           <link rel="stylesheet" href="_ch-pygments-solarized.css" class="anki-code-highlighter">
+           <link rel="stylesheet" href="_gch-pygments-solarized.css" class="anki-code-highlighter">
            <script src="j.js" class="plugin"></script>
            <!-- ACH add-on END -->
            """
@@ -122,17 +122,17 @@ class AssetsManagerTestCase(unittest.TestCase):
             ],
             [
                 "/* ACH add-on BEGIN */\n"
-                + 'import "_ch-foo.css"\n'
+                + 'import "_gch-foo.css"\n'
                 + "/* ACH add-on END */\n"
                 + "\n"
                 + "body {}\n"
             ],
         )
-        media_installer = FakeMediaInstaller(["_ch-foo.css", "foo.png"])
+        media_installer = FakeMediaInstaller(["_gch-foo.css", "foo.png"])
         manager = AnkiAssetManager(
             model_modifier,
             media_installer,
-            css_assets=["_ch-foo.css"],
+            css_assets=["_gch-foo.css"],
             guard="ACH add-on",
             class_name="ach",
         )

@@ -45,11 +45,11 @@ from .model import AnkiModelModifier
 from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
-ASSET_PREFIX = "_ch-"
+ASSET_PREFIX = "_gch-"
 DEFAULT_CSS_ASSETS = [
-    "_ch-pygments-solarized.css",
+    "_gch-pygments-solarized.css",
 ]
-VERSION_ASSET = "_ch-asset-version.txt"
+VERSION_ASSET = "_gch-asset-version.txt"
 GUARD = "Anki Code Highlighter (Addon 112228974)"
 CLASS_NAME = "anki-code-highlighter"
 

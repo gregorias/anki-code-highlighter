@@ -96,7 +96,7 @@ manual step is necessary until Anki adds [add-on lifecycle hooks][2].
 
 This plugin supports a modified Solarized style out of the box (its day and
 night variants) provided by a CSS stylesheets:
-`assets/_ch-pygments-solarized.css`.
+`assets/_gch-pygments-solarized.css`.
 
 You may install your own style but defining and configuring custom stylesheets.
 
@@ -108,19 +108,19 @@ To add a custom style, do the following:
    for each highlighter.
 1. Rename the CSS stylesheet file to start with `_`. This is necessary to
    prevent garbage collection from Anki when you save it in the media
-   directory. Let's say you named it `_ch-my-style.css`.
+   directory. Let's say you named it `_gch-my-style.css`.
 1. Save the CSS stylesheet file into [your Anki profile's media
    directory](https://docs.ankiweb.net/files.html). If you have already
    installed this plugin, the media directory should contain this plugin's
-   assets, e.g., `_ch-pygments-solarized.css`.
+   assets, e.g., `_gch-pygments-solarized.css`.
 1. Open this plugin's configuration in Anki and change the value of
    [`css-files`](#configuration) to use your new stylesheet, e.g.,:
 
    ```json
    {
      "css-files": [
-       "_ch-my-style.css",
-       "_ch-pygments-solarized.css",
+       "_gch-my-style.css",
+       "_gch-pygments-solarized.css",
      ]
    }
    ```

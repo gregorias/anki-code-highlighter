@@ -17,4 +17,4 @@ class FakeMediaInstaller(MediaInstaller):
         self.files = list(set(self.files + self.addon_assets))
 
     def delete_media_assets(self):
-        self.files = [f for f in self.files if not f.startswith("_ch")]
+        self.files = [f for f in self.files if not f.startswith("_gch")]

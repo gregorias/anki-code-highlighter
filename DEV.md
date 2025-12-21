@@ -83,8 +83,8 @@ sync with what Anki uses. To update this Python version, you need to:
 
 ### Generating Pygment stylesheets
 
-In `assets/_ch-pygment-solarized.css` I keep the stylesheet for code formatted
-with pygments plus a few lines for general styles. I generated the style there
+In `assets/_gch-pygment-solarized.css` I keep the stylesheet for code formatted
+with Pygments plus a few lines for general styles. I generated the style there
 with `python -m tools.generatepygmentscss` with some minor adjustments by hand.
 
 ## Testing
@@ -118,7 +118,7 @@ For code clarity and modularity, I keep such pure highlighters in separate
 modules (`pygments`). A highlighter does not implement any logic
 related to Anki including sanitising input from HTML markup.
 
-### Using `assets/_ch*` files for CSS and JS
+### Using `assets/_gch*` files for CSS and JS
 
 The asset files start with an underscore,
 because then Anki ignores them ([source][anki-media-ignore]).
