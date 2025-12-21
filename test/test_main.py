@@ -32,7 +32,9 @@ class HighlightTestCase(unittest.TestCase):
 
         self.assertIsNone(err_msg)
         self.assertEqual(
-            '\'<code class="pygments">' + '<span class="mi">123</span>' + "</code>'",
+            '\'<code class="gch-pygments">'
+            + '<span class="mi">123</span>'
+            + "</code>'",
             editor.unwrap_action.contents,
         )
 
@@ -50,7 +52,7 @@ class HighlightSelectionTestCase(unittest.TestCase):
         )
 
         self.assertEqual(
-            '<code class="pygments">'
+            '<code class="gch-pygments">'
             + '<span class="k">return</span> <span class="mi">123</span>'
             + "</code>",
             str(result),
@@ -77,6 +79,6 @@ class HighlightSelectionTestCase(unittest.TestCase):
         )
 
         self.assertEqual(
-            '<code class="pygments">' + '<span class="mi">123</span>' + "</code>",
+            '<code class="gch-pygments">' + '<span class="mi">123</span>' + "</code>",
             str(result),
         )

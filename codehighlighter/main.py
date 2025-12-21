@@ -290,10 +290,10 @@ def setup_menu() -> None:
         anki_asset_manager = create_anki_asset_manager(css_files(), col)
         anki_asset_manager.delete_assets()
 
-    a = aqt.qt.QAction("Refresh Code Highlighter Assets", main_window)  # type: ignore
+    a = aqt.qt.QAction("Refresh Greg’s Code Highlighter Assets", main_window)  # type: ignore
     a.triggered.connect(refresh)
     main_window.form.menuTools.addAction(a)
-    a = aqt.qt.QAction("Delete Code Highlighter Assets", main_window, triggered=delete)  # type: ignore
+    a = aqt.qt.QAction("Delete Greg’s Code Highlighter Assets", main_window, triggered=delete)  # type: ignore
     a.triggered.connect(delete)
     main_window.form.menuTools.addAction(a)
 

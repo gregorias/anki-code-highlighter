@@ -10,11 +10,11 @@ from codehighlighter.pygments_highlighter import create_block_style, create_inli
 
 def get_testdata_dir() -> pathlib.Path:
     test_dir = pathlib.Path(path.dirname(path.realpath(__file__)))
-    return test_dir / 'testdata'
+    return test_dir / "testdata"
 
 
 def read_file(p: pathlib.Path) -> str:
-    with open(p, 'r') as f:
+    with open(p, "r") as f:
         return f.read()
 
 
@@ -29,47 +29,61 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
             self.assertIsInstance(lexer, pygments.lexer.Lexer)
 
     def test_get_lexer_by_name_also_works_with_aliases(self):
-        lexer = pygments_highlighter.get_lexer_by_name('cpp')
-        self.assertEqual(lexer.name, 'C++')
+        lexer = pygments_highlighter.get_lexer_by_name("cpp")
+        self.assertEqual(lexer.name, "C++")
 
     def test_get_lexer_by_name_return_none_on_bogus_name(self):
-        lexer = pygments_highlighter.get_lexer_by_name('doesnotexist')
+        lexer = pygments_highlighter.get_lexer_by_name("doesnotexist")
         self.assertIsNone(lexer)
 
     def test_get_plaintext_lexer_returns_a_lexer(self):
         lexer = pygments_highlighter.get_plaintext_lexer()
-        self.assertEqual(lexer.name, 'Text output')
+        self.assertEqual(lexer.name, "Text output")
 
     def test_highlights_using_plaintext_on_bogus_language_name(self):
         result = ankieditorextra.highlight_selection(
-            'true', lambda code: pygments_highlighter.highlight(
-                code, 'doesnotexist', create_inline_style()))
+            "true",
+            lambda code: pygments_highlighter.highlight(
+                code, "doesnotexist", create_inline_style()
+            ),
+        )
 
         self.assertEqual(
-            result, '<code class="pygments">' +
-            '<span class="go">true</span>' + '</code>')
+            result,
+            '<code class="gch-pygments">' + '<span class="go">true</span>' + "</code>",
+        )
 
     def test_highlights_inline_code_to_one_line(self):
         result = ankieditorextra.highlight_selection(
-            'true', lambda code: pygments_highlighter.highlight(
-                code, 'C++', create_inline_style()))
+            "true",
+            lambda code: pygments_highlighter.highlight(
+                code, "C++", create_inline_style()
+            ),
+        )
 
         self.assertEqual(
-            result, '<code class="pygments">' +
-            '<span class="nb">true</span>' + '</code>')
+            result,
+            '<code class="gch-pygments">' + '<span class="nb">true</span>' + "</code>",
+        )
 
     def test_highlights_block_python_code(self):
         input = read_file(self.testdata_dir / "in0.py")
         expected = read_file(self.testdata_dir / "out0.html")
         result = ankieditorextra.highlight_selection(
-            input, lambda code: pygments_highlighter.highlight(
-                code, 'Python', create_block_style()))
+            input,
+            lambda code: pygments_highlighter.highlight(
+                code, "Python", create_block_style()
+            ),
+        )
         self.assertEqual(result, expected)
 
     def test_highlights_block_html_code(self):
         input = read_file(self.testdata_dir / "in1.html")
         expected = read_file(self.testdata_dir / "out1.html")
         result = ankieditorextra.highlight_selection(
-            input, lambda code: pygments_highlighter.highlight(
-                code, 'Python', create_block_style()))
+            input,
+            lambda code: pygments_highlighter.highlight(
+                code, "Python", create_block_style()
+            ),
+        )
         self.assertEqual(result, expected)

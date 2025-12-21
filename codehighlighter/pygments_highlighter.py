@@ -190,7 +190,7 @@ def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.T
     highlighted = remove_spurious_inline_spanw(highlighted)
 
     if style.display_style == "inline":
-        highlighted = '<code class="pygments">' + highlighted + "</code>"
+        highlighted = '<code class="gch-pygments">' + highlighted + "</code>"
         highlighted = remove_spurious_inline_newline(highlighted)
     elif style.display_style == "block":
         highlighted = highlighted.strip()
@@ -201,7 +201,7 @@ def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.T
         highlighted = highlighted.removeprefix("<span></span>")
         style_attr = f' style="{style.block_style}"' if style.block_style else ""
         highlighted = (
-            f'<div class="pygments"{style_attr}>\n'
+            f'<div class="gch-pygments"{style_attr}>\n'
             + f"  <pre><code>{highlighted}</code></pre>\n"
             + "</div>\n"
         )
