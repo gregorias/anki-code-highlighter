@@ -33,14 +33,14 @@ code already present in a card field.
 ### Highlighting from clipboard
 
 1. Put the cursor in the place you want to place your code.
-2. Press `CTRL+'` (on macOS, `⌘+'`) or click this add-on's button in the
+2. Press `CTRL+o` (on macOS, `⌘+o`) or click this add-on's button in the
    editor's button bar.
 
 ### Highlighting an already written code snippet
 
 1. Write a code snippet in a card editor.
 2. Select the code snippet.
-3. Press `CTRL+'` (on macOS, `⌘+'`) or click this add-on's button in the
+3. Press `CTRL+o` (on macOS, `⌘+o`) or click this add-on's button in the
    editor's button bar.
 
 The plugin works on untagged code blocks. Do not add your own HTML tags like
@@ -64,7 +64,7 @@ The plugin accepts the following configuration options:
   default centers the block.
 - `css-files` (default lives in `codehighlighter/main.py`) — the list of CSS
   styles to use.
-- `shortcut` (e.g. `ctrl+;`) — this sets the shortcut that triggers this
+- `shortcut` (e.g. `ctrl+o`) — this sets the shortcut that triggers this
   plugin.
 
 ### Known limitations

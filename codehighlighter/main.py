@@ -231,9 +231,9 @@ def get_shortcut() -> str:
     """
     Gets the keyboard shortcut for the highlighting action.
 
-    :rtype str: The keyboard shortcut, e.g., "ctrl+'".
+    :rtype str: The keyboard shortcut, e.g., "ctrl+o".
     """
-    return get_config("shortcut") or "ctrl+'"
+    return get_config("shortcut") or "ctrl+o"
 
 
 def on_editor_shortcuts_init(
@@ -251,7 +251,7 @@ def on_editor_buttons_init(buttons: List, editor: aqt.editor.Editor) -> None:
         icon=os.path.join(addon_path, "icons", "icon.png"),
         cmd="highlight",
         func=lambda editor: highlight_action(editor),
-        tip=f"Highlight current text selection ({get_shortcut()}).",
+        tip=f"Highlight current text selection (v2, {get_shortcut()}).",
         # Skip label, because we already provide an icon.
     )
     buttons.append(action_button)
