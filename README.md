@@ -130,9 +130,9 @@ To add a custom style, do the following:
 
 ### Generating a stylesheet for pygments
 
-1. Modify `XXX_STYLE` variables in `dev/bin/generate-pygments-css` to use your
+1. Modify `XXX_STYLE` variables in `tools/generatepygmentscss.py` to use your
    desired style for each mode.
-1. To generate a ready to use stylesheet, run `dev/bin/generate-pygments-css`.
+1. To generate a ready to use stylesheet, run `python -m tools.generatepygmentscss`.
    You may need to install a few dependencies for that script to run
    (`pygments`, `webcolors`). Import errors will guide you.
 
