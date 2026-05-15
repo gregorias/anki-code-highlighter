@@ -55,12 +55,12 @@ Branches:
 ## Updating Pygments
 
 Anki Code Highlighter comes in bundled with the [Pygments] library, and its
-version is tracked as a [Git
-submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) inside this
+version is tracked as a
+[Git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) inside this
 repository.
 
-To update Pygments, go to the submodule and pull the desired version. For
-example:
+To update Pygments, go to the submodule and pull the desired version.
+For example:
 
 ```shell
 cd pydeps/pygments
@@ -71,21 +71,25 @@ git checkout 2.18.0
 ## Updating Python
 
 This package sets up a specific Python version to keep the dev environment in
-sync with what Anki uses. To update this Python version, you need to:
+sync with what Anki uses.
+To update this Python version, you need to:
 
 1. If in a virtual environment, deactivate it and remove it (`rm -r .venv`).
-2. Update the Python spec in `.python-version`, `mypy.ini`,
-   and `pyproject.toml`.
-3. Delete the Mypy cache: `rm -r .mypy_cache`.
+2. Update the Python spec in `.python-version`, `mypy.ini`, and
+   `pyproject.toml`.
+3. Delete the Mypy cache:
+   `rm -r .mypy_cache`.
 4. Install the new Python version with `pyenv install`.
 5. Install the new virtual environment with `uv venv --python 3.X.Y`.
-6. Install dependencies in the virtual environment: `uv sync --locked`.
+6. Install dependencies in the virtual environment:
+   `uv sync --locked`.
 
 ### Generating Pygment stylesheets
 
 In `assets/_gch-pygment-solarized.css` I keep the stylesheet for code formatted
-with Pygments plus a few lines for general styles. I generated the style there
-with `python -m tools.generatepygmentscss` with some minor adjustments by hand.
+with Pygments plus a few lines for general styles.
+I generated the style there with `python -m tools.generatepygmentscss` with some
+minor adjustments by hand.
 
 ## Testing
 
@@ -95,10 +99,12 @@ with `python -m tools.generatepygmentscss` with some minor adjustments by hand.
 
 ## Release & distribution
 
-1. Bump the version and release the commit & tag: `just bump`.
-1. Create `codehighlighter.ankiaddon` and a GitHub release: `just release`.
-1. [Share the package on Anki](https://addon-docs.ankiweb.net/#/sharing) using
-   the [asset dashboard](https://ankiweb.net/shared/mine).
+1. Bump the version and release the commit & tag:
+   `just bump`.
+1. Create `codehighlighter.ankiaddon` and a GitHub release:
+   `just release`.
+1. [Share the package on Anki](https://addon-docs.ankiweb.net/#/sharing) using
+   the [asset dashboard](https://ankiweb.net/shared/mine).
 
 ## Design decisions
 
@@ -106,22 +112,23 @@ This section discuss some design decisions made for this plugin.
 
 ### Highlighter concept
 
-One fundamental abstraction is that of **highlighter**. A highlighter is
-essentially a function that produces an HTML representing a highlighted code
-snippet given the following:
+One fundamental abstraction is that of **highlighter**.
+A highlighter is essentially a function that produces an HTML representing a
+highlighted code snippet given the following:
 
 - A string with the unmarked code snippet.
 - A language that code snippet represents.
 - Additional styling options.
 
 For code clarity and modularity, I keep such pure highlighters in separate
-modules (`pygments`). A highlighter does not implement any logic
-related to Anki including sanitising input from HTML markup.
+modules (`pygments`).
+A highlighter does not implement any logic related to Anki including sanitising
+input from HTML markup.
 
 ### Using `assets/_gch*` files for CSS and JS
 
-The asset files start with an underscore,
-because then Anki ignores them ([source][anki-media-ignore]).
+The asset files start with an underscore, because then Anki ignores them
+([source][anki-media-ignore]).
 
 This plugin saves its assets directly in the global `assets` directory.
 
@@ -139,10 +146,11 @@ experience depend on Internet, which I don't think is reasonable on mobile.
 ### Card template instrumentation mode
 
 The plugin instruments all card templates by default, because that's what most
-people will want. It requires zero-effort from a user to get to what they want,
-which is being able to highlight code. It's non-intrusive, the added styles
-should not interfere with users' preexisting settings as they are namespaced by
-a class (`pygments`).
+people will want.
+It requires zero-effort from a user to get to what they want, which is being
+able to highlight code.
+It's non-intrusive, the added styles should not interfere with users'
+preexisting settings as they are namespaced by a class (`pygments`).
 
 ### No inline styles
 
@@ -151,26 +159,27 @@ The add-on uses classes, not inline styles, to support day and night modes.
 ### Alternative methods of using highlight.js
 
 I've added each highlight.js language as a separate script to assets/, and then
-used another JS script to dynamically load languages. This method led to
-visible lag in rendering as the number of languages grew, so I abandoned this.
+used another JS script to dynamically load languages.
+This method led to visible lag in rendering as the number of languages grew, so
+I abandoned this.
 
-I've then tried detecting which languages are used in the card. I had a bug,
-where I did not properly account for language aliases. I've abandoned this way,
-because I figured that it would way more fool-proof to just use a single
-highlight.js bundle that has all languages. Loading that single file seems to
-be fast.
+I've then tried detecting which languages are used in the card.
+I had a bug, where I did not properly account for language aliases.
+I've abandoned this way, because I figured that it would way more fool-proof to
+just use a single highlight.js bundle that has all languages.
+Loading that single file seems to be fast.
 
 ### Dropping Highlight.js
 
 I decided to drop Highlight.js, because it caused significant problems:
 
 - Running the scripts causes flickering (flash of unstyled content) on mobile.
-- It requires CSS and JS files to be imported. Modifying templates is frowned
-  upon by users.
+- It requires CSS and JS files to be imported.
+  Modifying templates is frowned upon by users.
   It also makes code more complicated.
 - You can’t create clozes with it.
-- It makes the add-on more complicated to use as you have an additional
-  dialog to go through.
+- It makes the add-on more complicated to use as you have an additional dialog
+  to go through.
 
 The only benefit of Highlight.js is that it doesn’t spoil a card’s HTML with
 tags.

@@ -13,7 +13,10 @@ class PygmentsHighlighterTestCase(unittest.TestCase):
     def test_supported_lexers_are_subset_of_all_lexers(self):
         all_lexers = set(get_lexer_name_alias_map().keys())
         supported_lexers = set(SUPPORTED_LEXERS)
-        self.assertTrue(supported_lexers.issubset(all_lexers))
+        difference = supported_lexers - all_lexers
+        self.assertTrue(
+            supported_lexers.issubset(all_lexers), f"Found a difference: {difference}."
+        )
 
     def test_arm_lexer(self):
         # Test that the ARM lexer works and is correctly picked up by

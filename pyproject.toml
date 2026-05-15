@@ -15,9 +15,9 @@ classifiers = [
 ]
 dependencies = [
   # https://pypi.org/project/anki/
-  "anki==25.9.2",
+  "anki==25.9.4",
   # https://pypi.org/project/aqt/
-  "aqt==25.9.2",
+  "aqt==25.9.4",
   # Use the same version of PyQt6 as Anki:
   # https://github.com/ankitects/anki/blob/f927aa5788aef7c5a1595b2dc4879db82725f8c6/qt/pyproject.toml#L47-L53
   "pyqt6==6.8.0",
@@ -31,12 +31,12 @@ Repository = "https://github.com/gregorias/anki-code-highlighter"
 
 [dependency-groups]
 dev = [
-  "mypy>=1.16",
+  "mypy>=2.1.0",
   "cssutils",
   "requests",
   "types-beautifulsoup4",
   "webcolors",
-  "vulture~=2.14",
+  "vulture~=2.16",
   "coverage",
   "bpython>=0.26",
 ]
