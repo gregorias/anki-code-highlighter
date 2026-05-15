@@ -38,7 +38,6 @@ dev = [
   "webcolors",
   "vulture~=2.16",
   "coverage",
-  "bpython>=0.26",
 ]
 
 [tool.uv]
