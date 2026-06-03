@@ -52,6 +52,10 @@ Branches:
   cards to `v2` (away from Highlight.js, maybe more).
   It will be merged into `v1` once done.
 
+## Updating Regular Dependencies
+
+Run `uv sync --upgrade` to update dependencies in the lockfile.
+
 ## Updating Pygments
 
 Anki Code Highlighter comes in bundled with the [Pygments] library, and its
