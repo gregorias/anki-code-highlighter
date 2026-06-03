@@ -145,29 +145,16 @@ experience depend on Internet, which I don't think is reasonable on mobile.
 
 ### Card template instrumentation mode
 
-The plugin instruments all card templates by default, because that's what most
+The plugin instruments all card templates by default, because that’s what most
 people will want.
 It requires zero-effort from a user to get to what they want, which is being
 able to highlight code.
-It's non-intrusive, the added styles should not interfere with users'
+It’s non-intrusive, the added styles should not interfere with users’
 preexisting settings as they are namespaced by a class (`pygments`).
 
 ### No inline styles
 
 The add-on uses classes, not inline styles, to support day and night modes.
-
-### Alternative methods of using highlight.js
-
-I've added each highlight.js language as a separate script to assets/, and then
-used another JS script to dynamically load languages.
-This method led to visible lag in rendering as the number of languages grew, so
-I abandoned this.
-
-I've then tried detecting which languages are used in the card.
-I had a bug, where I did not properly account for language aliases.
-I've abandoned this way, because I figured that it would way more fool-proof to
-just use a single highlight.js bundle that has all languages.
-Loading that single file seems to be fast.
 
 ### Dropping Highlight.js
 
