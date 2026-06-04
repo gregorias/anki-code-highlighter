@@ -78,6 +78,8 @@ def generate_highlighter_pygments_css_preamble(
           border-color: {SOLARIZED_LIGHT_BORDER_COLOR};
           padding: 3px 5px;
           line-height: 125%;
+          /* Fixes https://github.com/gregorias/anki-code-highlighter/issues/96#issuecomment-3146469831 */
+          overflow-x: auto;
         }}
         .{NIGHT_MODE_CLASS} .{PYGMENTS_CLASS}>pre {{
           background: {night_style.background_color};
