@@ -109,6 +109,91 @@ I generated the style there with `just generate-pygments-css`.
 1. [Share the package on Anki](https://addon-docs.ankiweb.net/#/sharing) using
    the [asset dashboard](https://ankiweb.net/shared/mine).
 
+## Architecture
+
+```mermaid
+---
+title: Anki Code Highlighter module structure
+---
+graph LR
+  init[__init__.py]
+
+  subgraph "codehighlighter/"
+    main[main.py]
+
+    subgraph "Anki Integration"
+      ankieditorextra
+      assets
+      dialog
+      media
+      model
+    end
+
+    subgraph "Highlighter Logic"
+      pygments_highlighter
+      pygmentsarm
+    end
+
+    subgraph "Utilities"
+      bs4extra
+      clipboard
+      guard
+      listextra
+      osextra
+      serialization
+    end
+
+    subgraph "External"
+      anki-lib[anki]
+      aqt-lib[aqt]
+    end
+
+    init --> main
+
+    main --> ankieditorextra
+    main --> assets
+    main --> dialog
+    main --> pygments_highlighter
+    main --> media
+    main --> model
+    main --> clipboard
+    main --> serialization
+    main --> anki-lib
+    main --> aqt-lib
+
+    pygments_highlighter --> pygmentsarm
+
+    ankieditorextra --> aqt-lib
+
+    assets --> media
+    assets --> model
+    assets --> osextra
+    assets --> serialization
+    assets --> guard
+
+    dialog --> pygments_highlighter
+    dialog --> listextra
+    dialog --> serialization
+
+    media --> osextra
+
+    model --> anki-lib
+  end
+```
+
+### Module Breakdown
+
+- **Entry point**:
+  `__init__.py` and `main.py` initialize the add-on and register hooks with
+  Anki.
+- **Anki Integration**:
+  Modules that interact directly with Anki's editor, models, media, and assets.
+- **Highlighter Logic**:
+  Pure logic for highlighting code using Pygments, including custom lexers.
+- **Utilities**:
+  General-purpose helpers for HTML manipulation, serialization, and OS
+  operations.
+
 ## Design decisions
 
 This section discuss some design decisions made for this plugin.
