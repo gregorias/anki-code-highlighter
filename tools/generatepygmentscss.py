@@ -5,10 +5,11 @@
 # 1. Preamble, which describes the surounding box and background.
 # 2. Tokens, which describes the individual tokens. The meaning of a token is
 #    consistent with Pygments.
+#
+# Using plain string manipulation instead of cssutils, because
+# cssutils 2.15 can't parse ':is(.foo, .bar)' selector that I use.
 
 import textwrap
-
-import cssutils  # type: ignore
 
 import pygments
 import pygments.formatters
@@ -21,14 +22,15 @@ NIGHT_STYLE = "solarized-dark"
 SOLARIZED_LIGHT_BORDER_COLOR = "#cdbc84"
 SOLARIZED_DARK_BORDER_COLOR = "#052831"
 PYGMENTS_CLASS = "gch-pygments"
-NIGHT_MODE_CLASS = "night_mode"
+# Using multiple night mode classes to accommodate different environments.
+# Anki's live editor uses ".nightMode," while AnkiDroid's renderer uses
+# ".night_mode," for instance.
+NIGHT_MODE_SELECTOR = ":is(.night_mode,.night-mode,.nightMode)"
 DAY_MODE_SELECTOR_STR = f".{PYGMENTS_CLASS}"
-NIGHT_MODE_SELECTOR_STR = f".{NIGHT_MODE_CLASS} .{PYGMENTS_CLASS}"
+NIGHT_MODE_SELECTOR_STR = f"{NIGHT_MODE_SELECTOR} .{PYGMENTS_CLASS}"
 
 
-def delete_pygments_css_preamble(
-    pygments_css_rules: cssutils.css.CSSRuleList, prefix_selector: str
-) -> None:
+def delete_pygments_css_preamble(pygments_css: str, prefix_selector: str) -> str:
     """Deletes code block styles.
 
     This plugin defines its own style for code blocks, so we don't want to keep
@@ -38,19 +40,25 @@ def delete_pygments_css_preamble(
         pygments_css_rules: The list of CSS rules to delete the preamble from.
         prefix_selector: The CSS selector that prefixes all Pygments rules.
     """
-    while PYGMENTS_CLASS not in pygments_css_rules[0].selectorText:
-        pygments_css_rules.pop(0)
-
-    for rule in pygments_css_rules:
-        if rule.selectorText == prefix_selector:
-            pygments_css_rules.remove(rule)
+    # As 2026 Pygments, the preamble ends with a rule like this:
+    # :is(.night_mode, .night-mode,.nightMode) .gch-pygments { background: #002b36; color: #839496 }
+    # And later only is followed up by token rules:
+    # :is(.night_mode, .night-mode, .nightMode) .gch-pygments .c { color: #586E75; font-style: italic } /* Comment */
+    # So we delete lines until we reach token rules.
+    pygments_css_lines = pygments_css.splitlines()
+    # Find the last line.
+    preamble_end_index = None
+    for i, line in enumerate(pygments_css_lines):
+        if line.startswith(prefix_selector + " { background"):
+            preamble_end_index = i
             break
+    if preamble_end_index is None:
+        raise ValueError("Could not find the end of the Pygments CSS preamble.")
+    return "\n".join(pygments_css_lines[preamble_end_index + 1 :])
 
 
 # Using str for the selector, because that's how Pygments likes it.
-def get_pygments_token_css(
-    style: pygments.style.Style, prefix_selector: str
-) -> cssutils.css.CSSStyleSheet:
+def get_pygments_token_css(style: pygments.style.Style, prefix_selector: str) -> str:
     """Gets the CSS of a particular Pygments style without the preamble.
 
     Arguments:
@@ -60,15 +68,14 @@ def get_pygments_token_css(
     html_formatter: pygments.formatters.html.HtmlFormatter = (
         pygments.formatters.get_formatter_by_name("html", style=style)
     )
-    pygments_css = cssutils.parseString(html_formatter.get_style_defs(prefix_selector))
-    delete_pygments_css_preamble(pygments_css.cssRules, prefix_selector)
-    return pygments_css
+    pygments_css = html_formatter.get_style_defs(prefix_selector)
+    return delete_pygments_css_preamble(pygments_css, prefix_selector)
 
 
 def generate_highlighter_pygments_css_preamble(
     day_style: pygments.style.Style,
     night_style: pygments.style.Style,
-) -> cssutils.css.CSSStyleSheet:
+) -> str:
     preamble = textwrap.dedent(f"""
         .{PYGMENTS_CLASS}>pre {{
           background: {day_style.background_color};
@@ -81,28 +88,26 @@ def generate_highlighter_pygments_css_preamble(
           /* Fixes https://github.com/gregorias/anki-code-highlighter/issues/96#issuecomment-3146469831 */
           overflow-x: auto;
         }}
-        .{NIGHT_MODE_CLASS} .{PYGMENTS_CLASS}>pre {{
+        {NIGHT_MODE_SELECTOR} .{PYGMENTS_CLASS}>pre {{
           background: {night_style.background_color};
           color: {night_style.styles[pygments.style.Token]};
           border-color: {SOLARIZED_DARK_BORDER_COLOR};
         }}
     """).strip()
-    return cssutils.parseString(preamble)
+    return preamble
 
 
-def generate_highlighter_pygments_css() -> cssutils.css.CSSStyleSheet:
+def generate_highlighter_pygments_css() -> str:
     """Generates the CSS for Pygments highlighting."""
     day_style = pygments.styles.get_style_by_name(DAY_STYLE)
     night_style = pygments.styles.get_style_by_name(NIGHT_STYLE)
 
-    css = generate_highlighter_pygments_css_preamble(day_style, night_style)
-    css.cssRules.extend(
-        get_pygments_token_css(day_style, DAY_MODE_SELECTOR_STR).cssRules
-    )
-    css.cssRules.extend(
-        get_pygments_token_css(night_style, NIGHT_MODE_SELECTOR_STR).cssRules
-    )
-    return css
+    css_parts = [
+        generate_highlighter_pygments_css_preamble(day_style, night_style),
+        get_pygments_token_css(day_style, DAY_MODE_SELECTOR_STR),
+        get_pygments_token_css(night_style, NIGHT_MODE_SELECTOR_STR),
+    ]
+    return "\n".join(css_parts)
 
 
 def format_css_sheet(css_sheet: str) -> str:
@@ -123,7 +128,7 @@ def format_css_sheet(css_sheet: str) -> str:
 
 
 def main():
-    css_sheet = generate_highlighter_pygments_css().cssText.decode("utf8")
+    css_sheet = generate_highlighter_pygments_css()
     print(format_css_sheet(css_sheet), end="")
 
 

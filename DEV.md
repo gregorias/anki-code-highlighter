@@ -92,8 +92,7 @@ To update this Python version, you need to:
 
 In `assets/_gch-pygment-solarized.css` I keep the stylesheet for code formatted
 with Pygments plus a few lines for general styles.
-I generated the style there with `python -m tools.generatepygmentscss` with some
-minor adjustments by hand.
+I generated the style there with `just generate-pygments-css`.
 
 ## Testing
 

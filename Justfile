@@ -30,3 +30,7 @@ coverage:
 
 vulture:
   vulture codehighlighter/ vulture_whitelist.py
+
+# Generates the Pygments CSS stylesheet.
+generate-pygments-css:
+  PYTHONPATH=pydeps/pygments uv run python tools/generatepygmentscss.py > assets/_gch-pygments-solarized.css
