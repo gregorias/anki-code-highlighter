@@ -89,7 +89,7 @@ def generate_highlighter_pygments_css_preamble(
 
 
 def generate_highlighter_pygments_css() -> cssutils.css.CSSStyleSheet:
-    """Generates the CSS for pygments highlighting."""
+    """Generates the CSS for Pygments highlighting."""
     day_style = pygments.styles.get_style_by_name(DAY_STYLE)
     night_style = pygments.styles.get_style_by_name(NIGHT_STYLE)
 
