@@ -41,7 +41,6 @@ from .dialog import (
 )
 from .html import PlainString
 from .media import AnkiMediaInstaller
-from .model import AnkiModelModifier
 from .serialization import JSONObjectSerializer
 
 addon_path = os.path.dirname(__file__)
@@ -94,10 +93,8 @@ def css_files() -> List[str]:
 
 def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collection):
     return AnkiAssetManager(
-        AnkiModelModifier(col.models),
         AnkiMediaInstaller(ASSET_PREFIX, get_addon_assets(ASSET_PREFIX), col.media),
         css_assets,
-        guard=GUARD,
         class_name=CLASS_NAME,
     )
 

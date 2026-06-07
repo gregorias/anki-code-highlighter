@@ -1,13 +1,11 @@
 import tempfile
 import unittest
 from pathlib import Path
-from textwrap import dedent
 
 from codehighlighter import assets
 from codehighlighter.assets import AnkiAssetManager
 
 from .media import FakeMediaInstaller
-from .model import FakeModelModifier
 
 
 class FakeAssetManager:
@@ -47,98 +45,52 @@ class AssetsTestCase(unittest.TestCase):
 
 class AssetsManagerTestCase(unittest.TestCase):
     def test_install_updates_css_and_media(self):
-        initial_template = "{{FrontSide}}\n"
-        initial_css = "body { background-color: white; }"
         initial_media_files = ["foo.png"]
         addon_assets = ["_gch-pygments-solarized.css"]
 
-        model_modifier = FakeModelModifier([initial_template], [initial_css])
         media_installer = FakeMediaInstaller(
             initial_media_files, addon_assets=addon_assets
         )
 
         manager = AnkiAssetManager(
-            model_modifier,
             media_installer,
             css_assets=["_gch-pygments-solarized.css"],
-            guard="ACH add-on",
             class_name="anki-code-highlighter",
         )
 
         manager.install_assets()
 
-        self.assertEqual(model_modifier.templates[0], initial_template)
-        self.assertEqual(
-            model_modifier.csss[0],
-            "/* ACH add-on BEGIN */\n"
-            + '@import "_gch-pygments-solarized.css";\n'
-            + "/* ACH add-on END */\n"
-            + "\n"
-            + initial_css,
-        )
         self.assertSetEqual(
             set(media_installer.files), set(initial_media_files + addon_assets)
         )
 
     def test_install_and_delete_do_nothing(self):
-        initial_template = "{{FrontSide}}\n"
-        initial_css = "body { background-color: white; }"
         initial_media_files = ["foo.png"]
         addon_assets = ["_gch-pygments-solarized.css"]
 
-        model_modifier = FakeModelModifier([initial_template], [initial_css])
         media_installer = FakeMediaInstaller(
             initial_media_files, addon_assets=addon_assets
         )
 
         manager = AnkiAssetManager(
-            model_modifier,
             media_installer,
             css_assets=["_gch-pygments-solarized.css"],
-            guard="ACH add-on",
             class_name="anki-code-highlighter",
         )
 
         manager.install_assets()
         manager.delete_assets()
 
-        self.assertEqual(model_modifier.templates[0], initial_template)
-        self.assertEqual(model_modifier.csss[0], initial_css)
         self.assertListEqual(media_installer.files, initial_media_files)
 
     def test_delete_assets(self):
-        model_modifier = FakeModelModifier(
-            [
-                dedent(
-                    """\
-           {{Front}}
-
-           <!-- ACH add-on BEGIN -->
-           <link rel="stylesheet" href="_gch-pygments-solarized.css" class="anki-code-highlighter">
-           <script src="j.js" class="plugin"></script>
-           <!-- ACH add-on END -->
-           """
-                )
-            ],
-            [
-                "/* ACH add-on BEGIN */\n"
-                + 'import "_gch-foo.css"\n'
-                + "/* ACH add-on END */\n"
-                + "\n"
-                + "body {}\n"
-            ],
-        )
         media_installer = FakeMediaInstaller(["_gch-foo.css", "foo.png"])
         manager = AnkiAssetManager(
-            model_modifier,
             media_installer,
             css_assets=["_gch-foo.css"],
-            guard="ACH add-on",
             class_name="ach",
         )
 
         manager.delete_assets()
 
-        self.assertEqual(model_modifier.templates[0], "{{Front}}\n")
-        self.assertEqual(model_modifier.csss[0], "body {}\n")
         self.assertListEqual(media_installer.files, ["foo.png"])

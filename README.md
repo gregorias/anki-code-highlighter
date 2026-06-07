@@ -81,18 +81,11 @@ To work around this, [see these instructions][1].
 
 ## Refresh & Removal
 
-This plugin installs its own JS and CSS files.
-It also modifies card templates.
-You need to run some manual steps if you:
+This plugin installs its own CSS files into Anki's media folder.
+You need to run some manual steps if you want to delete the plugin
 
-- add a new template
-- want to delete the plugin
-
-If you add a new card template, run `Extras/Tools > Refresh Code Highlighter
-Assets`.
-
-To remove the plugin, run `Extras/Tools > Delete Code Highlighter Assets` before
-deleting the plugin using Anki's internal add-on system.
+To remove the plugin, run `Extras/Tools > Delete Greg's Code Highlighter Assets`
+before deleting the plugin using Anki's internal add-on system.
 This manual step is necessary until Anki adds [add-on lifecycle hooks][2].
 
 ## Custom Styles

@@ -126,7 +126,6 @@ graph LR
       assets
       dialog
       media
-      model
     end
 
     subgraph "Highlighter Logic"
@@ -155,7 +154,6 @@ graph LR
     main --> dialog
     main --> pygments_highlighter
     main --> media
-    main --> model
     main --> clipboard
     main --> serialization
     main --> anki-lib
@@ -166,18 +164,13 @@ graph LR
     ankieditorextra --> aqt-lib
 
     assets --> media
-    assets --> model
     assets --> osextra
     assets --> serialization
-    assets --> guard
 
     dialog --> pygments_highlighter
-    dialog --> listextra
     dialog --> serialization
 
     media --> osextra
-
-    model --> anki-lib
   end
 ```
 
@@ -231,14 +224,19 @@ This plugin saves its assets directly in the global `assets` directory.
 Loading files from Internet has the disadvantage of making my Anki solving
 experience depend on Internet, which I don't think is reasonable on mobile.
 
-### Card template instrumentation mode
+### Card template instrumentation
 
-The plugin instruments all card templates by default, because that’s what most
-people will want.
-It requires zero-effort from a user to get to what they want, which is being
-able to highlight code.
-It’s non-intrusive, the added styles should not interfere with users’
-preexisting settings as they are namespaced by a class (`pygments`).
+This add-on does not instrument or modify note type templates.
+It used to do so, but it turned out to have significant drawbacks:
+
+- Templates were modified even if a particular template never contained any code
+  snippets.
+- Some users found it too invasive that their templates were modified in the
+  background.
+- Templates had no impact on the WYSYWIG editor. Users were confused by
+  unstyled code snippets.
+
+Work to add styles directly into the field is in progress.
 
 ### No inline styles
 
