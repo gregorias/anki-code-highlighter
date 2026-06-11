@@ -1,3 +1,4 @@
+import json
 import typing
 from dataclasses import dataclass
 from typing import Callable, Optional, Union
@@ -239,6 +240,81 @@ def highlight_selection(
     return encode_soup(highlighted_selection) if highlighted_selection else None
 
 
+def get_note_field(
+    webview: aqt.editor.EditorWebView,
+    cb: Callable[[Union[str, SelectionException]], None],
+) -> None:
+    """Gets the HTML content of the active note field.
+
+    Args:
+        webview: The editor webview.
+        cb: The callback function to receive the note field HTML content or an exception.
+
+    Returns:
+        None.
+    """
+    failed_to_find_field = "Failed to find the active note field."
+
+    def handle_result(result):
+        if isinstance(result, dict) and "error" in result:
+            cb(UnknownSelectionException(message=str(result["error"])))
+            return None
+
+        if result is None:
+            cb(UnknownSelectionException(message=failed_to_find_field))
+            return None
+
+        cb(result)
+        return None
+
+    eval_js_with_callback(
+        webview,
+        """
+        let element = document.activeElement.shadowRoot.querySelector("anki-editable");
+        return element ? element.innerHTML : null;
+        """,
+        handle_result,
+    )
+
+
+def set_note_field(
+    webview: aqt.editor.EditorWebView,
+    html: str,
+    cb: Callable[[Union[None, SelectionException]], None],
+) -> None:
+    """Sets the HTML content of the active note field.
+
+    Args:
+        webview: The editor webview.
+        html: The HTML content to set.
+        cb: The callback function called after setting the content.
+
+    Returns:
+        None.
+    """
+    js_html = json.dumps(html)
+
+    def handle_result(result):
+        if isinstance(result, dict) and "error" in result:
+            cb(UnknownSelectionException(message=str(result["error"])))
+            return None
+        cb(None)
+        return None
+
+    eval_js_with_callback(
+        webview,
+        f"""
+        let element = document.activeElement.shadowRoot.querySelector("anki-editable");
+        if (!element) {{
+            return {{ error: {{ message: "Failed to find the active note field." }} }};
+        }}
+        element.innerHTML = {js_html};
+        return null;
+        """,
+        handle_result,
+    )
+
+
 class EditorInterface:
     """An interface for the Anki web editor."""
 
@@ -271,6 +347,33 @@ class EditorInterface:
         """
         pass
 
+    def get_note_field(
+        self, cb: Callable[[Union[str, SelectionException]], None]
+    ) -> None:
+        """Gets the HTML content of the active note field.
+
+        Args:
+            cb: The callback function to receive the note field HTML content or an exception.
+
+        Returns:
+            None.
+        """
+        pass
+
+    def set_note_field(
+        self, html: str, cb: Callable[[Union[None, SelectionException]], None]
+    ) -> None:
+        """Sets the HTML content of the active note field.
+
+        Args:
+            html: The HTML content to set.
+            cb: The callback function called after setting the content.
+
+        Returns:
+            None.
+        """
+        pass
+
 
 class AnkiEditorInterface(EditorInterface):
 
@@ -289,6 +392,16 @@ class AnkiEditorInterface(EditorInterface):
         cb: Callable[[typing.Any], None],
     ) -> None:
         unwrap_selection(self.webview, self.random_id, action, cb)
+
+    def get_note_field(
+        self, cb: Callable[[Union[str, SelectionException]], None]
+    ) -> None:
+        get_note_field(self.webview, cb)
+
+    def set_note_field(
+        self, html: str, cb: Callable[[Union[None, SelectionException]], None]
+    ) -> None:
+        set_note_field(self.webview, html, cb)
 
 
 def transform_selection(
