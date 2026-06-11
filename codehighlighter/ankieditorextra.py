@@ -18,17 +18,19 @@ T = typing.TypeVar("T")
 def eval_js_with_callback(
     webview: aqt.editor.EditorWebView, js: str, callback: Callable[[typing.Any], None]
 ) -> None:
-    """
-    Evaluates JavaScript in the webview and calls `callback` with the result.
+    """Evaluates JavaScript in the webview and calls `callback` with the result.
 
     Wraps the code inside a try-catch statement. On exception, gives the
     callback a dictionary ({'error': {'name': str, 'message', str}}) or just
     {'error': str}.
 
-    :param webview:
-    :param js:
-    :param callback:
-    :return: None
+    Args:
+        webview: The editor webview.
+        js: The JavaScript code to execute.
+        callback: The callback function.
+
+    Returns:
+        None.
     """
     webview.evalWithCallback(
         f"""
@@ -77,8 +79,15 @@ def wrap_and_get_selection(
     wrap_id: str,
     cb: Callable[[Union[SelectedText, SelectionException]], None],
 ) -> None:
-    """
-    Wraps a field selection in a span tag and returns the selected text.
+    """Wraps a field selection in a span tag and returns the selected text.
+
+    Args:
+        webview: The editor webview.
+        wrap_id: The ID of the span tag to wrap the selection in.
+        cb: The callback function to receive the selection or exception.
+
+    Returns:
+        None.
     """
     failed_to_find_selection = "Failed to find a selection."
 
@@ -168,7 +177,17 @@ def unwrap_selection(
     action: Union[UnwrapSelection, ReplaceWrapSelection],
     cb,
 ) -> None:
-    """Unwraps the span tag created by `wrap_and_get_selection`."""
+    """Unwraps the span tag created by `wrap_and_get_selection`.
+
+    Args:
+        webview: The editor webview.
+        wrap_id: The ID of the span tag to unwrap.
+        action: The action to perform (either UnwrapSelection or ReplaceWrapSelection).
+        cb: The callback function.
+
+    Returns:
+        None.
+    """
 
     if isinstance(action, UnwrapSelection):
         action_js = "selection.replaceWith(...selection.childNodes);"
@@ -207,25 +226,33 @@ def unwrap_selection(
 def highlight_selection(
     selection: PlainString, highlighter: Callable[[PlainString], Optional[bs4.Tag]]
 ) -> Optional[HtmlString]:
-    """
-    Highlights a selection from a field.
+    """Highlights a selection from a field.
 
-    It returns an encoded HTML.
+    Args:
+        selection: A plaintext string representing the code.
+        highlighter: A function that highlights the code.
 
-    :param selection: A plaintext string representing the code.
-    :param highlighter: A function that highlights the code.
-    :return: The highlighter HTML tag.
+    Returns:
+        The highlighted HTML tag.
     """
     highlighted_selection = highlighter(selection)
     return encode_soup(highlighted_selection) if highlighted_selection else None
 
 
 class EditorInterface:
-    """A interface for the Anki editor."""
+    """An interface for the Anki web editor."""
 
     def wrap_and_get_selection(
         self, cb: Callable[[Union[SelectedText, SelectionException]], None]
     ) -> None:
+        """Wraps a selection with a span tag and returns its content.
+
+        Args:
+            cb: The callback function to receive the selection or exception.
+
+        Returns:
+            None.
+        """
         pass
 
     def unwrap_selection(
@@ -233,6 +260,15 @@ class EditorInterface:
         action: Union[UnwrapSelection, ReplaceWrapSelection],
         cb: Callable[[typing.Any], None],
     ) -> None:
+        """Unwraps the span tag created by `wrap_and_get_selection`.
+
+        Args:
+            action: The action to perform.
+            cb: The callback function.
+
+        Returns:
+            None.
+        """
         pass
 
 
@@ -260,17 +296,17 @@ def transform_selection(
     editor: EditorInterface,
     onError: Callable[[str], typing.Any],
 ) -> None:
-    """
-    Transforms selected text using `transform`.
+    """Transforms selected text using the highlighting function.
 
-    :param highlight Callable[[str], bs4.Tag]:
-        The highlighting function that receives code snippets and returns HTML
-        with highlighting information.
-    :param editor aqt.editor.Editor
-    :param onError Callable[[str], typing.Any]:
-        The callback function that is called if an unrecoverable error has
-        occurred. Provides an error message.
-    :rtype None
+    Args:
+        highlight: The highlighting function that receives code snippets and
+            returns HTML with highlighting information.
+        editor: The editor interface.
+        onError: The callback function that is called if an unrecoverable error
+            has occurred. Provides an error message.
+
+    Returns:
+        None.
     """
 
     def transform_field(
