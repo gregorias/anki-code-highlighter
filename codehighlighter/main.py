@@ -5,7 +5,7 @@ import random
 import sys
 from functools import partial
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import aqt
 import aqt.editor
@@ -23,7 +23,12 @@ import anki.media
 import anki.notes
 
 from . import pygments_highlighter
-from .ankieditorextra import AnkiEditorInterface, EditorInterface, transform_selection
+from .ankieditorextra import (
+    AnkiEditorInterface,
+    EditorInterface,
+    SelectionException,
+    transform_selection,
+)
 from .assets import (
     AnkiAssetManager,
     AnkiAssetStateManager,
@@ -39,6 +44,7 @@ from .dialog import (
     HighlighterWizardStateJSONConverter,
     ask_for_highlighter_config,
 )
+from .field import set_up_style_import
 from .html import PlainString
 from .media import AnkiMediaInstaller
 from .serialization import JSONObjectSerializer
@@ -181,15 +187,37 @@ def highlight(
 ) -> None:
     """
     Highlights the selected or copied code snippet with a user configured
-    highlighter.
+    highlighter and sets up necessary style imports (todo).
     """
     transform_selection(
         highlight=lambda code: highlight_selection(
             code, highlighter_config_factory, block_style, clipboard=clipboard
         ),
         editor=editor,
-        onError=on_error,
+        on_error=on_error,
+        on_done=lambda: set_up_field_styles(editor, on_error),
     )
+
+
+def set_up_field_styles(
+    editor: EditorInterface, on_error: Callable[[str], Any]
+) -> None:
+    assets = css_files()
+
+    def on_get(html_or_exception):
+        if isinstance(html_or_exception, SelectionException):
+            on_error(f"Failed to get field content: {str(html_or_exception)}")
+            return None
+
+        new_html = set_up_style_import(html_or_exception, assets, GUARD)
+
+        def on_set(result_or_exception):
+            if isinstance(result_or_exception, SelectionException):
+                on_error(f"Failed to set field styles: {str(result_or_exception)}")
+
+        editor.set_note_field(new_html, on_set)
+
+    editor.get_note_field(on_get)
 
 
 def highlight_selection(

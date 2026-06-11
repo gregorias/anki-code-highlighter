@@ -407,7 +407,8 @@ class AnkiEditorInterface(EditorInterface):
 def transform_selection(
     highlight: Callable[[PlainString], Optional[bs4.Tag]],
     editor: EditorInterface,
-    onError: Callable[[str], typing.Any],
+    on_error: Callable[[str], typing.Any],
+    on_done: Optional[Callable[[], None]] = None,
 ) -> None:
     """Transforms selected text using the highlighting function.
 
@@ -415,8 +416,10 @@ def transform_selection(
         highlight: The highlighting function that receives code snippets and
             returns HTML with highlighting information.
         editor: The editor interface.
-        onError: The callback function that is called if an unrecoverable error
+        on_error: The callback function that is called if an unrecoverable error
             has occurred. Provides an error message.
+        on_done: The callback function called after the transformation is complete
+            and successful.
 
     Returns:
         None.
@@ -428,7 +431,7 @@ def transform_selection(
 
         if isinstance(selection_return, SelectionException):
             if isinstance(selection_return, NoSelectionException):
-                onError(
+                on_error(
                     "Failed to find a code selection to highlight."
                     + " You need to select a code snippet or at least a "
                     + "field before triggerring the highlight action."
@@ -436,7 +439,7 @@ def transform_selection(
             elif isinstance(selection_return, PartialSelectionException):
                 # Make sure this error message is clear
                 # (https://github.com/gregorias/anki-code-highlighter/issues/60)
-                onError(
+                on_error(
                     "The selection splits an HTML node, which prevents the "
                     + "highlighting plugin from proceeding.\n"
                     + "Make sure that you select entire HTML elements, e.g., "
@@ -447,14 +450,14 @@ def transform_selection(
                     + " before highlighting."
                 )
             elif isinstance(selection_return, UnknownSelectionException):
-                onError(
+                on_error(
                     "An unknown transformation error has occurred "
                     + f"({selection_return.message}). "
                     + " Report it to the developer at "
                     + "https://github.com/gregorias/anki-code-highlighter/issues/new."
                 )
             else:
-                onError(
+                on_error(
                     "An unknown transformation error has occurred "
                     + f"({str(selection_return)}). "
                     + " Report it to the developer at "
@@ -465,10 +468,15 @@ def transform_selection(
         highlighted_selection = highlight_selection(
             selection_return.text, highlighter=highlight
         )
+
+        def handle_done(_):
+            if on_done:
+                on_done()
+
         if highlighted_selection:
             editor.unwrap_selection(
                 ReplaceWrapSelection(contents=HtmlString(repr(highlighted_selection))),
-                lambda _: None,
+                handle_done,
             )
         else:
             # Highlighting failed.

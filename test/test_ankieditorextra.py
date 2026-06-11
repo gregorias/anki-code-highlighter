@@ -21,6 +21,7 @@ class MockEditorInterface(EditorInterface):
 
     def unwrap_selection(self, action, cb):
         self.unwrap_action = action
+        cb(None)
 
     def get_note_field(self, cb):
         cb(self.note_field_html)
@@ -44,3 +45,59 @@ class TransformSelectionTestCase(unittest.TestCase):
 
         self.assertIsNone(err_msg)
         self.assertEqual(UnwrapSelection(), editor.unwrap_action)
+
+    def test_calls_on_done_on_success(self):
+        import bs4
+
+        editor = MockEditorInterface(SelectedText("123"))
+        on_done_called = False
+
+        def on_done():
+            nonlocal on_done_called
+            on_done_called = True
+
+        tag = bs4.BeautifulSoup("<code>123</code>", "html.parser").code
+        transform_selection(
+            highlight=lambda text: tag,
+            editor=editor,
+            on_error=lambda msg: None,
+            on_done=on_done,
+        )
+
+        self.assertTrue(on_done_called)
+
+    def test_calls_on_done_on_failed_highlight(self):
+        editor = MockEditorInterface(SelectedText("123"))
+        on_done_called = False
+
+        def on_done():
+            nonlocal on_done_called
+            on_done_called = True
+
+        transform_selection(
+            highlight=lambda text: None,
+            editor=editor,
+            on_error=lambda msg: None,
+            on_done=on_done,
+        )
+
+        self.assertFalse(on_done_called)
+
+    def test_calls_on_done_on_error(self):
+        from codehighlighter.ankieditorextra import NoSelectionException
+
+        editor = MockEditorInterface(NoSelectionException())
+        on_done_called = False
+
+        def on_done():
+            nonlocal on_done_called
+            on_done_called = True
+
+        transform_selection(
+            highlight=lambda text: None,
+            editor=editor,
+            on_error=lambda msg: None,
+            on_done=on_done,
+        )
+
+        self.assertFalse(on_done_called)
