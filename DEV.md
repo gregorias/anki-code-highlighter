@@ -261,6 +261,11 @@ tags.
 This is not much of a benefit in practice.
 I’ve never relied on it much.
 
+### No async/await
+
+We don’t use Python coroutines, because
+`aqt.editor.EditorWebView.evalWithCallback` is not compatible with them.
+
 [Black]: https://black.readthedocs.io/en/stable/
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
