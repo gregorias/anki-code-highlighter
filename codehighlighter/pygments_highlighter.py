@@ -222,8 +222,10 @@ def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.T
     assert isinstance(highlighted, str)
     highlighted = remove_spurious_inline_spanw(highlighted)
 
+    # Comment-in the lexer in case we ever want to migrate in the future.
+    comment = f"<!-- gch-lang: {language} -->"
     if style.display_style == "inline":
-        highlighted = '<code class="gch-pygments">' + highlighted + "</code>"
+        highlighted = f'<code class="gch-pygments">{comment}' + highlighted + "</code>"
         highlighted = remove_spurious_inline_newline(highlighted)
     elif style.display_style == "block":
         highlighted = highlighted.strip()
@@ -235,7 +237,7 @@ def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.T
         style_attr = f' style="{style.block_style}"' if style.block_style else ""
         highlighted = (
             f'<div class="gch-pygments"{style_attr}>\n'
-            + f"  <pre><code>{highlighted}</code></pre>\n"
+            + f"  <pre><code>{comment}{highlighted}</code></pre>\n"
             + "</div>\n"
         )
     return create_soup(HtmlString(highlighted))

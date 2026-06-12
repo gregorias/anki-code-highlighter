@@ -50,7 +50,9 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
 
         self.assertEqual(
             result,
-            '<code class="gch-pygments">' + '<span class="go">true</span>' + "</code>",
+            '<code class="gch-pygments"><!-- gch-lang: doesnotexist -->'
+            + '<span class="go">true</span>'
+            + "</code>",
         )
 
     def test_highlights_inline_code_to_one_line(self):
@@ -63,7 +65,9 @@ class HighlighterPygmentsTestCase(unittest.TestCase):
 
         self.assertEqual(
             result,
-            '<code class="gch-pygments">' + '<span class="nb">true</span>' + "</code>",
+            '<code class="gch-pygments"><!-- gch-lang: C++ -->'
+            + '<span class="nb">true</span>'
+            + "</code>",
         )
 
     def test_highlights_block_python_code(self):

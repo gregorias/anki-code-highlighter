@@ -29,7 +29,7 @@ class PygmentsHighlighterTestCase(unittest.TestCase):
         )
         self.assertEqual(
             result,
-            '<code class="gch-pygments">'
+            '<code class="gch-pygments"><!-- gch-lang: ARM -->'
             + '<span class="nf">mov</span>'
             + '<span class="w"> </span><span class="no">r1</span><span class="p">,</span><span class="w"> </span><span class="no">r0</span>'
             + "</code>",
