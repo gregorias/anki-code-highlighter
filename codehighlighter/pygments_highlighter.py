@@ -140,41 +140,74 @@ SUPPORTED_LEXERS: list[LexerName] = [
 
 
 class HtmlStyle(NamedTuple):
-    """The style options for Pygments blocks."""
+    """The style options for Pygments blocks.
+
+    Attributes:
+        display_style: Either "inline" or "block".
+        block_style: Additional CSS styling applied to the block container.
+    """
 
     display_style: str
     block_style: Optional[str]
 
 
 def create_inline_style() -> HtmlStyle:
-    """Creates the inline style options for Pygments code element."""
+    """Creates the inline style options for Pygments code element.
+
+    Returns:
+        HtmlStyle: The inline style.
+    """
     return HtmlStyle("inline", block_style=None)
 
 
 def create_block_style(
     block_style="display:flex; justify-content:center;",
 ) -> HtmlStyle:
-    """Creates the block style options for Pygments code element."""
+    """Creates the block style options for Pygments code element.
+
+    Args:
+        block_style: The CSS style applied to the block container.
+
+    Returns:
+        HtmlStyle: The block style.
+    """
     return HtmlStyle("block", block_style=block_style)
 
 
 def remove_spurious_inline_newline(html: str) -> str:
+    """Removes a spurious newline character at the end of an inline code block.
+
+    Args:
+        html: The HTML string.
+
+    Returns:
+        str: The cleaned HTML string.
+    """
     return re.sub("</span>\n</code>$", "</span></code>", html)
 
 
 def remove_spurious_inline_spanw(html: str) -> str:
-    """Removes the spurious <span class="w"></span> that Pygments inserts."""
+    """Removes the spurious <span class="w"></span> that Pygments inserts.
+
+    Args:
+        html: The HTML string.
+
+    Returns:
+        str: The cleaned HTML string.
+    """
     return re.sub('<span class="w"></span>', "", html)
 
 
 def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.Tag:
-    """
-    Highlights the code snippet with Pygments.
+    """Highlights the code snippet with Pygments.
 
-    :param code: A code snippet without HTML markup.
-    :param language: A language.
-    :param style: The style options to use.
-    :return: A BeautifulSoup tag representing the highlighted code.
+    Args:
+        code: A code snippet without HTML markup.
+        language: A language.
+        style: The style options to use.
+
+    Returns:
+        bs4.Tag: A BeautifulSoup tag representing the highlighted code.
     """
     lexer = get_lexer_by_name(language)
     if lexer is None:
@@ -210,7 +243,11 @@ def highlight(code: PlainString, language: LexerName, style: HtmlStyle) -> bs4.T
 
 @functools.cache
 def get_lexer_name_alias_map() -> dict[LexerName, LexerAlias]:
-    """Returns a map from a lexer name to its lexer alias."""
+    """Returns a map from a lexer name to its lexer alias.
+
+    Returns:
+        dict[LexerName, LexerAlias]: A dictionary mapping lexer names to their aliases.
+    """
     # We need to check if `t[1]` has an element, because not all lexer tuples
     # have this.
     # Deprecated lexers have an empty alias list.
@@ -223,10 +260,15 @@ def get_lexer_name_alias_map() -> dict[LexerName, LexerAlias]:
 def get_lexer_by_name(name: LexerName) -> Optional[pygments.lexer.Lexer]:
     """Returns a lexer by its name.
 
-    pygments.lexers.get_lexer_by_name actually accepts an alias. This function
+    Pygments' get_lexer_by_name actually accepts an alias. This function
     corrects this conceptual mismatch.
-    """
 
+    Args:
+        name: The name of the lexer.
+
+    Returns:
+        Optional[pygments.lexer.Lexer]: The matching Pygments Lexer, or None if not found.
+    """
     name_alias_map = get_lexer_name_alias_map()
     # Treat the name itself as an alias if it is not in the map.
     # This is done to facilitate user manually entering strings like "python"
@@ -242,6 +284,11 @@ def get_lexer_by_name(name: LexerName) -> Optional[pygments.lexer.Lexer]:
 
 @functools.cache
 def get_plaintext_lexer() -> pygments.lexer.Lexer:
+    """Returns the fallback plaintext lexer.
+
+    Returns:
+        pygments.lexer.Lexer: The fallback plaintext lexer.
+    """
     # This should never return None. There’s a unit-test validating this.
     return get_lexer_by_name("output")  # type: ignore
 
@@ -251,5 +298,8 @@ def get_available_languages() -> Iterable[LexerName]:
     """Returns a list of all available languages.
 
     The languages are in human-readable form, e.g. "C++", not "cpp".
+
+    Returns:
+        Iterable[LexerName]: An iterable of available language names.
     """
     return SUPPORTED_LEXERS
