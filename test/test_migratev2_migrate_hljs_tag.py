@@ -44,8 +44,8 @@ class TestMigrateHljsTag(unittest.TestCase):
         )
 
         expected = soupify_str(
-            '<div class="pygments" style="display:flex; justify-content:center;">\n'
-            + '<pre><code class="nohighlight"><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">():</span>\n'
+            '<div class="gch-pygments" style="display:flex; justify-content:center;">\n'
+            + '<pre><code><!-- gch-lang: Python --><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">():</span>\n'
             + '  <span class="k">pass</span>\n'
             + "</code></pre>\n"
             + "</div>\n"

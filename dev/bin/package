@@ -13,6 +13,7 @@ zip "${TARGET_PATH}" -j \
 TARGET_PATH=$(readlink -f ${TARGET_PATH})
 pushd codehighlighter
 zip -r "${TARGET_PATH}" icons/*.png
+zip -r "${TARGET_PATH}" v2
 popd
 zip -r "${TARGET_PATH}" \
   assets

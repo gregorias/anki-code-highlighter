@@ -11,7 +11,7 @@ import bs4
 
 import pygments  # type: ignore
 import pygments.formatters  # type: ignore
-import pygments.lexer
+import pygments.lexer  # type: ignore
 import pygments.lexers  # type: ignore
 
 from .bs4extra import create_soup

@@ -46,8 +46,8 @@ class TestMigrateHljsField(unittest.TestCase):
         )
 
         expected = soupify_str(
-            '<div class="pygments" style="display:flex; justify-content:center;">\n'
-            + '<pre><code class="nohighlight"><span class="n">a</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Pair</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>\n'
+            '<div class="gch-pygments" style="display:flex; justify-content:center;">\n'
+            + '<pre><code><!-- gch-lang: Kotlin --><span class="n">a</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Pair</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>\n'
             + "</code></pre>\n"
             + "</div>\n"
             + '<div style="text-align: center;">An infix operator that creates a pair.</div>'
@@ -70,13 +70,13 @@ class TestMigrateHljsField(unittest.TestCase):
         )
 
         expected = soupify_str(
-            '<div class="pygments" style="display:flex; justify-content:center;">\n'
-            + '<pre><code class="nohighlight"><span class="n">a</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Pair</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>\n'
+            '<div class="gch-pygments" style="display:flex; justify-content:center;">\n'
+            + '<pre><code><!-- gch-lang: Kotlin --><span class="n">a</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Pair</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>\n'
             + "</code></pre>\n"
             + "</div>\n"
             + '<div style="text-align: center;">An infix operator that creates a pair.</div>'
-            '<div class="pygments" style="display:flex; justify-content:center;">\n'
-            + '<pre><code class="nohighlight"><span class="n">a</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Pair</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>\n'
+            '<div class="gch-pygments" style="display:flex; justify-content:center;">\n'
+            + '<pre><code><!-- gch-lang: Kotlin --><span class="n">a</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Pair</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>\n'
             + "</code></pre>\n"
             + "</div>\n"
         )

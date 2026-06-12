@@ -42,3 +42,17 @@ class MigrateField(unittest.TestCase):
 
         # Assertions
         self.assertEqual(len(result_no_hljs), 0)
+
+    def test_migrate_field_html(self):
+        from codehighlighter.migratev2 import migrate_field_html
+
+        html = '<pre style="display:flex; justify-content:center;"><code class="language-python">def f():\n  pass</code></pre>'
+        result = migrate_field_html(html)
+        self.assertIn(
+            "<!-- Greg's Code Highlighter (Add-on 1527277801) BEGIN -->", result
+        )
+        self.assertIn(
+            '<style>\n  @import "_gch-pygments-solarized.css";\n</style>', result
+        )
+        self.assertIn('<div class="gch-pygments"', result)
+        self.assertIn("<!-- gch-lang: Python -->", result)

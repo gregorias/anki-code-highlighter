@@ -4,8 +4,16 @@
 # Modified sligthly to provide consistent documentation and fix typos.
 """The Pygments lexer for ARM."""
 
-from pygments.lexer import RegexLexer, include
-from pygments.token import Comment, Name, Number, Punctuation, String, Text, Whitespace
+from pygments.lexer import RegexLexer, include  # type: ignore
+from pygments.token import (  # type: ignore
+    Comment,
+    Name,
+    Number,
+    Punctuation,
+    String,
+    Text,
+    Whitespace,
+)
 
 __all__ = ["ArmLexer"]
 

@@ -359,8 +359,8 @@ def setup_menu() -> None:
 
     def migrate() -> None:
         result = showInfo(
-            "<p class='text-left'>This will reformat your notes from Highlight.js to Pygments.</p>"
-            + "<p class='text-left'>Back up your collection just in case.</p>",
+            "<p class='text-left'>This will reformat your notes' code blocks to the new v2 Pygments format.</p>"
+            + "<p class='text-left'>Back up your collection just in case and verify migration’s accuracy after running.</p>",
             customBtns=[
                 QMessageBox.StandardButton.Cancel,
                 QMessageBox.StandardButton.Ok,
@@ -383,7 +383,7 @@ def setup_menu() -> None:
     a = aqt.qt.QAction("Delete Code Highlighter Assets", main_window)
     a.triggered.connect(delete)
     main_window.form.menuTools.addAction(a)
-    a = aqt.qt.QAction("Migrate Highlight.js to Pygments", main_window)
+    a = aqt.qt.QAction("Migrate Code to v2 Pygments", main_window)
     a.triggered.connect(migrate)
     main_window.form.menuTools.addAction(a)
 
