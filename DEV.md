@@ -224,6 +224,10 @@ This plugin saves its assets directly in the global `assets` directory.
 Loading files from Internet has the disadvantage of making my Anki solving
 experience depend on Internet, which I don't think is reasonable on mobile.
 
+### No inline styles
+
+The add-on uses classes, not inline styles, to support day and night modes.
+
 ### Card template instrumentation
 
 This add-on does not instrument or modify note type templates.
@@ -233,14 +237,19 @@ It used to do so, but it turned out to have significant drawbacks:
   snippets.
 - Some users found it too invasive that their templates were modified in the
   background.
-- Templates had no impact on the WYSYWIG editor. Users were confused by
-  unstyled code snippets.
+- Templates had no impact on the WYSYWIG editor.
+  Users were confused by unstyled code snippets.
 
-Work to add styles directly into the field is in progress.
+### Card field instrumentation
 
-### No inline styles
+This add-on adds necessary style imports directly to field through a
+style-element.
+This enables WYSYWIG, which was a requested feature.
 
-The add-on uses classes, not inline styles, to support day and night modes.
+This decision has a connascence issue:
+if we ever change the name of the CSS file, we need to update every note, but
+that seems unavoidable given other constraints.
+This flaw at least doesn’t impact UX.
 
 ### Dropping Highlight.js
 
