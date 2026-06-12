@@ -102,6 +102,8 @@ I generated the style there with `just generate-pygments-css`.
 
 ## Release & distribution
 
+1. Cut off a version in `CHANGELOG.md` by moving the content of "Unreleased" to
+   "TBR — \<date\>" (for example, `TBR — 2026-06-12`).
 1. Bump the version and release the commit & tag:
    `just bump`.
 1. Create `codehighlighter.ankiaddon` and a GitHub release:

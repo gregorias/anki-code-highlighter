@@ -74,29 +74,6 @@ def get_config(key: str) -> Optional[str]:
     return config_snapshot.get(key)
 
 
-def css_files() -> List[str]:
-    """
-    A list of configured css files to use for styling.
-
-    :rtype List[str]
-    """
-    config_css_files = get_config("css-files") or DEFAULT_CSS_ASSETS
-    print(repr(config_css_files))
-
-    if not (
-        isinstance(config_css_files, list)
-        and all([isinstance(e, str) for e in config_css_files])
-    ):
-        showWarning(
-            "The configured css-files for the code highlighter plugin "
-            + f"should be a list of CSS files but got {repr(config_css_files)}.\n"
-            + "Fix the plugin's configuration."
-        )
-        return DEFAULT_CSS_ASSETS
-
-    return config_css_files
-
-
 def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collection):
     return AnkiAssetManager(
         AnkiMediaInstaller(ASSET_PREFIX, get_addon_assets(ASSET_PREFIX), col.media),
@@ -202,7 +179,7 @@ def highlight(
 def set_up_field_styles(
     editor: EditorInterface, on_error: Callable[[str], Any]
 ) -> None:
-    assets = css_files()
+    assets = DEFAULT_CSS_ASSETS
 
     def on_get(html_or_exception):
         if isinstance(html_or_exception, SelectionException):
@@ -313,12 +290,12 @@ def setup_menu() -> None:
         #    profile load
         #    (https://github.com/gregorias/anki-code-highlighter/issues/22).
         # 2. create_anki_asset_manager requires a profile to be loaded.
-        anki_asset_manager = create_anki_asset_manager(css_files(), col)
+        anki_asset_manager = create_anki_asset_manager(DEFAULT_CSS_ASSETS, col)
         anki_asset_manager.delete_assets()
         anki_asset_manager.install_assets()
 
     def delete() -> None:
-        anki_asset_manager = create_anki_asset_manager(css_files(), col)
+        anki_asset_manager = create_anki_asset_manager(DEFAULT_CSS_ASSETS, col)
         anki_asset_manager.delete_assets()
 
     a = aqt.qt.QAction("Refresh Greg’s Code Highlighter Assets", main_window)  # type: ignore
@@ -342,7 +319,7 @@ def load_mw_and_sync():
         )
         return None
 
-    anki_asset_manager = create_anki_asset_manager(css_files(), main_window.col)
+    anki_asset_manager = create_anki_asset_manager(DEFAULT_CSS_ASSETS, main_window.col)
     sync_assets(
         partial(has_newer_version, main_window.col.media, VERSION_ASSET),
         anki_asset_manager,

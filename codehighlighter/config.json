@@ -1,6 +1,5 @@
 {
   "block-style": "display:flex; justify-content:center;",
-  "css-files": ["_gch-pygments-solarized.css"],
   "shortcut": "ctrl+o",
   "dev-mode": false
 }

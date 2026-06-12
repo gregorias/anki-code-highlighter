@@ -28,3 +28,7 @@ filename = "codehighlighter/manifest.json"
 
 [[tool.bumpversion.files]]
 filename = "pyproject.toml"
+
+[[tool.bumpversion.files]]
+filename = "CHANGELOG.md"
+search = "TBR"

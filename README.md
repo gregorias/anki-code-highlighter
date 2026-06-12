@@ -64,8 +64,6 @@ The plugin accepts the following configuration options:
   "display:flex; justify-content:center;") — The CSS style applied to the outer
   most container of a block code snippet.
   The default centers the block.
-- `css-files` (default lives in `codehighlighter/main.py`) — the list of CSS
-  styles to use.
 - `shortcut` (e.g. `ctrl+o`) — this sets the shortcut that triggers this plugin.
 - `dev-mode` (default:
   `false`) — Enables developer mode, which exposes the assets management options
@@ -99,49 +97,6 @@ You need to run some manual steps if you want to fully delete the add-on.
 4. [Delete the add-on.][add-on-client-guide]
 
 This manual step is necessary until Anki adds [add-on lifecycle hooks][2].
-
-## Custom Styles
-
-This plugin supports a modified Solarized style out of the box (its day and
-night variants) provided by a CSS stylesheets:
-`assets/_gch-pygments-solarized.css`.
-
-You may install your own style but defining and configuring custom stylesheets.
-
-### Adding a custom style
-
-To add a custom style, do the following:
-
-1. Create your new CSS stylesheet.
-   See subsections below for generation tips for each highlighter.
-1. Rename the CSS stylesheet file to start with `_`.
-   This is necessary to prevent garbage collection from Anki when you save it in
-   the media directory.
-   Let's say you named it `_gch-my-style.css`.
-1. Save the CSS stylesheet file into
-   [your Anki profile's media directory](https://docs.ankiweb.net/files.html).
-   If you have already installed this plugin, the media directory should contain
-   this plugin's assets, e.g., `_gch-pygments-solarized.css`.
-1. Open this plugin's configuration in Anki and change the value of
-   [`css-files`](#configuration) to use your new stylesheet, e.g.,:
-
-   ```json
-   {
-     "css-files": ["_gch-my-style.css", "_gch-pygments-solarized.css"]
-   }
-   ```
-
-   In the example above, we keep the default styles for Pygments.
-
-### Generating a stylesheet for pygments
-
-1. Modify `XXX_STYLE` variables in `tools/generatepygmentscss.py` to use your
-   desired style for each mode.
-1. To generate a ready to use stylesheet, run `python -m
-   tools.generatepygmentscss`.
-   You may need to install a few dependencies for that script to run
-   (`pygments`, `webcolors`).
-   Import errors will guide you.
 
 [0]: https://github.com/gregorias/anki-code-highlighter/issues/29#issuecomment-1367298126
 [1]: https://github.com/gregorias/anki-code-highlighter/issues/72#issuecomment-1830404297
