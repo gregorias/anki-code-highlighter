@@ -283,6 +283,12 @@ def on_editor_buttons_init(buttons: List, editor: aqt.editor.Editor) -> None:
 
 
 def setup_menu() -> None:
+    # Manipulating assets should not be a part of a normal flow.
+    # Let’s leave it out of the supported surface.
+    dev_mode = get_config("dev-mode") or False
+    if not dev_mode:
+        return
+
     main_window = mw
 
     if not main_window or not main_window.col:

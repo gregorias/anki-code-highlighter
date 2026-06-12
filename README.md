@@ -67,6 +67,9 @@ The plugin accepts the following configuration options:
 - `css-files` (default lives in `codehighlighter/main.py`) — the list of CSS
   styles to use.
 - `shortcut` (e.g. `ctrl+o`) — this sets the shortcut that triggers this plugin.
+- `dev-mode` (default:
+  `false`) — Enables developer mode, which exposes the assets management options
+  (Refresh/Delete assets) under the Tools menu.
 
 ### Known limitations
 
@@ -79,13 +82,22 @@ This plugin can not highlight a selection that partially selects an HTML
 element.
 To work around this, [see these instructions][1].
 
-## Refresh & Removal
+## 🗑️ Uninstalling
 
-This plugin installs its own CSS files into Anki's media folder.
-You need to run some manual steps if you want to delete the plugin
+This add-on installs its own CSS files into Anki’s media folder.
+You need to run some manual steps if you want to fully delete the add-on.
 
-To remove the plugin, run `Extras/Tools > Delete Greg's Code Highlighter Assets`
-before deleting the plugin using Anki's internal add-on system.
+> [!WARNING]
+> Removing the CSS stylesheet file will remove highlighting from all notes
+> that use that stylesheet.
+> If you want to delete the add-on but keep already highlighted cards, then
+> skip the file removal steps (1, 2, and 3).
+
+1. Open the add-on’s config, and add or set `"dev-mode"` to `true`.
+2. Restart Anki.
+3. Run `Extras/Tools > Delete Greg’s Code Highlighter Assets`.
+4. [Delete the add-on.][add-on-client-guide]
+
 This manual step is necessary until Anki adds [add-on lifecycle hooks][2].
 
 ## Custom Styles
@@ -121,8 +133,6 @@ To add a custom style, do the following:
 
    In the example above, we keep the default styles for Pygments.
 
-1. [Refresh this plugin's assets.](#refresh--removal)
-
 ### Generating a stylesheet for pygments
 
 1. Modify `XXX_STYLE` variables in `tools/generatepygmentscss.py` to use your
@@ -136,3 +146,4 @@ To add a custom style, do the following:
 [0]: https://github.com/gregorias/anki-code-highlighter/issues/29#issuecomment-1367298126
 [1]: https://github.com/gregorias/anki-code-highlighter/issues/72#issuecomment-1830404297
 [2]: https://forums.ankiweb.net/t/install-update-delete-addon-hook-points/18532
+[add-on-client-guide]: https://docs.ankiweb.net/addons.html
