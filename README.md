@@ -15,7 +15,7 @@ An Anki plugin that adds syntax highlighting to code snippets.
 ### Fetching from AnkiWeb
 
 The recommended way to install this plugin is directly from
-[AnkiWeb](https://ankiweb.net/shared/info/112228974) using Anki's add-on
+[AnkiWeb](https://ankiweb.net/shared/info/1527277801) using Anki's add-on
 management.
 
 ### Fetching from source

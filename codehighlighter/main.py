@@ -55,7 +55,7 @@ DEFAULT_CSS_ASSETS = [
     "_gch-pygments-solarized.css",
 ]
 VERSION_ASSET = "_gch-asset-version.txt"
-GUARD = "Greg's Code Highlighter (Add-on To Be Released)"
+GUARD = "Greg's Code Highlighter (Add-on 1527277801)"
 CLASS_NAME = "gregs-code-highlighter"
 
 Config = Dict[str, str]
