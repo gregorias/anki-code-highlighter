@@ -125,6 +125,7 @@ graph LR
       ankieditorextra
       assets
       dialog
+      field
       media
     end
 
@@ -154,6 +155,7 @@ graph LR
     main --> dialog
     main --> pygments_highlighter
     main --> media
+    main --> field
     main --> clipboard
     main --> serialization
     main --> anki-lib
