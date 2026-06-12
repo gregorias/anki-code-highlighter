@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog][kac], and this project adheres to
 
 ### Added
 
+- A fuzzy finder for language selection.
+
 ### Changed
 
 ### Deprecated

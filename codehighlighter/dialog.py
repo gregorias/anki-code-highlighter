@@ -19,6 +19,7 @@ from typing import List, Optional, Tuple, Union
 from aqt.qt import QInputDialog
 
 from . import pygments_highlighter
+from .fuzzy_finder_dialog import FuzzyFinderDialog
 from .listextra import index_or
 from .serialization import JSONObjectConverter
 
@@ -118,7 +119,7 @@ def ask_for_language(
     current: Optional[str],
 ) -> Optional[str]:
     """
-    Shows a dialog asking for a programming language.
+    Shows a dialog asking for a programming language with a fuzzy finder.
     """
     enter_lang = "Language"
     provide_lang_long = "Select the snippet’s language (e.g., C++)"
@@ -126,7 +127,9 @@ def ask_for_language(
     if current not in languages:
         current = None
 
-    return showChoiceDialog(parent, enter_lang, provide_lang_long, languages, current)
+    return FuzzyFinderDialog.ask(
+        parent, enter_lang, provide_lang_long, languages, current
+    )
 
 
 @enum.unique

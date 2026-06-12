@@ -127,6 +127,7 @@ graph LR
       ankieditorextra
       assets
       dialog
+      fuzzy_finder_dialog
       field
       media
     end
@@ -171,8 +172,10 @@ graph LR
     assets --> osextra
     assets --> serialization
 
+    dialog --> fuzzy_finder_dialog
     dialog --> pygments_highlighter
     dialog --> serialization
+    fuzzy_finder_dialog --> aqt-lib
 
     media --> osextra
   end
