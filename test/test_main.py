@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from codehighlighter.ankieditorextra import (
     SelectedText,
@@ -21,7 +22,7 @@ class HighlightTestCase(unittest.TestCase):
             err_msg = msg
 
         highlight(
-            highlighter_config_factory=lambda: PygmentsConfig(
+            highlighter_config_factory=lambda preselected: PygmentsConfig(
                 display_style=DISPLAY_STYLE.INLINE, language="python"
             ),
             block_style="",
@@ -44,7 +45,7 @@ class HighlightSelectionTestCase(unittest.TestCase):
     def test_highlights_pygments_python_code(self):
         result = highlight_selection(
             code="return 123",
-            highlighter_config_factory=lambda: PygmentsConfig(
+            highlighter_config_factory=lambda preselected: PygmentsConfig(
                 display_style=DISPLAY_STYLE.INLINE, language="python"
             ),
             block_style="display:flex; justify-content:center;",
@@ -61,7 +62,7 @@ class HighlightSelectionTestCase(unittest.TestCase):
     def test_quits_on_no_config(self):
         result = highlight_selection(
             code="return 123",
-            highlighter_config_factory=lambda: None,
+            highlighter_config_factory=lambda preselected: None,
             block_style="display:flex; justify-content:center;",
             clipboard=EmptyClipboard(),
         )
@@ -71,7 +72,7 @@ class HighlightSelectionTestCase(unittest.TestCase):
     def test_uses_clipboard_on_empty_selection(self):
         result = highlight_selection(
             code="",
-            highlighter_config_factory=lambda: PygmentsConfig(
+            highlighter_config_factory=lambda preselected: PygmentsConfig(
                 display_style=DISPLAY_STYLE.INLINE, language="python"
             ),
             block_style="",
@@ -84,3 +85,63 @@ class HighlightSelectionTestCase(unittest.TestCase):
             + "</code>",
             str(result),
         )
+
+    @patch("codehighlighter.main.get_config")
+    def test_auto_detect_display_style_disabled(self, mock_get_config):
+        mock_get_config.side_effect = lambda key, default: (
+            False if key == "auto-detect-display-style" else None
+        )
+        recorded_preselected = None
+
+        def factory(preselected):
+            nonlocal recorded_preselected
+            recorded_preselected = preselected
+            return PygmentsConfig(display_style=DISPLAY_STYLE.INLINE, language="python")
+
+        highlight_selection(
+            code="line 1\nline 2",
+            highlighter_config_factory=factory,
+            block_style="",
+            clipboard=EmptyClipboard(),
+        )
+        self.assertIsNone(recorded_preselected.display_style)
+
+    @patch("codehighlighter.main.get_config")
+    def test_auto_detect_display_style_enabled_single_line(self, mock_get_config):
+        mock_get_config.side_effect = lambda key, default: (
+            True if key == "auto-detect-display-style" else None
+        )
+        recorded_preselected = None
+
+        def factory(preselected):
+            nonlocal recorded_preselected
+            recorded_preselected = preselected
+            return PygmentsConfig(display_style=DISPLAY_STYLE.INLINE, language="python")
+
+        highlight_selection(
+            code="single line",
+            highlighter_config_factory=factory,
+            block_style="",
+            clipboard=EmptyClipboard(),
+        )
+        self.assertIsNone(recorded_preselected.display_style)
+
+    @patch("codehighlighter.main.get_config")
+    def test_auto_detect_display_style_enabled_multi_line(self, mock_get_config):
+        mock_get_config.side_effect = lambda key, default: (
+            True if key == "auto-detect-display-style" else None
+        )
+        recorded_preselected = None
+
+        def factory(preselected):
+            nonlocal recorded_preselected
+            recorded_preselected = preselected
+            return PygmentsConfig(display_style=DISPLAY_STYLE.INLINE, language="python")
+
+        highlight_selection(
+            code="line 1\nline 2",
+            highlighter_config_factory=factory,
+            block_style="",
+            clipboard=EmptyClipboard(),
+        )
+        self.assertEqual(recorded_preselected.display_style, DISPLAY_STYLE.BLOCK)

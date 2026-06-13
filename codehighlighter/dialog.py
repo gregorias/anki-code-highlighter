@@ -151,6 +151,31 @@ class PygmentsConfig:
     display_style: DISPLAY_STYLE
     language: str
 
+    def update(
+        self, other: Union["PartialPygmentsConfig", "PygmentsConfig"]
+    ) -> "PygmentsConfig":
+        return PygmentsConfig(
+            display_style=other.display_style or self.display_style,
+            language=other.language or self.language,
+        )
+
+
+@dataclass(frozen=True)
+class PartialPygmentsConfig:
+    display_style: DISPLAY_STYLE | None
+    language: str | None
+
+    def update(self, other: "PartialPygmentsConfig") -> "PartialPygmentsConfig":
+        return PartialPygmentsConfig(
+            display_style=other.display_style or self.display_style,
+            language=other.language or self.language,
+        )
+
+    def validate(self) -> Optional[PygmentsConfig]:
+        if self.display_style is None or self.language is None:
+            return None
+        return PygmentsConfig(self.display_style, self.language)
+
 
 class PygmentsConfigJSONConverter(JSONObjectConverter[PygmentsConfig]):
 
@@ -176,29 +201,38 @@ class PygmentsConfigJSONConverter(JSONObjectConverter[PygmentsConfig]):
 
 
 def ask_for_pygments_config(
-    parent, current: PygmentsConfig
-) -> Optional[PygmentsConfig]:
+    parent,
+    preselected: PartialPygmentsConfig,
+    defaults: PygmentsConfig,
+) -> Optional[PartialPygmentsConfig]:
     """Shows a wizard that configures Pygments.
 
     Args:
         parent: The parent widget.
-        current: The default configuration.
+        preselected: The preselected configuration. The wizard will only ask for
+          the other options.
+        defaults: The default configuration.
 
     Returns:
         The selected Pygments configuration, or None if cancelled.
     """
-    display_style = ask_for_display_style(parent, current.display_style)
-    if display_style is None:
-        return None
+    selected = PartialPygmentsConfig(display_style=None, language=None)
+    if preselected.display_style is None:
+        display_style = ask_for_display_style(parent, defaults.display_style)
+        if display_style is None:
+            return None
+        selected = dataclasses.replace(selected, display_style=display_style)
 
-    available_languages = list(pygments_highlighter.get_available_languages())
-    language = ask_for_language(
-        parent=parent, languages=available_languages, current=current.language
-    )
-    if not language:
-        return None
+    if preselected.language is None:
+        available_languages = list(pygments_highlighter.get_available_languages())
+        language = ask_for_language(
+            parent=parent, languages=available_languages, current=defaults.language
+        )
+        if not language:
+            return None
+        selected = dataclasses.replace(selected, language=language)
 
-    return PygmentsConfig(display_style, language)
+    return selected
 
 
 @dataclass
@@ -240,6 +274,7 @@ HighlighterConfig = PygmentsConfig
 
 def ask_for_highlighter_config(
     parent,
+    preselected: PartialPygmentsConfig,
     state: HighlighterWizardState,
 ) -> Tuple[Optional[HighlighterConfig], HighlighterWizardState]:
     """Shows a wizard that configures a highlighter.
@@ -248,17 +283,29 @@ def ask_for_highlighter_config(
 
     Args:
         parent: The parent widget.
+        preselected: Preselected config options that the wizard should not ask for.
         state: The state of the wizard to use.
 
     Returns:
         A tuple containing the selected configuration (or None if cancelled)
         and the updated wizard state.
     """
-    pygments_config = ask_for_pygments_config(parent, state.pygments_config)
-    if pygments_config is not None:
-        return (
-            pygments_config,
-            dataclasses.replace(state, pygments_config=pygments_config),
-        )
+    selected_pygments_config = ask_for_pygments_config(
+        parent, preselected=preselected, defaults=state.pygments_config
+    )
+    if selected_pygments_config is None:
+        return (None, state)
 
-    return (None, state)
+    final_pygments_config: PygmentsConfig | None = selected_pygments_config.update(
+        preselected
+    ).validate()
+    if final_pygments_config is None:
+        return (None, state)
+
+    # The new state should only be update with what was selected.
+    new_state = state.pygments_config.update(selected_pygments_config)
+
+    return (
+        final_pygments_config,
+        dataclasses.replace(state, pygments_config=new_state),
+    )

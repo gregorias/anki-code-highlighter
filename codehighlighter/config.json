@@ -1,5 +1,6 @@
 {
   "block-style": "display:flex; justify-content:center;",
+  "auto-detect-display-style": true,
   "shortcut": "ctrl+o",
   "dev-mode": false
 }

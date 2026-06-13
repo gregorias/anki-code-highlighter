@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog][kac], and this project adheres to
 
 - A fuzzy finder for language selection.
 - Language comment to highlighted code for future migrations.
+- Display style auto-detect based on newline presence.
 
 ### Changed
 

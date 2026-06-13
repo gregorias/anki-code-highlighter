@@ -64,6 +64,9 @@ The plugin accepts the following configuration options:
   "display:flex; justify-content:center;") — The CSS style applied to the outer
   most container of a block code snippet.
   The default centers the block.
+- `auto-detect-display-style` (default:
+  `true`) — Whether the add-on should auto-detect if the code snippet should be
+  formatted as a block or inline.
 - `shortcut` (e.g. `ctrl+o`) — this sets the shortcut that triggers this plugin.
 - `dev-mode` (default:
   `false`) — Enables developer mode, which exposes the assets management options

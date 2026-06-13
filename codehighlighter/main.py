@@ -42,6 +42,7 @@ from .dialog import (
     HighlighterConfig,
     HighlighterWizardState,
     HighlighterWizardStateJSONConverter,
+    PartialPygmentsConfig,
     ask_for_highlighter_config,
 )
 from .field import set_up_style_import
@@ -58,7 +59,7 @@ VERSION_ASSET = "_gch-asset-version.txt"
 GUARD = "Greg's Code Highlighter (Add-on 1527277801)"
 CLASS_NAME = "gregs-code-highlighter"
 
-Config = Dict[str, str]
+Config = Dict[str, Any]
 
 
 def config() -> Optional[Config]:
@@ -67,11 +68,12 @@ def config() -> Optional[Config]:
     return aqt.mw.addonManager.getConfig(__name__)
 
 
-def get_config(key: str) -> Optional[str]:
+def get_config(key: str, default=None) -> Optional[Any]:
     config_snapshot = config()
     if not config_snapshot:
         return None
-    return config_snapshot.get(key)
+    value = config_snapshot.get(key)
+    return default if value is None else value
 
 
 def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collection):
@@ -91,7 +93,9 @@ def WizardStateManager(media):
     )
 
 
-def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
+def get_highlighter_config(
+    parent, media, preselected: PartialPygmentsConfig
+) -> Optional[HighlighterConfig]:
     """Gets the highlighter configuration from the user.
 
     - Shows the wizard to the user.
@@ -99,14 +103,16 @@ def get_highlighter_config(parent, media) -> Optional[HighlighterConfig]:
     - Respects configuration defaults.
 
     Args:
-        parent
+        parent: The parent widget.
+        media: The media manager.
+        preselected: The preselected configuration options.
 
     Returns:
         The highlighter configuration if the user accepted it, otherwise None.
     """
     with WizardStateManager(media) as wizard_state:
         highlighter_config, new_wizard_state = ask_for_highlighter_config(
-            parent, wizard_state.get()
+            parent, preselected=preselected, state=wizard_state.get()
         )
         wizard_state.put(new_wizard_state)
     return highlighter_config
@@ -146,7 +152,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
     editor_interface = AnkiEditorInterface(editor.web, str(random.randint(0, 10000)))
 
     highlight(
-        lambda: get_highlighter_config(parent, media_manager),
+        lambda preselected: get_highlighter_config(parent, media_manager, preselected),
         block_style,
         clipboard=get_qclipboard_or_empty(),
         editor=editor_interface,
@@ -156,7 +162,9 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
 
 # This is the side-effect free part of the highlight action.
 def highlight(
-    highlighter_config_factory: Callable[[], Optional[HighlighterConfig]],
+    highlighter_config_factory: Callable[
+        [PartialPygmentsConfig], Optional[HighlighterConfig]
+    ],
     block_style: str,
     clipboard: Clipboard,
     editor: EditorInterface,
@@ -197,15 +205,31 @@ def set_up_field_styles(
     editor.get_note_field(on_get)
 
 
+def _has_multiple_lines(code: str) -> bool:
+    """Checks if the code snippet contains multiple lines."""
+    return len(code.splitlines()) > 1
+
+
+def _determine_preselected_highlighter_config(
+    code: PlainString,
+) -> PartialPygmentsConfig:
+    """Determines the preselected configuration based on the code content."""
+    display_style = None
+    if get_config("auto-detect-display-style", default=True):
+        if _has_multiple_lines(code):
+            display_style = DISPLAY_STYLE.BLOCK
+    return PartialPygmentsConfig(display_style=display_style, language=None)
+
+
 def highlight_selection(
     code: PlainString,
-    highlighter_config_factory: Callable[[], Optional[HighlighterConfig]],
+    highlighter_config_factory: Callable[
+        [PartialPygmentsConfig], Optional[HighlighterConfig]
+    ],
     block_style: str,
     clipboard: Clipboard,
 ) -> Optional[bs4.Tag]:
-    """
-    Highlights the selected or copied code snippet with a user configured
-    highlighter.
+    """Highlights the selected or copied code snippet with a user configured highlighter.
 
     This is like `highlight` but with the code provided upfront without any
     selection transformation logic.
@@ -213,7 +237,9 @@ def highlight_selection(
     if len(code) == 0:
         code = PlainString(clipboard.text())
 
-    highlighter_config = highlighter_config_factory()
+    preselected_highlighter_config = _determine_preselected_highlighter_config(code)
+
+    highlighter_config = highlighter_config_factory(preselected_highlighter_config)
     if not highlighter_config:
         return None
 
