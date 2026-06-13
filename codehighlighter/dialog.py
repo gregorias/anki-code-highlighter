@@ -25,10 +25,7 @@ from .serialization import JSONObjectConverter
 
 __all__ = [
     "showChoiceDialog",
-    "HIGHLIGHT_METHOD",
-    "highlight_method_name_to_enum",
     "DISPLAY_STYLE",
-    "ask_for_highlight_method",
     "ask_for_display_style",
     "ask_for_language",
 ]
@@ -76,51 +73,6 @@ def showChoiceDialog(
         # at runtime.
         label, ok = QInputDialog.getItem(parent, title, message, options, current_idx)
     return (ok and label) or None
-
-
-@enum.unique
-class HIGHLIGHT_METHOD(Enum):
-    PYGMENTS = "pygments"
-
-
-class HighlightMethodJSONConverter(JSONObjectConverter[HIGHLIGHT_METHOD]):
-
-    def deconvert(self, json_object) -> Optional[HIGHLIGHT_METHOD]:
-        return highlight_method_name_to_enum(json_object)
-
-    def convert(self, t: HIGHLIGHT_METHOD):
-        return t.value
-
-
-def highlight_method_name_to_enum(name: str) -> Optional[HIGHLIGHT_METHOD]:
-    for m in list(HIGHLIGHT_METHOD):
-        if m.value == name:
-            return m
-    return None
-
-
-def ask_for_highlight_method(
-    parent, current: Optional[HIGHLIGHT_METHOD]
-) -> Optional[HIGHLIGHT_METHOD]:
-    """Shows a dialog asking for a highlighting method.
-
-    Args:
-        parent: The parent widget.
-        current: The currently selected highlight method.
-
-    Returns:
-        The selected highlight method, or None if cancelled.
-    """
-    method_value = showChoiceDialog(
-        parent,
-        "Highlighter",
-        "Select a highlighter",
-        options=[m.value for m in list(HIGHLIGHT_METHOD)],
-        current=None if current is None else current.value,
-    )
-    if method_value is None:
-        return None
-    return highlight_method_name_to_enum(method_value)
 
 
 def ask_for_language(
@@ -256,11 +208,9 @@ class HighlighterWizardState:
     It provides useful defaults to preselect.
 
     Attributes:
-        highlighter: The highlighting method.
         pygments_config: The Pygments configuration.
     """
 
-    highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.PYGMENTS
     pygments_config: PygmentsConfig = PygmentsConfig(
         display_style=DISPLAY_STYLE.BLOCK, language="C++"
     )
@@ -269,20 +219,17 @@ class HighlighterWizardState:
 class HighlighterWizardStateJSONConverter(JSONObjectConverter[HighlighterWizardState]):
 
     def __init__(self):
-        self.hm = HighlightMethodJSONConverter()
         self.pc = PygmentsConfigJSONConverter()
 
     def deconvert(self, json_object) -> Optional[HighlighterWizardState]:
-        hm = self.hm.deconvert(json_object["highlighter"])
         pc = self.pc.deconvert(json_object["pygments_config"])
-        if hm is None or pc is None:
+        if pc is None:
             return None
 
-        return HighlighterWizardState(hm, pc)
+        return HighlighterWizardState(pc)
 
     def convert(self, t: HighlighterWizardState):
         config_dict = dict()
-        config_dict["highlighter"] = self.hm.convert(t.highlighter)
         config_dict["pygments_config"] = self.pc.convert(t.pygments_config)
         return config_dict
 
@@ -307,16 +254,11 @@ def ask_for_highlighter_config(
         A tuple containing the selected configuration (or None if cancelled)
         and the updated wizard state.
     """
-    highlighter = HIGHLIGHT_METHOD.PYGMENTS
-
-    state = dataclasses.replace(state, highlighter=highlighter)
-
-    if highlighter == HIGHLIGHT_METHOD.PYGMENTS:
-        pygments_config = ask_for_pygments_config(parent, state.pygments_config)
-        if pygments_config is not None:
-            return (
-                pygments_config,
-                dataclasses.replace(state, pygments_config=pygments_config),
-            )
+    pygments_config = ask_for_pygments_config(parent, state.pygments_config)
+    if pygments_config is not None:
+        return (
+            pygments_config,
+            dataclasses.replace(state, pygments_config=pygments_config),
+        )
 
     return (None, state)

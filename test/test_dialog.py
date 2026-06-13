@@ -3,23 +3,12 @@ import unittest
 
 from codehighlighter.dialog import (
     DISPLAY_STYLE,
-    HIGHLIGHT_METHOD,
     DisplayStyleJSONConverter,
     HighlighterWizardState,
     HighlighterWizardStateJSONConverter,
-    HighlightMethodJSONConverter,
     PygmentsConfig,
     PygmentsConfigJSONConverter,
 )
-
-
-class HighlightMethodTestCase(unittest.TestCase):
-
-    def test_json_object_conversion(self):
-        converter = HighlightMethodJSONConverter()
-
-        self.assertEqual(converter.convert(HIGHLIGHT_METHOD.PYGMENTS), "pygments")
-        self.assertEqual(converter.deconvert("pygments"), HIGHLIGHT_METHOD.PYGMENTS)
 
 
 class DisplayStyleJSONConverterTestCase(unittest.TestCase):
@@ -61,16 +50,12 @@ class HighlighterWizardStateJSONConverterTestCase(unittest.TestCase):
         self.converter = HighlighterWizardStateJSONConverter()
 
     def test_keeps_config(self):
-        config = HighlighterWizardState(
-            HIGHLIGHT_METHOD.PYGMENTS, PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++")
-        )
+        config = HighlighterWizardState(PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++"))
         self.assertEqual(
             self.converter.deconvert(self.converter.convert(config)), config
         )
 
     def test_conversion_is_serializable(self):
-        config = HighlighterWizardState(
-            HIGHLIGHT_METHOD.PYGMENTS, PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++")
-        )
+        config = HighlighterWizardState(PygmentsConfig(DISPLAY_STYLE.BLOCK, "C++"))
         conversion = self.converter.convert(config)
         json.dumps(conversion)
