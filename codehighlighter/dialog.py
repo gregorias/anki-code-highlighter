@@ -37,16 +37,20 @@ __all__ = [
 def showChoiceDialog(
     parent, title: str, message: str, options: List[str], current: Union[str, int, None]
 ) -> Optional[str]:
-    """
-    Shows a choice selection dialog.
+    """Shows a choice selection dialog.
 
-    :param parent: A parent widget.
-    :param title str
-    :param message str
-    :param options List[str]: A list of available options.
-    :param current Optional[int]: The option or its index to preselect.
-    :rtype Optional[str]: Selected option if any.
-    :raises Exception
+    Args:
+        parent: A parent widget.
+        title: The dialog title.
+        message: The message to display.
+        options: A list of available options.
+        current: The option or its index to preselect.
+
+    Returns:
+        Selected option if any.
+
+    Raises:
+        Exception: If the default option or index is invalid or out of range.
     """
     if current is None:
         label, ok = QInputDialog.getItem(parent, title, message, options)
@@ -98,8 +102,14 @@ def highlight_method_name_to_enum(name: str) -> Optional[HIGHLIGHT_METHOD]:
 def ask_for_highlight_method(
     parent, current: Optional[HIGHLIGHT_METHOD]
 ) -> Optional[HIGHLIGHT_METHOD]:
-    """
-    Shows a dialog asking for a highlighting method.
+    """Shows a dialog asking for a highlighting method.
+
+    Args:
+        parent: The parent widget.
+        current: The currently selected highlight method.
+
+    Returns:
+        The selected highlight method, or None if cancelled.
     """
     method_value = showChoiceDialog(
         parent,
@@ -118,8 +128,15 @@ def ask_for_language(
     languages: List[str],
     current: Optional[str],
 ) -> Optional[str]:
-    """
-    Shows a dialog asking for a programming language with a fuzzy finder.
+    """Shows a dialog asking for a programming language with a fuzzy finder.
+
+    Args:
+        parent: The parent widget.
+        languages: A list of available programming languages.
+        current: The default language to preselect.
+
+    Returns:
+        The selected language, or None if cancelled.
     """
     enter_lang = "Language"
     provide_lang_long = "Select the snippet’s language (e.g., C++)"
@@ -153,8 +170,14 @@ class DisplayStyleJSONConverter(JSONObjectConverter[DISPLAY_STYLE]):
 
 
 def ask_for_display_style(parent, current: DISPLAY_STYLE) -> Optional[DISPLAY_STYLE]:
-    """
-    Shows a dialog asking for a display style.
+    """Shows a dialog asking for a display style.
+
+    Args:
+        parent: The parent widget.
+        current: The default display style.
+
+    Returns:
+        The selected display style, or None if cancelled.
     """
     display_style = showChoiceDialog(
         parent,
@@ -203,12 +226,14 @@ class PygmentsConfigJSONConverter(JSONObjectConverter[PygmentsConfig]):
 def ask_for_pygments_config(
     parent, current: PygmentsConfig
 ) -> Optional[PygmentsConfig]:
-    """
-    Shows a wizard that configures Pygments.
+    """Shows a wizard that configures Pygments.
 
-    :param parent
-    :param current PygmentsConfig: The default configuration.
-    :return Optional[PygmentsConfig]
+    Args:
+        parent: The parent widget.
+        current: The default configuration.
+
+    Returns:
+        The selected Pygments configuration, or None if cancelled.
     """
     display_style = ask_for_display_style(parent, current.display_style)
     if display_style is None:
@@ -226,10 +251,13 @@ def ask_for_pygments_config(
 
 @dataclass
 class HighlighterWizardState:
-    """
-    The state of the highlighter wizard.
+    """The state of the highlighter wizard.
 
     It provides useful defaults to preselect.
+
+    Attributes:
+        highlighter: The highlighting method.
+        pygments_config: The Pygments configuration.
     """
 
     highlighter: HIGHLIGHT_METHOD = HIGHLIGHT_METHOD.PYGMENTS
@@ -267,14 +295,17 @@ def ask_for_highlighter_config(
     parent,
     state: HighlighterWizardState,
 ) -> Tuple[Optional[HighlighterConfig], HighlighterWizardState]:
-    """
-    Shows a wizard that configures a highlighter.
+    """Shows a wizard that configures a highlighter.
 
     This wizard comes with a state. Users like to have sticky options.
 
-    :param parent
-    :param state HighlighterWizardState: The state of the wizard to use.
-    :return: The selected config and a new state.
+    Args:
+        parent: The parent widget.
+        state: The state of the wizard to use.
+
+    Returns:
+        A tuple containing the selected configuration (or None if cancelled)
+        and the updated wizard state.
     """
     highlighter = HIGHLIGHT_METHOD.PYGMENTS
 
