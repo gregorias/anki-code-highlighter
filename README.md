@@ -7,15 +7,17 @@ An Anki plugin that adds syntax highlighting to code snippets.
 
 ## Features
 
-- Uses a color scheme that works in day and night modes.
+- A color scheme that works in day and night modes.
 - Works on Anki for desktop and AnkiDroid.
+- WYSIWYG highlighting.
+- Block and inline highlighting
 
 ## Installation
 
 ### Fetching from AnkiWeb
 
 The recommended way to install this plugin is directly from
-[AnkiWeb](https://ankiweb.net/shared/info/1527277801) using Anki's add-on
+[AnkiWeb](https://ankiweb.net/shared/info/1527277801) using Anki’s add-on
 management.
 
 ### Fetching from source
@@ -33,15 +35,15 @@ already present in a card field.
 ### Highlighting from clipboard
 
 1. Put the cursor in the place you want to place your code.
-2. Press `CTRL+o` (on macOS, `⌘+o`) or click this add-on's button in the
-   editor's button bar.
+2. Press `⌃+o` (on macOS, `⌘+o`) or click this add-on’s button in the
+   editor’s button bar.
 
 ### Highlighting an already written code snippet
 
 1. Write a code snippet in a card editor.
 2. Select the code snippet.
-3. Press `CTRL+o` (on macOS, `⌘+o`) or click this add-on's button in the
-   editor's button bar.
+3. Press `⌃+o` (on macOS, `⌘+o`) or click this add-on’s button in the
+   editor’s button bar.
 
 The plugin works on untagged code blocks.
 Do not add your own HTML tags like `<code>` or `<pre><code>` to the snippet you
@@ -74,10 +76,10 @@ The plugin accepts the following configuration options:
 
 ### Known limitations
 
-#### Can't highlight split HTML nodes
+#### Can’t highlight split HTML nodes
 
-If you see "The selection splits an HTML node, which prevents the highlighting
-plugin from proceeding", you are partially selecting an HTML element.
+If you see “The selection splits an HTML node, which prevents the highlighting
+plugin from proceeding,” you are partially selecting an HTML element.
 
 This plugin can not highlight a selection that partially selects an HTML
 element.
