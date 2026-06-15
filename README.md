@@ -3,7 +3,7 @@
 An Anki plugin that adds syntax highlighting to code snippets.
 
 <!-- markdownlint-disable-next-line -->
-<p align="center"><img src="screenshots/animation-small.gif"/></p>
+<p align="center"><img src="screenshots/v2/animation.gif"/></p>
 
 ## Features
 
