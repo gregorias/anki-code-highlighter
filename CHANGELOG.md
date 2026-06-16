@@ -2,10 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog][kac], and this project adheres to
-[Semantic Versioning][semver].
+The format is based on [Keep a Changelog][kac], and this project adheres to
+[Semantic Versioning][semver].
 
 ## Unreleased
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## TBR — 2026-06-16
 
 ### Added
 

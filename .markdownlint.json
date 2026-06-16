@@ -1,9 +1,5 @@
 {
-  # MD013/line-length - Line length
-  "line-length": {
-    "strict": true,
-    "code_blocks": false,
-    # Tables can't be easily wrapped, so disable (https://stackoverflow.com/q/74319856/915552).
-     "tables": false,
-  },
+  "no-duplicate-heading": {
+    "siblings_only": true
+  }
 }
