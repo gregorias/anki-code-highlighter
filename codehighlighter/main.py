@@ -12,7 +12,7 @@ import aqt.editor
 import aqt.qt
 import bs4
 from aqt import gui_hooks, mw
-from aqt.qt import QApplication, QMessageBox
+from aqt.qt import QApplication, QMessageBox, Qt
 from aqt.utils import showInfo, showWarning
 
 sys.path.append(os.path.dirname(__file__))
@@ -406,6 +406,38 @@ def load_mw_and_sync():
         partial(has_newer_version, main_window.col.media, VERSION_ASSET),
         anki_asset_manager,
     )
+    show_deprecation_warning_if_needed(main_window)
+
+
+def show_deprecation_warning_if_needed(main_window: aqt.main.AnkiQt) -> None:
+    sentinel_path = Path(main_window.col.media.dir()) / "_ch-v2-migration-dismissed.txt"
+    if sentinel_path.exists():
+        return
+
+    mb = QMessageBox(main_window)
+    mb.setIcon(QMessageBox.Icon.Information)
+    mb.setWindowTitle("Anki Code Highlighter")
+    mb.setTextFormat(Qt.TextFormat.RichText)
+    mb.setText(
+        "<p>This version of the add-on is deprecated.</p>"
+        "<p>You can migrate to v2 with migration instructions at "
+        "<a href='https://ankiweb.net/shared/info/112228974'>https://ankiweb.net/shared/info/112228974</a>.</p>"
+    )
+    mb.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+
+    dont_show_btn = mb.addButton("Don’t show again", QMessageBox.ButtonRole.RejectRole)
+    remind_later_btn = mb.addButton(
+        "Remind me later", QMessageBox.ButtonRole.AcceptRole
+    )
+
+    mb.setDefaultButton(remind_later_btn)
+    mb.exec()
+
+    if mb.clickedButton() == dont_show_btn:
+        try:
+            sentinel_path.write_text("dismissed", encoding="utf-8")
+        except Exception:
+            pass
 
 
 def main():
