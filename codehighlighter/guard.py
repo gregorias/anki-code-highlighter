@@ -22,19 +22,6 @@ def guard_comments(guard: str, comment_markup: Tuple[str, str]) -> Guards:
     )
 
 
-def guard_css_comments(guard: str) -> Guards:
-    """
-    Creates CSS comments bracketing import statements.
-
-    Args:
-        guard: A guard string used for CSS comments wrapping the imports.
-
-    Returns:
-        The comment brackets.
-    """
-    return guard_comments(guard, ("/*", "*/"))
-
-
 def guard_html_comments(guard: str) -> Guards:
     """
     Creates HTML comments bracketing import statements.
