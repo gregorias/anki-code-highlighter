@@ -5,7 +5,7 @@ import random
 import sys
 from functools import partial
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 import aqt
 import aqt.editor
@@ -22,7 +22,7 @@ import anki.collection
 import anki.media
 import anki.notes
 
-from . import pygments_highlighter
+from . import config, pygments_highlighter
 from .ankieditorextra import (
     AnkiEditorInterface,
     EditorInterface,
@@ -58,22 +58,6 @@ DEFAULT_CSS_ASSETS = [
 VERSION_ASSET = "_gch-asset-version.txt"
 GUARD = "Greg's Code Highlighter (Add-on 1527277801)"
 CLASS_NAME = "gregs-code-highlighter"
-
-Config = Dict[str, Any]
-
-
-def config() -> Optional[Config]:
-    if not aqt.mw:
-        return None
-    return aqt.mw.addonManager.getConfig(__name__)
-
-
-def get_config(key: str, default=None) -> Optional[Any]:
-    config_snapshot = config()
-    if not config_snapshot:
-        return None
-    value = config_snapshot.get(key)
-    return default if value is None else value
 
 
 def create_anki_asset_manager(css_assets: List[str], col: anki.collection.Collection):
@@ -147,7 +131,7 @@ def highlight_action(editor: aqt.editor.Editor) -> None:
         return None
     media_manager: anki.media.MediaManager = mw.col.media
 
-    block_style = get_config("block-style") or "display:flex; justify-content:center;"
+    block_style = config.get("block-style") or "display:flex; justify-content:center;"
 
     editor_interface = AnkiEditorInterface(editor.web, str(random.randint(0, 10000)))
 
@@ -176,7 +160,13 @@ def highlight(
     """
     transform_selection(
         highlight=lambda code: highlight_selection(
-            code, highlighter_config_factory, block_style, clipboard=clipboard
+            code,
+            highlighter_config_factory,
+            block_style,
+            clipboard=clipboard,
+            auto_detect_display_style=config.get(
+                "auto-detect-display-style", default=True
+            ),
         ),
         editor=editor,
         on_error=on_error,
@@ -212,10 +202,11 @@ def _has_multiple_lines(code: str) -> bool:
 
 def _determine_preselected_highlighter_config(
     code: PlainString,
+    auto_detect_display_style: bool = True,
 ) -> PartialPygmentsConfig:
     """Determines the preselected configuration based on the code content."""
     display_style = None
-    if get_config("auto-detect-display-style", default=True):
+    if auto_detect_display_style:
         if _has_multiple_lines(code):
             display_style = DISPLAY_STYLE.BLOCK
     return PartialPygmentsConfig(display_style=display_style, language=None)
@@ -228,6 +219,7 @@ def highlight_selection(
     ],
     block_style: str,
     clipboard: Clipboard,
+    auto_detect_display_style: bool = True,
 ) -> Optional[bs4.Tag]:
     """Highlights the selected or copied code snippet with a user configured highlighter.
 
@@ -237,7 +229,10 @@ def highlight_selection(
     if len(code) == 0:
         code = PlainString(clipboard.text())
 
-    preselected_highlighter_config = _determine_preselected_highlighter_config(code)
+    preselected_highlighter_config = _determine_preselected_highlighter_config(
+        code,
+        auto_detect_display_style=auto_detect_display_style,
+    )
 
     highlighter_config = highlighter_config_factory(preselected_highlighter_config)
     if not highlighter_config:
@@ -261,7 +256,7 @@ def get_shortcut() -> str:
 
     :rtype str: The keyboard shortcut, e.g., "ctrl+o".
     """
-    return get_config("shortcut") or "ctrl+o"
+    return config.get("shortcut") or "ctrl+o"
 
 
 def on_editor_shortcuts_init(
@@ -288,7 +283,7 @@ def on_editor_buttons_init(buttons: List, editor: aqt.editor.Editor) -> None:
 def setup_menu() -> None:
     # Manipulating assets should not be a part of a normal flow.
     # Let’s leave it out of the supported surface.
-    dev_mode = get_config("dev-mode") or False
+    dev_mode = config.get("dev-mode") or False
     if not dev_mode:
         return
 

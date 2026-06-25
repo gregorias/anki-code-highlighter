@@ -8,11 +8,16 @@ from codehighlighter.clipboard import EmptyClipboard, StubClipboard
 from codehighlighter.dialog import DISPLAY_STYLE, PygmentsConfig
 from codehighlighter.main import highlight, highlight_selection
 
+from .in_memory_config import InMemoryConfig
 from .test_ankieditorextra import MockEditorInterface
 
 
 class HighlightTestCase(unittest.TestCase):
 
+    @patch(
+        "codehighlighter.main.config",
+        new=InMemoryConfig({"auto-detect-display-style": True}),
+    )
     def test_highlights_pygments_python_code(self):
         editor = MockEditorInterface(SelectedText("123"))
         err_msg = None
@@ -86,11 +91,11 @@ class HighlightSelectionTestCase(unittest.TestCase):
             str(result),
         )
 
-    @patch("codehighlighter.main.get_config")
-    def test_auto_detect_display_style_disabled(self, mock_get_config):
-        mock_get_config.side_effect = lambda key, default: (
-            False if key == "auto-detect-display-style" else None
-        )
+    @patch(
+        "codehighlighter.main.config",
+        new=InMemoryConfig({"auto-detect-display-style": False}),
+    )
+    def test_auto_detect_display_style_disabled(self):
         recorded_preselected = None
 
         def factory(preselected):
@@ -103,14 +108,15 @@ class HighlightSelectionTestCase(unittest.TestCase):
             highlighter_config_factory=factory,
             block_style="",
             clipboard=EmptyClipboard(),
+            auto_detect_display_style=False,
         )
         self.assertIsNone(recorded_preselected.display_style)
 
-    @patch("codehighlighter.main.get_config")
-    def test_auto_detect_display_style_enabled_single_line(self, mock_get_config):
-        mock_get_config.side_effect = lambda key, default: (
-            True if key == "auto-detect-display-style" else None
-        )
+    @patch(
+        "codehighlighter.main.config",
+        new=InMemoryConfig({"auto-detect-display-style": True}),
+    )
+    def test_auto_detect_display_style_enabled_single_line(self):
         recorded_preselected = None
 
         def factory(preselected):
@@ -123,14 +129,15 @@ class HighlightSelectionTestCase(unittest.TestCase):
             highlighter_config_factory=factory,
             block_style="",
             clipboard=EmptyClipboard(),
+            auto_detect_display_style=True,
         )
         self.assertIsNone(recorded_preselected.display_style)
 
-    @patch("codehighlighter.main.get_config")
-    def test_auto_detect_display_style_enabled_multi_line(self, mock_get_config):
-        mock_get_config.side_effect = lambda key, default: (
-            True if key == "auto-detect-display-style" else None
-        )
+    @patch(
+        "codehighlighter.main.config",
+        new=InMemoryConfig({"auto-detect-display-style": True}),
+    )
+    def test_auto_detect_display_style_enabled_multi_line(self):
         recorded_preselected = None
 
         def factory(preselected):
@@ -143,5 +150,6 @@ class HighlightSelectionTestCase(unittest.TestCase):
             highlighter_config_factory=factory,
             block_style="",
             clipboard=EmptyClipboard(),
+            auto_detect_display_style=True,
         )
         self.assertEqual(recorded_preselected.display_style, DISPLAY_STYLE.BLOCK)
