@@ -103,7 +103,7 @@ I generated the style there with `just generate-pygments-css`.
 ## Release & distribution
 
 1. Cut off a version in `CHANGELOG.md` by moving the content of "Unreleased" to
-   "TBR — \<date\>" (for example, `TBR — 2026-06-12`).
+   "TBR —\<date\>" (for example, `TBR — 2026-06-12`).
 1. Bump the version and release the commit & tag:
    `just bump`.
 1. Create `codehighlighter.ankiaddon` and a GitHub release:
@@ -258,6 +258,12 @@ if we ever change the name of the CSS file, we need to update every note, but
 that seems unavoidable given other constraints.
 This flaw at least doesn’t impact UX.
 
+### Support for custom styles
+
+I provide minimal support for customizing styles, because it is a requested
+feature.[^108] I keep it minimal, because I do not want to pay for it more than
+I need to.
+
 ### Dropping Highlight.js
 
 I decided to drop Highlight.js, because it caused significant problems:
@@ -290,3 +296,5 @@ We don’t use Python coroutines, because
 [Ruff]: https://github.com/astral-sh/ruff
 [Uv]: https://docs.astral.sh/uv/
 [anki-media-ignore]: https://anki.tenderapp.com/discussions/ankidesktop/39510-anki-is-completely-ignoring-media-files-starting-with-underscores-when-cleaning-up
+
+[^108]: [#108](https://github.com/gregorias/anki-code-highlighter/issues/108)

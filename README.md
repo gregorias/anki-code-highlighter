@@ -70,9 +70,28 @@ The plugin accepts the following configuration options:
   `true`) — Whether the add-on should auto-detect if the code snippet should be
   formatted as a block or inline.
 - `shortcut` (e.g. `ctrl+o`) — this sets the shortcut that triggers this plugin.
+- `auto-update-media` (default:
+  `true`) — Whether the plugin updates the CSS stylesheet.
 - `dev-mode` (default:
   `false`) — Enables developer mode, which exposes the assets management options
   (Refresh/Delete assets) under the Tools menu.
+
+### Custom styles
+
+You can use other styles than the provided Solarized style.
+This section explains how.
+
+> [!WARNING]
+> Customized styling option is supported as-is. I do not provide special
+> support for creating the stylesheet file nor guarantee forward compatibility.
+
+1. Set `auto-update-media` to `false`.
+2. In [your Anki profile's media directory](https://docs.ankiweb.net/files.html)
+   replace `_gch-pygments-solarized.css` with your stylesheet.
+
+> [!TIP]
+> Check out `tools/generatepygmentscss.py` for how I generate the stylesheet
+> for Solarized. You can reuse it for your own stylesheet.
 
 ### Known limitations
 

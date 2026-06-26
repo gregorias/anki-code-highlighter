@@ -327,7 +327,15 @@ def setup_menu() -> None:
     main_window.form.menuTools.addAction(a)
 
 
-def load_mw_and_sync():
+def sync_assets_hook():
+    """Syncs assets (the CSS stylesheet) unless configured otherwise.
+
+    This function must run once the profile is loaded.
+    Otherwise, we don't know which assets need updating.
+    """
+    if not config.get("auto-update-media", True):
+        return None
+
     main_window = mw
     if not main_window or not main_window.col:
         # For some reason the main window is not initialized yet. Let's print
@@ -348,7 +356,7 @@ def load_mw_and_sync():
 
 
 def main():
-    gui_hooks.profile_did_open.append(load_mw_and_sync)
+    gui_hooks.profile_did_open.append(sync_assets_hook)
     gui_hooks.main_window_did_init.append(setup_menu)
     gui_hooks.editor_did_init_shortcuts.append(on_editor_shortcuts_init)
     gui_hooks.editor_did_init_buttons.append(on_editor_buttons_init)

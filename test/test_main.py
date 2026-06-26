@@ -1,12 +1,17 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from codehighlighter.ankieditorextra import (
     SelectedText,
 )
 from codehighlighter.clipboard import EmptyClipboard, StubClipboard
 from codehighlighter.dialog import DISPLAY_STYLE, PygmentsConfig
-from codehighlighter.main import highlight, highlight_selection
+from codehighlighter.main import (
+    DEFAULT_CSS_ASSETS,
+    highlight,
+    highlight_selection,
+    sync_assets_hook,
+)
 
 from .in_memory_config import InMemoryConfig
 from .test_ankieditorextra import MockEditorInterface
@@ -153,3 +158,81 @@ class HighlightSelectionTestCase(unittest.TestCase):
             auto_detect_display_style=True,
         )
         self.assertEqual(recorded_preselected.display_style, DISPLAY_STYLE.BLOCK)
+
+
+class SyncAssetsHookTestCase(unittest.TestCase):
+
+    @patch("codehighlighter.main.mw", None)
+    @patch("codehighlighter.main.showWarning")
+    @patch("codehighlighter.main.create_anki_asset_manager")
+    @patch("codehighlighter.main.config", new=InMemoryConfig())
+    def test_mw_is_none_shows_warning_and_does_not_run(
+        self, mock_create_manager, mock_show_warning
+    ):
+        fake_manager = MagicMock()
+        mock_create_manager.return_value = fake_manager
+
+        sync_assets_hook()
+
+        mock_show_warning.assert_called_once()
+        mock_create_manager.assert_not_called()
+        fake_manager.install_assets.assert_not_called()
+
+    @patch("codehighlighter.main.mw")
+    @patch("codehighlighter.main.showWarning")
+    @patch("codehighlighter.main.create_anki_asset_manager")
+    @patch("codehighlighter.main.config", new=InMemoryConfig())
+    def test_mw_col_is_none_shows_warning_and_does_not_run(
+        self, mock_create_manager, mock_show_warning, mock_mw
+    ):
+        mock_mw.col = None
+        fake_manager = MagicMock()
+        mock_create_manager.return_value = fake_manager
+
+        sync_assets_hook()
+
+        mock_show_warning.assert_called_once()
+        mock_create_manager.assert_not_called()
+        fake_manager.install_assets.assert_not_called()
+
+    @patch("codehighlighter.main.mw")
+    @patch("codehighlighter.main.showWarning")
+    @patch("codehighlighter.main.create_anki_asset_manager")
+    @patch("codehighlighter.main.has_newer_version")
+    @patch("codehighlighter.main.config", new=InMemoryConfig())
+    def test_deps_are_present_has_newer_version_runs_sync(
+        self, mock_has_newer_version, mock_create_manager, mock_show_warning, mock_mw
+    ):
+        mock_mw.col = MagicMock()
+        mock_has_newer_version.return_value = True
+        fake_manager = MagicMock()
+        mock_create_manager.return_value = fake_manager
+
+        sync_assets_hook()
+
+        mock_show_warning.assert_not_called()
+        mock_create_manager.assert_called_once_with(DEFAULT_CSS_ASSETS, mock_mw.col)
+        fake_manager.delete_assets.assert_called_once()
+        fake_manager.install_assets.assert_called_once()
+
+    @patch("codehighlighter.main.mw")
+    @patch("codehighlighter.main.showWarning")
+    @patch("codehighlighter.main.create_anki_asset_manager")
+    @patch("codehighlighter.main.has_newer_version")
+    @patch(
+        "codehighlighter.main.config",
+        new=InMemoryConfig({"auto-update-media": False}),
+    )
+    def test_deps_are_present_has_newer_version_but_user_disabled_does_not_run(
+        self, mock_has_newer_version, mock_create_manager, mock_show_warning, mock_mw
+    ):
+        mock_mw.col = MagicMock()
+        mock_has_newer_version.return_value = True
+        fake_manager = MagicMock()
+        mock_create_manager.return_value = fake_manager
+
+        sync_assets_hook()
+
+        mock_show_warning.assert_not_called()
+        mock_create_manager.assert_not_called()
+        fake_manager.install_assets.assert_not_called()
