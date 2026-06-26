@@ -126,6 +126,7 @@ graph LR
     subgraph "Anki Integration"
       ankieditorextra
       assets
+      config
       dialog
       fuzzy_finder_dialog
       field
@@ -155,6 +156,7 @@ graph LR
 
     main --> ankieditorextra
     main --> assets
+    main --> config
     main --> dialog
     main --> pygments_highlighter
     main --> media
