@@ -9,6 +9,20 @@ The format is based on [Keep a Changelog][kac], and this project adheres to
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## TBR —\<date\>
+
+### Added
+
 - Instructions and a config option for custom stylesheets.
 
 ### Changed
