@@ -78,15 +78,13 @@ This package sets up a specific Python version to keep the dev environment in
 sync with what Anki uses.
 To update this Python version, you need to:
 
-1. If in a virtual environment, deactivate it and remove it (`rm -r .venv`).
-2. Update the Python spec in `.python-version`, `mypy.ini`, and
+1. Run `uv python pin 3.X.Y`.
+   This will update `.python-version` and the `requires-python` field in
    `pyproject.toml`.
+2. Run `uv sync --locked`.
+   This will update the local venv to the pinned version.
 3. Delete the Mypy cache:
    `rm -r .mypy_cache`.
-4. Install the new Python version with `pyenv install`.
-5. Install the new virtual environment with `uv venv --python 3.X.Y`.
-6. Install dependencies in the virtual environment:
-   `uv sync --locked`.
 
 ### Generating Pygment stylesheets
 
