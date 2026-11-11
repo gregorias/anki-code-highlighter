@@ -4,10 +4,11 @@ pre-commit:
     "check-asset-version.py":
       runner: python3
   commands:
-    black:
+    ruff-format:
       tags: style
       glob: "*.py"
-      run: black {staged_files} && git add {staged_files}
+      run: ruff format {staged_files}
+      stage_fixed: true
     check-module-names:
       glob: "*.py"
       run: ./dev/bin/check-module-names {staged_files}
