@@ -88,10 +88,9 @@ To update this Python version, you need to:
 1. Run `uv python pin 3.X.Y`.
    This will update `.python-version` and the `requires-python` field in
    `pyproject.toml`.
-2. If using pyenv, run `pyenv install`.
-3. Run `uv sync --locked`.
+2. Run `uv sync --locked`.
    This will update the local venv to the pinned version.
-4. Delete the Mypy cache:
+3. Delete the Mypy cache:
    `rm -r .mypy_cache`.
 
 ### Generating Pygment stylesheets
