@@ -8,7 +8,6 @@ This section describes how to setup your development environment.
 
 This project requires the following tools:
 
-- [Black]
 - [Commitlint]
 - [Lefthook]
 - [Just]
@@ -295,7 +294,6 @@ I’ve never relied on it much.
 We don’t use Python coroutines, because
 `aqt.editor.EditorWebView.evalWithCallback` is not compatible with them.
 
-[Black]: https://black.readthedocs.io/en/stable/
 [Commitlint]: https://github.com/conventional-changelog/commitlint
 [Lefthook]: https://github.com/evilmartians/lefthook
 [Just]: https://github.com/casey/just
