@@ -19,6 +19,12 @@ The format is based on [Keep a Changelog][kac], and this project adheres to
 
 ### Security
 
+## TBR — 2026-11-11
+
+### Added
+
+- Updated dependencies
+
 ## 26.06.1 — 2026-06-26
 
 ### Added

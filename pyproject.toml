@@ -15,15 +15,16 @@ classifiers = [
 ]
 dependencies = [
   # https://pypi.org/project/anki/
-  "anki==26.5",
+  "anki==26.9.4",
   # https://pypi.org/project/aqt/
-  "aqt==26.5",
+  "aqt==26.9.4",
   # Use the same version of PyQt6 as Anki:
   # https://github.com/ankitects/anki/blob/cfe007770a862dfd806488903a712007f3b3bf04/qt/pyproject.toml#L35-L41
+  # https://github.com/ankitects/anki/blob/main/qt/pyproject.toml
   "pyqt6==6.11.0",
-  "pyqt6-qt6==6.11.0",
+  "pyqt6-qt6==6.11.2",
   "PyQt6-WebEngine==6.11.0",
-  "PyQt6-WebEngine-qt6==6.11.0",
+  "PyQt6-WebEngine-qt6==6.11.2",
 ]
 
 [project.urls]
